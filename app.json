@@ -1,0 +1,31 @@
+{
+  "expo": {
+    "name": "Meu Advogado 2.0",
+    "slug": "meu-advogado-20",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "platforms": ["android"],
+    "scheme": "meuadvogado20",
+    "icon": "./assets/logo-blue.png",
+    "splash": {
+      "image": "./assets/logo-blue.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#071426"
+    },
+    "userInterfaceStyle": "dark",
+    "android": {
+      "package": "com.meuadvogado.app",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/logo-white.png",
+        "backgroundColor": "#071426"
+      },
+      "permissions": ["ACCESS_COARSE_LOCATION", "ACCESS_FINE_LOCATION"]
+    },
+    "extra": {
+      "apiBaseUrl": "http://10.0.2.2:3333",
+      "supabaseUrl": "https://qpemxkiowiiklztgumqy.supabase.co",
+      "supabaseAnonKey": "",
+      "enableDevLocationFallback": "false"
+    }
+  }
+}
