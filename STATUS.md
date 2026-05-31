@@ -55,6 +55,13 @@
 - Match real PostGIS ja implementado e validado e2e no backend contra Supabase com token de cliente real (`back/scripts/match-smoke.ts`: matched SP/civil 0km, empty, 401). Falta validar a perna de GPS fisica do app (localizacao real disparando o match via Expo Go).
 - Proximos ciclos devem ser iniciados pela raiz do projeto para carregar a governanca central `.codex/` e specs em `.codex/specs/`.
 
+## Validacao Em Device Fisico (APK EAS)
+
+- APK preview gerado via EAS Build (perfil `preview`, projeto `@advogado2.0/meu-advogado-20`), apontando para o backend de producao na Railway.
+- Instalado em device Android fisico: login real `usuario@advogado20.com` OK, 6 areas via backend, **permissao de localizacao concedida e GPS real** disparou `POST /v1/match`.
+- **Match real retornou a fixture DF (Dra. Carla Lima) via PostGIS** com base na localizacao real (device a <=200km de Brasilia). GPS real -> match real ponta-a-ponta, sem fallback dev.
+- Bug de UX corrigido: a tela mostrava copy antigo ("match fica para o proximo ciclo"); agora exibe cidade/distancia do advogado + botao "Falar no WhatsApp" (rebuild do APK pendente para refletir).
+
 ## Proximo Passo
 
-Match real com PostGIS ja validado e2e no backend/Supabase. Proximo: validar a localizacao real em device Android fisico (GPS disparando o match via Expo Go) antes do release interno (spec 003).
+Spec 003: perna de GPS fisico validada. Rebuildar o APK com a UX corrigida (distancia/cidade + WhatsApp) e seguir os demais gates de release (politica de privacidade, Data Safety, conta de teste Play Console, AAB de producao).
