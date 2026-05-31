@@ -1,3 +1,5 @@
+import Constants from "expo-constants";
+
 export type PublicConfig = {
   apiBaseUrl: string;
   supabaseUrl: string;
@@ -9,18 +11,33 @@ declare const process: {
   env: Record<string, string | undefined>;
 };
 
+type ExtraConfig = {
+  apiBaseUrl?: string;
+  supabaseUrl?: string;
+  supabaseAnonKey?: string;
+  enableDevLocationFallback?: string;
+};
+
 /**
- * IMPORTANTE: acessar `process.env.EXPO_PUBLIC_*` DIRETAMENTE (sem aliasar
- * `process.env` numa variavel e sem destructuring). So assim o Expo/Metro faz o
- * inline do valor no bundle em tempo de build. Qualquer indirecao
- * (ex.: `const e = process.env; e.EXPO_PUBLIC_X`) quebra o inline e o valor
- * chega VAZIO no APK de release.
+ * Fonte primaria: `expo-constants` (`expoConfig.extra`), gravado de forma
+ * DETERMINISTICA no manifesto durante o build (preenchido por app.config.ts a
+ * partir das envs EXPO_PUBLIC_* do perfil EAS). Fallback: `process.env`
+ * (inline do Metro em dev/Expo Go). Ler do manifesto evita a fragilidade do
+ * inline de `process.env.EXPO_PUBLIC_*`, que ja causou a anon key chegar vazia
+ * no APK de release.
  */
+const extra: ExtraConfig =
+  ((Constants.expoConfig?.extra ?? (Constants as { manifest2?: { extra?: { expoClient?: { extra?: ExtraConfig } } } }).manifest2?.extra?.expoClient?.extra) as ExtraConfig | undefined) ?? {};
+
+const DEFAULT_API_BASE_URL = "http://10.0.2.2:3333";
+const DEFAULT_SUPABASE_URL = "https://qpemxkiowiiklztgumqy.supabase.co";
+
 export const publicConfig: PublicConfig = {
-  apiBaseUrl: process.env.EXPO_PUBLIC_API_BASE_URL ?? "http://10.0.2.2:3333",
-  supabaseUrl: process.env.EXPO_PUBLIC_SUPABASE_URL ?? "https://qpemxkiowiiklztgumqy.supabase.co",
-  supabaseAnonKey: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY ?? "",
-  enableDevLocationFallback: process.env.EXPO_PUBLIC_ENABLE_DEV_LOCATION_FALLBACK === "true"
+  apiBaseUrl: extra.apiBaseUrl || process.env.EXPO_PUBLIC_API_BASE_URL || DEFAULT_API_BASE_URL,
+  supabaseUrl: extra.supabaseUrl || process.env.EXPO_PUBLIC_SUPABASE_URL || DEFAULT_SUPABASE_URL,
+  supabaseAnonKey: extra.supabaseAnonKey || process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || "",
+  enableDevLocationFallback:
+    (extra.enableDevLocationFallback ?? process.env.EXPO_PUBLIC_ENABLE_DEV_LOCATION_FALLBACK) === "true"
 };
 
 export function validatePublicConfig(config: PublicConfig = publicConfig) {
