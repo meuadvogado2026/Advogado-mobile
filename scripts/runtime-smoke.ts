@@ -28,6 +28,8 @@ const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
 const androidSdk = process.env.ANDROID_HOME ?? resolve(process.env.LOCALAPPDATA ?? "", "Android", "Sdk");
 const adbPath = resolve(androidSdk, "platform-tools", "adb.exe");
 const emulatorPath = resolve(androidSdk, "emulator", "emulator.exe");
+const publicProfileKeys = new Set(["id", "name", "oabNumber", "oabState", "city", "state", "areaIds", "areas", "whatsapp", "verified"]);
+const publicAreaKeys = new Set(["id", "name"]);
 
 function redact(value: string) {
   return value.length > 8 ? `${value.slice(0, 4)}...redacted` : "redacted";
@@ -114,28 +116,8 @@ async function main() {
     })
   );
 
-  steps.push(
-    await step("backend-match", "Validar POST /v1/match com payload valido.", async () => {
-      if (!firstAreaId) {
-        throw new Error("Sem area juridica para montar payload de match.");
-      }
-      const body = await requestJson<{ status?: string; lawyer?: unknown }>(`${apiBaseUrl}/v1/match`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          lat: -23.55052,
-          lng: -46.633308,
-          accuracyM: 50,
-          areaIds: [firstAreaId]
-        })
-      });
-      if (body.status !== "stub" && body.status !== "matched" && body.status !== "empty") {
-        throw new Error("Resposta de match sem status esperado.");
-      }
-      return `Match respondeu status=${body.status}; lawyer=${body.lawyer ? "presente" : "vazio"}.`;
-    })
-  );
-
+  let accessToken = "";
+  let matchedLawyerId = "";
   steps.push(
     await step("auth-runtime", "Validar login real se anon key publica estiver disponivel.", async () => {
       if (!supabaseAnonKey) {
@@ -159,7 +141,54 @@ async function main() {
       if (!body.access_token) {
         throw new Error("Login real nao retornou access token.");
       }
+      accessToken = body.access_token;
       return `Login real OK para ${body.user?.email ?? "usuario cliente"}; token=${redact(body.access_token)}.`;
+    })
+  );
+
+  steps.push(
+    await step("backend-match", "Validar POST /v1/match autenticado com payload valido.", async () => {
+      if (!firstAreaId) {
+        throw new Error("Sem area juridica para montar payload de match.");
+      }
+      const body = await requestJson<{ status?: string; lawyer?: { id?: string } }>(`${apiBaseUrl}/v1/match`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {})
+        },
+        body: JSON.stringify({
+          lat: -23.55052,
+          lng: -46.633308,
+          accuracyM: 50,
+          areaIds: [firstAreaId]
+        })
+      });
+      if (body.status !== "stub" && body.status !== "matched" && body.status !== "empty") {
+        throw new Error("Resposta de match sem status esperado.");
+      }
+      matchedLawyerId = body.lawyer?.id ?? "";
+      return `Match respondeu status=${body.status}; lawyer=${body.lawyer ? "presente" : "vazio"}.`;
+    })
+  );
+
+  steps.push(
+    await step("backend-lawyer-profile", "Validar GET /v1/lawyers/:id autenticado com allowlist publica.", async () => {
+      if (!matchedLawyerId) {
+        throw new Error("Match nao retornou lawyer.id para validar perfil profissional.");
+      }
+      const body = await requestJson<{ lawyer?: Record<string, unknown> & { areas?: Array<Record<string, unknown>>; verified?: boolean } }>(
+        `${apiBaseUrl}/v1/lawyers/${encodeURIComponent(matchedLawyerId)}`,
+        { headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {} }
+      );
+      const lawyer = body.lawyer;
+      const areas = Array.isArray(lawyer?.areas) ? lawyer.areas : [];
+      const unexpectedProfileKeys = lawyer ? Object.keys(lawyer).filter((key) => !publicProfileKeys.has(key)) : ["lawyer"];
+      const unexpectedAreaKeys = areas.flatMap((area) => Object.keys(area).filter((key) => !publicAreaKeys.has(key)));
+      if (!lawyer || lawyer.verified !== true || unexpectedProfileKeys.length > 0 || unexpectedAreaKeys.length > 0) {
+        throw new Error("Perfil profissional fora da allowlist publica segura.");
+      }
+      return `Perfil profissional respondeu verified=true; areas=${areas.length}; hasForbiddenField=false.`;
     })
   );
 
@@ -180,7 +209,7 @@ async function main() {
   const report: RuntimeReport = {
     environment: "mobile-runtime",
     cwd: mobileRoot,
-    objective: "Smoke proporcional do fluxo mobile real: Android tooling, backend local, areas, match e Auth quando anon key existir.",
+    objective: "Smoke proporcional do fluxo mobile real: Android tooling, Railway, areas, Auth, match e perfil profissional seguro.",
     exitCode,
     result: exitCode === 0 ? "OK_COM_RESSALVAS" : "FALHOU",
     gaps,

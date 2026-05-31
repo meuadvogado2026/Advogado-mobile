@@ -11,6 +11,8 @@ const requiredFiles = [
   "src/services/apiClient.ts",
   "src/services/areasService.ts",
   "src/services/matchService.ts",
+  "src/services/lawyerProfileService.ts",
+  "src/screens/LawyerProfileScreen.tsx",
   "src/services/locationService.ts",
   "src/services/sessionStorage.ts",
   "src/services/secureSessionStorage.ts"
@@ -24,10 +26,15 @@ if (missing.length > 0) {
 if (apiContracts.match !== "/v1/match") {
   throw new Error("Smoke mobile falhou. Contrato de match divergente.");
 }
+if (apiContracts.lawyerProfile !== "/v1/lawyers/:id") {
+  throw new Error("Smoke mobile falhou. Contrato de perfil divergente.");
+}
 
 const appConfig = readFileSync("app.config.ts", "utf8");
 const appJson = readFileSync("app.json", "utf8");
 const home = readFileSync("src/screens/HomeScreen.tsx", "utf8");
+const app = readFileSync("App.tsx", "utf8");
+const lawyerProfile = readFileSync("src/screens/LawyerProfileScreen.tsx", "utf8");
 const locationService = readFileSync("src/services/locationService.ts", "utf8");
 
 if (/SERVICE_ROLE|service_role/i.test(`${appConfig}\n${appJson}`)) {
@@ -46,4 +53,24 @@ if (
   throw new Error("Smoke mobile falhou. Fallback local de desenvolvimento nao esta explicitamente flagado.");
 }
 
-console.log("Smoke mobile OK: Expo entry, Auth, API backend, SecureStore, Location e match inicial existem.");
+if (
+  !app.includes("LawyerProfile") ||
+  !home.includes("Ver perfil") ||
+  !home.includes('navigate("LawyerProfile"') ||
+  !lawyerProfile.includes("Carregando perfil profissional.") ||
+  !lawyerProfile.includes("Este perfil nao esta disponivel no momento. Busque outro advogado.") ||
+  !lawyerProfile.includes("Este profissional ainda nao tem WhatsApp disponivel.") ||
+  !lawyerProfile.includes("Falar no WhatsApp")
+) {
+  throw new Error("Smoke mobile falhou. Fluxo Home -> LawyerProfile -> WhatsApp ou estados seguros ausentes.");
+}
+
+if (
+  !home.includes("/privacidade.html") ||
+  !home.includes("/termos.html") ||
+  !home.includes("/exclusao-de-dados.html")
+) {
+  throw new Error("Smoke mobile falhou. Links legais publicos nao estao acessiveis na Home.");
+}
+
+console.log("Smoke mobile OK: Expo entry, Auth, API backend, SecureStore, Location, Match, LawyerProfile e links legais existem.");

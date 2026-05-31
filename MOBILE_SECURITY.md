@@ -54,6 +54,8 @@ Solicitar somente em contexto, apos tela explicar:
 
 ## Estado Atual
 
-O mobile possui services de Auth, API, areas, match, localizacao e SecureStore. A anon key deve entrar por `EXPO_PUBLIC_SUPABASE_ANON_KEY`; ela e publica para Auth, mas nao deve ser confundida com service role. Logs/testes nao imprimem senha, JWT nem localizacao precisa.
+O mobile possui services de Auth, API, areas, match, perfil profissional, localizacao e SecureStore. A anon key deve entrar por `EXPO_PUBLIC_SUPABASE_ANON_KEY`; ela e publica para Auth, mas nao deve ser confundida com service role. Logs/testes nao imprimem senha, JWT, WhatsApp completo nem localizacao precisa.
+
+Politica, termos e canal de exclusao estao publicados em `https://meuadvogado2026.github.io/meu-advogado-legal/` e acessiveis dentro do app. O canal provisiorio para solicitacoes de dados e `meuadvogado2026@gmail.com`.
 
 Para smoke Android local, existe fallback dev de localizacao atras de `EXPO_PUBLIC_ENABLE_DEV_LOCATION_FALLBACK=true`. Ele fica desligado por padrao, nao deve ser usado em producao/release, nao bypassa permissao negada e so retorna coordenada fixa de teste apos permissao concedida e falha do provider do AVD/Expo Go.

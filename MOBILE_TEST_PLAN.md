@@ -78,3 +78,11 @@ O seletor `@PICK` foi usado e o time efetivo foi `@C10`, `@PR`, `@M`, `@GEO`, `@
 ## Resultado Da Permissao Negada Android
 
 Sem mudanca de codigo, o AVD `Pixel_9` foi bootado e o Expo Go abriu o app via `exp://127.0.0.1:8081`. A permissao de localizacao do Expo Go foi revogada/negada e o app manteve a explicacao em contexto antes da acao. Ao acionar `Usar localizacao`, a Home exibiu estado claro de localizacao negada e manteve `Buscar match` desabilitado sem coordenada. Evidencias: `harness-results/android-location-denied-visual-smoke.json`, `android-denied-ready.png`, `android-denied-location-prompt.png` e `android-denied-location-state.png`.
+
+## Resultado Do Rebuild Preview Da UX De Match
+
+Em 2026-05-31, `npm run harness` passou com exit code 0 (typecheck, 8 testes e smoke estrutural). O `smoke:runtime` foi corrigido para autenticar antes do `POST /v1/match` e passou contra Railway com exit code 0: health OK, 6 areas, login real com token redigido e match autenticado `matched`. O rebuild preview EAS terminou com sucesso (`4352f306-53b9-4989-8eed-02bd71518dd3`). Lacuna bloqueante: nenhum Android apareceu no ADB; instalacao e smoke fisico da UX corrigida ficaram em `QUESTIONAR`.
+
+## Resultado Da Spec 004 Mobile
+
+Em 2026-05-31, o TDD vermelho registrou `npm run test` exit code 1 por service ausente e `npm run smoke` exit code 1 por service/screen ausentes. Apos a implementacao de `Home -> LawyerProfile -> WhatsApp`, `npm run harness` passou com exit code 0: typecheck, 9 testes e smoke estrutural. `npm run smoke:runtime` contra Railway passou com exit code 0: 6 areas, Auth real com token redigido, match `matched` e perfil seguro `verified=true`, duas areas, `hasForbiddenField=false`. O smoke visual Android no AVD `Pixel_9` demonstrou login, Home com match, CTA `Ver perfil`, tela `LawyerProfile`, voltar e CTA `Falar no WhatsApp`; como WhatsApp nao esta instalado no AVD, o handler externo aberto foi o Chrome.

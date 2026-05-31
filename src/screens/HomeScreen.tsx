@@ -11,6 +11,8 @@ import {
   View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import type { NativeStackScreenProps } from "@react-navigation/native-stack";
+import type { RootStackParamList } from "../../App";
 import { appCopy } from "../config/contracts";
 import { createAuthService } from "../services/authService";
 import { createApiClient } from "../services/apiClient";
@@ -23,6 +25,11 @@ import { colors, spacing } from "../theme/tokens";
 
 type ViewStatus = "idle" | "loading" | "error";
 const logo = require("../../assets/logo-blue.png");
+const legalUrls = {
+  privacy: "https://meuadvogado2026.github.io/meu-advogado-legal/privacidade.html",
+  terms: "https://meuadvogado2026.github.io/meu-advogado-legal/termos.html",
+  deletion: "https://meuadvogado2026.github.io/meu-advogado-legal/exclusao-de-dados.html"
+};
 
 /** Descreve o resultado do match em linguagem util ao cliente. */
 function describeMatch(match: MatchResponse | null): string {
@@ -46,6 +53,22 @@ function openWhatsApp(rawNumber: string) {
   return Linking.openURL(`https://wa.me/${intl}`);
 }
 
+function LegalLinks() {
+  return (
+    <View style={styles.legalLinks}>
+      <Text style={styles.legalText} onPress={() => Linking.openURL(legalUrls.privacy)}>
+        Privacidade
+      </Text>
+      <Text style={styles.legalText} onPress={() => Linking.openURL(legalUrls.terms)}>
+        Termos
+      </Text>
+      <Text style={styles.legalText} onPress={() => Linking.openURL(legalUrls.deletion)}>
+        Excluir dados
+      </Text>
+    </View>
+  );
+}
+
 function getFriendlyError(error: unknown) {
   if (error instanceof Error) {
     if (error.message === "SUPABASE_AUTH_PUBLICO_AUSENTE") {
@@ -58,7 +81,9 @@ function getFriendlyError(error: unknown) {
   return "Nao foi possivel concluir a acao.";
 }
 
-export function HomeScreen() {
+type Props = NativeStackScreenProps<RootStackParamList, "Home">;
+
+export function HomeScreen({ navigation }: Props) {
   const [session, setSession] = useState<Session | null>(null);
   const [email, setEmail] = useState("usuario@advogado20.com");
   const [password, setPassword] = useState("");
@@ -263,6 +288,7 @@ export function HomeScreen() {
             {status === "loading" && <ActivityIndicator color={colors.gold} />}
             <Text style={styles.statusText}>{message}</Text>
           </View>
+          <LegalLinks />
         </ScrollView>
       </SafeAreaView>
     );
@@ -344,12 +370,27 @@ export function HomeScreen() {
               <Text style={styles.whatsButtonText}>Falar no WhatsApp</Text>
             </TouchableOpacity>
           ) : null}
+          {match?.lawyer ? (
+            <TouchableOpacity
+              style={styles.secondaryButton}
+              accessibilityRole="button"
+              onPress={() =>
+                navigation.navigate("LawyerProfile", {
+                  lawyerId: match.lawyer!.id,
+                  distanceKm: match.distanceKm
+                })
+              }
+            >
+              <Text style={styles.secondaryButtonText}>Ver perfil</Text>
+            </TouchableOpacity>
+          ) : null}
         </View>
 
         <View style={[styles.statusBox, status === "error" && styles.statusBoxError]}>
           {status === "loading" && <ActivityIndicator color={colors.gold} />}
           <Text style={styles.statusText}>{message}</Text>
         </View>
+        <LegalLinks />
       </ScrollView>
     </SafeAreaView>
   );
@@ -528,6 +569,18 @@ const styles = StyleSheet.create({
   },
   disabledButton: {
     opacity: 0.45
+  },
+  legalLinks: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: spacing.md,
+    justifyContent: "center",
+    paddingVertical: spacing.sm
+  },
+  legalText: {
+    color: colors.textMuted,
+    fontSize: 13,
+    textDecorationLine: "underline"
   },
   statusBox: {
     alignItems: "center",

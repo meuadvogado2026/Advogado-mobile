@@ -14,7 +14,7 @@
     },
     "userInterfaceStyle": "dark",
     "android": {
-      "package": "com.meuadvogado.app",
+      "package": "com.advogado20.app",
       "versionCode": 2,
       "adaptiveIcon": {
         "foregroundImage": "./assets/logo-white.png",

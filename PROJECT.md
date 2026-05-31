@@ -1,6 +1,6 @@
 # Mobile Project - Meu Advogado 2.0
 
-**Fase:** integracao inicial Auth/API/Location  
+**Fase:** produto MVP / spec 004 mobile implementada com smoke visual pendente
 **Plataforma inicial:** Android  
 **Plataforma futura:** iOS  
 **Stack alvo:** React Native + Expo + TypeScript
@@ -16,8 +16,7 @@ Construir o app nativo do cliente e do advogado para o Meu Advogado 2.0. O clien
 - Selecionar areas juridicas.
 - Chamar API para match do advogado mais proximo.
 - Exibir card e perfil do advogado.
-- Abrir WhatsApp com tracking via API.
-- Acionar plantao/urgencia com confirmacao.
+- Abrir WhatsApp externo quando o backend retornar numero valido.
 - Exibir dashboard do advogado, cartao VIP e beneficios.
 
 ## Fora De Escopo Do Mobile
@@ -43,13 +42,15 @@ Todo ciclo de implementacao deve seguir SDD, Harness CLI e smoke final.
 ## Scaffold Atual
 
 - Expo + React Native + TypeScript.
-- `App.tsx` com React Navigation nativo e rota `Home`.
+- `App.tsx` com React Navigation nativo e rotas `Home` e `LawyerProfile`.
 - `src/screens/HomeScreen.tsx` com login de cliente, areas via backend, contexto de localizacao e match inicial.
+- `src/screens/HomeScreen.tsx` com links publicos para politica, termos e exclusao de dados.
 - `src/theme/tokens.ts` com tokens do `DESIGN.md`.
 - `src/config/contracts.ts` com endpoints backend consumidos pelo app.
-- `app.json`/`app.config.ts` Android-first com package inicial `com.meuadvogado.app`, permissoes de localizacao declaradas e variaveis publicas `EXPO_PUBLIC_*`.
+- `app.json`/`app.config.ts` Android-first com package definitivo `com.advogado20.app`, permissoes de localizacao declaradas e variaveis publicas `EXPO_PUBLIC_*`.
 - `src/services/` com Auth Supabase REST, SecureStore, API client, areas, match e location.
 - Harness CLI, smoke estrutural cobrindo Auth/API/Location/Match e smoke runtime proporcional contra backend local.
+- `src/screens/LawyerProfileScreen.tsx` e `src/services/lawyerProfileService.ts` fecham `Home -> Perfil -> WhatsApp` via backend.
 
 ## Scripts
 

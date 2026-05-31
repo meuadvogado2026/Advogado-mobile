@@ -6,7 +6,7 @@ async function main() {
   const stepsToRun = [
     { command: "npm run typecheck", objective: "Validar tipos TypeScript do app Expo." },
     { command: "npm run test", objective: "Executar testes de contratos/config do mobile." },
-    { command: "npm run smoke", objective: "Validar fluxo estrutural Auth/API/Location/Match sem emulador." }
+    { command: "npm run smoke", objective: "Validar fluxo estrutural Auth/API/Location/Match/LawyerProfile sem emulador." }
   ];
 
   const steps = stepsToRun.map((step) => {
@@ -18,7 +18,7 @@ async function main() {
   const report = {
     environment: "mobile",
     cwd,
-    objective: "Harness mobile: tipos, testes de services e smoke estrutural Auth/API/Location/Match.",
+    objective: "Harness mobile: tipos, testes de services e smoke estrutural Auth/API/Location/Match/LawyerProfile.",
     exitCode,
     result: exitCode === 0 ? "OK" : "FALHOU",
     gaps: [

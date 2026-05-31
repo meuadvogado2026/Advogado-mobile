@@ -1,6 +1,6 @@
 # Mobile API Contracts - Meu Advogado 2.0
 
-**Estado:** alinhado ao OpenAPI inicial do backend  
+**Estado:** match e perfil profissional integrados pelo backend Railway
 **Base path esperado:** `/v1`
 
 ## Auth
@@ -34,25 +34,44 @@ Response sucesso:
 
 ```json
 {
-  "lawyer": {
-    "id": "uuid",
-    "name": "Dr. Nome",
-    "oab": "OAB/SP 123456",
-    "distanceKm": 1.2,
-    "mainSpecialty": "Direito Civil",
-    "secondarySpecialties": ["Consumidor"],
-    "avatarUrl": "https://...",
-    "coverUrl": "https://...",
-    "whatsappAvailable": true
-  }
+  "status": "matched",
+  "lawyer": { "id": "uuid", "name": "Dr. Nome", "whatsapp": "...", "city": "Brasilia", "state": "DF", "areaIds": ["uuid"] },
+  "distanceKm": 1.2,
+  "algorithmVersion": "geo-nearest-v1"
 }
+```
+
+Response sem advogado:
+
+```json
+{ "status": "empty", "lawyer": null, "algorithmVersion": "geo-nearest-v1" }
 ```
 
 ## Advogado
 
-- `GET /lawyers/:id`
-- `POST /lawyers/:id/events`
-- `POST /lawyers/:id/urgent-calls`
+- `GET /v1/lawyers/:id` - consumido pelo mobile com Bearer token pela API Railway
+
+Resposta planejada:
+
+```json
+{
+  "lawyer": {
+    "id": "uuid",
+    "name": "Dra. Carla Lima",
+    "oabNumber": "123456",
+    "oabState": "DF",
+    "city": "Brasilia",
+    "state": "DF",
+    "areaIds": ["uuid"],
+    "areas": [{ "id": "uuid", "name": "Direito Civil" }],
+    "whatsapp": "...",
+    "verified": true
+  }
+}
+```
+
+Nao expor CEP, endereco completo, coordenada, email ou auditoria. Distancia vem como
+contexto efemero do match, nao como dado do perfil.
 
 ## Advogado Logado
 
@@ -71,4 +90,4 @@ Response sucesso:
 
 ## Estado Atual
 
-Os contratos vivem tambem em `src/config/contracts.ts`. O app ja possui chamadas HTTP para areas e match via backend; o match ainda retorna stub/estado vazio ate o ciclo PostGIS.
+Os contratos vivem tambem em `src/config/contracts.ts`. O app possui chamadas HTTP para areas, match real e perfil profissional via backend. A distancia do match segue apenas como contexto efemero da navegacao.

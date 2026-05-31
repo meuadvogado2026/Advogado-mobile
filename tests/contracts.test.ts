@@ -4,6 +4,7 @@ import { createApiClient } from "../src/services/apiClient";
 import { createAuthService } from "../src/services/authService";
 import { createAreasService } from "../src/services/areasService";
 import { requestDeviceLocation } from "../src/services/locationService";
+import { createLawyerProfileService } from "../src/services/lawyerProfileService";
 import { createMatchService } from "../src/services/matchService";
 import type { Session, SessionStorage } from "../src/services/sessionStorage";
 
@@ -130,6 +131,46 @@ describe("mobile foundation contracts", () => {
     await expect(
       createMatchService(api).requestMatch({ lat: -23.55, lng: -46.63, accuracyM: 50, areaIds: ["civil"] })
     ).resolves.toEqual({ lawyer: null, status: "stub" });
+  });
+
+  it("loads a lawyer profile through the authenticated backend API", async () => {
+    const api = createApiClient({
+      config: publicTestConfig,
+      getSession: async () => ({
+        accessToken: "jwt-redacted",
+        email: "usuario@advogado20.com"
+      }),
+      fetchImpl: (async (url, init) => {
+        const headers = new Headers(init?.headers);
+        expect(String(url)).toBe("http://127.0.0.1:3333/v1/lawyers/lawyer-123");
+        expect(headers.get("Authorization")).toBe("Bearer jwt-redacted");
+        return new Response(
+          JSON.stringify({
+            lawyer: {
+              id: "lawyer-123",
+              name: "Dra. Carla Lima",
+              oabNumber: "123456",
+              oabState: "DF",
+              city: "Brasilia",
+              state: "DF",
+              areaIds: ["civil"],
+              areas: [{ id: "civil", name: "Direito Civil" }],
+              whatsapp: "61999999999",
+              verified: true
+            }
+          }),
+          { status: 200 }
+        );
+      }) as typeof fetch
+    });
+
+    await expect(createLawyerProfileService(api).getById("lawyer-123")).resolves.toMatchObject({
+      lawyer: {
+        id: "lawyer-123",
+        verified: true,
+        areas: [{ id: "civil", name: "Direito Civil" }]
+      }
+    });
   });
 
   it("uses the device location when Expo returns coordinates", async () => {

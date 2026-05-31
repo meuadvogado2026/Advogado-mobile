@@ -35,7 +35,7 @@
 
 ## Configuracao Inicial
 
-`app.json` declara Android-first, package inicial `com.meuadvogado.app` e permissoes `ACCESS_COARSE_LOCATION`/`ACCESS_FINE_LOCATION`. O package name ainda deve ser confirmado antes de Play Store.
+`app.json` declara Android-first, package definitivo `com.advogado20.app` e permissoes `ACCESS_COARSE_LOCATION`/`ACCESS_FINE_LOCATION`.
 
 ## Integracao Inicial
 
@@ -46,3 +46,6 @@
 - Para desenvolvimento com Expo Go, o AVD precisa de Expo Go compativel com SDK 52. O AVD `Pixel_9` foi corrigido com o APK oficial `Expo-Go-2.32.20` e abriu a tela inicial via Metro local/deep link. Com `EXPO_PUBLIC_SUPABASE_ANON_KEY` em runtime, login real e areas via UI foram validados. Como o provider de localizacao do AVD/Expo Go seguiu instavel, o smoke local usa fallback dev explicito via `EXPO_PUBLIC_ENABLE_DEV_LOCATION_FALLBACK=true`; essa flag fica desligada por padrao e nao deve ser usada em release interno/producao.
 - Com o fallback dev ligado, o fluxo visual Android fechou prompt nativo, botao `Buscar match` habilitado e estado vazio/stub apos chamada de match via UI.
 - Logos oficiais foram adicionadas em `assets/` e configuradas como icon, adaptive icon e splash. A experiencia pre-login foi corrigida para exibir somente login; Home/Match entra apenas apos sessao.
+- Em 2026-05-31, o rebuild preview EAS da UX corrigida foi concluido (`4352f306-53b9-4989-8eed-02bd71518dd3`). O smoke automatizado contra Railway passou, mas nenhum device Android apareceu no ADB; instalacao e smoke fisico do rebuild seguem em `QUESTIONAR`.
+- Em 2026-05-31, a spec 004 adicionou `Home -> LawyerProfile -> WhatsApp`. Harness, runtime Railway e smoke visual Android no AVD `Pixel_9` passaram; o CTA WhatsApp abriu Chrome como handler externo porque WhatsApp nao esta instalado no AVD.
+- Politica, termos e canal de exclusao foram publicados em `https://meuadvogado2026.github.io/meu-advogado-legal/` e linkados no mobile. Data Safety ainda precisa ser preenchido no Play Console com base em `../DATA_SAFETY_DRAFT.md`.
