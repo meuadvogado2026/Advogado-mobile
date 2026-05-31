@@ -102,6 +102,34 @@ export function HomeScreen() {
     };
   }, []);
 
+  // Carrega as areas automaticamente quando ha sessao (menos um toque para o cliente).
+  useEffect(() => {
+    if (!session) {
+      return;
+    }
+
+    let active = true;
+    legalAreas
+      .listAreas()
+      .then((response) => {
+        if (!active) {
+          return;
+        }
+
+        setAreas(response.areas);
+        setSelectedAreaIds((current) =>
+          current.length > 0 ? current : response.areas[0] ? [response.areas[0].id] : []
+        );
+      })
+      .catch(() => {
+        // Falha silenciosa: o botao "Areas" continua disponivel como fallback manual.
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [session, legalAreas]);
+
   async function handleSignIn() {
     setStatus("loading");
     setMessage("Entrando com Supabase Auth.");
@@ -142,45 +170,40 @@ export function HomeScreen() {
     }
   }
 
-  async function handleRequestLocation() {
-    setStatus("loading");
-    setMessage("Solicitando permissao de localizacao.");
-    const result = await requestDeviceLocation();
-    if (result.status === "denied") {
-      setStatus("error");
-      setMessage("Localizacao negada. Voce pode continuar no app e tentar novamente quando quiser.");
-      return;
-    }
-
-    if (result.status === "unavailable") {
-      setStatus("error");
-      setMessage("Nao foi possivel obter a localizacao agora.");
-      return;
-    }
-
-    setLocation(result.location);
-    setStatus("idle");
-    setMessage(
-      result.location.source === "devFallback"
-        ? "Fallback local de desenvolvimento ativo para validar o match no Android."
-        : "Localizacao obtida para esta busca."
-    );
-  }
-
   async function handleMatch() {
-    if (!location || selectedAreaIds.length === 0) {
+    if (selectedAreaIds.length === 0) {
       setStatus("error");
-      setMessage("Escolha uma area e permita localizacao antes de buscar.");
+      setMessage("Selecione pelo menos uma area juridica antes de buscar.");
       return;
+    }
+
+    // Obtem a localizacao na hora da busca (permissao em contexto), se ainda nao houver.
+    let activeLocation = location;
+    if (!activeLocation) {
+      setStatus("loading");
+      setMessage("Obtendo sua localizacao para a busca.");
+      const result = await requestDeviceLocation();
+      if (result.status === "denied") {
+        setStatus("error");
+        setMessage("Localizacao negada. Permita o acesso para encontrar um advogado proximo.");
+        return;
+      }
+      if (result.status === "unavailable") {
+        setStatus("error");
+        setMessage("Nao foi possivel obter sua localizacao agora. Tente novamente.");
+        return;
+      }
+      activeLocation = result.location;
+      setLocation(result.location);
     }
 
     setStatus("loading");
     setMessage("Consultando match no backend.");
     try {
       const response = await matches.requestMatch({
-        lat: location.lat,
-        lng: location.lng,
-        accuracyM: location.accuracyM,
+        lat: activeLocation.lat,
+        lng: activeLocation.lng,
+        accuracyM: activeLocation.accuracyM,
         areaIds: selectedAreaIds
       });
       setMatch(response);
@@ -270,14 +293,7 @@ export function HomeScreen() {
               accessibilityRole="button"
               onPress={handleLoadAreas}
             >
-              <Text style={styles.secondaryButtonText}>Areas</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.primaryButton}
-              accessibilityRole="button"
-              onPress={handleRequestLocation}
-            >
-              <Text style={styles.primaryButtonText}>Usar localizacao</Text>
+              <Text style={styles.secondaryButtonText}>Atualizar areas</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -309,8 +325,11 @@ export function HomeScreen() {
           <Text style={styles.cardTitle}>{match?.lawyer?.name ?? "Aguardando match"}</Text>
           <Text style={styles.panelText}>{match?.message ?? describeMatch(match)}</Text>
           <TouchableOpacity
-            disabled={!location || selectedAreaIds.length === 0}
-            style={[styles.primaryButton, (!location || selectedAreaIds.length === 0) && styles.disabledButton]}
+            disabled={selectedAreaIds.length === 0 || status === "loading"}
+            style={[
+              styles.primaryButton,
+              (selectedAreaIds.length === 0 || status === "loading") && styles.disabledButton
+            ]}
             accessibilityRole="button"
             onPress={handleMatch}
           >
