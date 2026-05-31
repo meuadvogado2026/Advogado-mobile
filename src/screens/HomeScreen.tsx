@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   Image,
+  Linking,
   ScrollView,
   StyleSheet,
   Text,
@@ -22,6 +23,28 @@ import { colors, spacing } from "../theme/tokens";
 
 type ViewStatus = "idle" | "loading" | "error";
 const logo = require("../../assets/logo-blue.png");
+
+/** Descreve o resultado do match em linguagem util ao cliente. */
+function describeMatch(match: MatchResponse | null): string {
+  if (!match) {
+    return "Selecione uma area, permita a localizacao e toque em Buscar match.";
+  }
+  if (match.status === "empty" || !match.lawyer) {
+    return "Nenhum advogado proximo encontrado para esta area. Tente outra area ou tente novamente.";
+  }
+  const place = match.lawyer.city
+    ? ` em ${match.lawyer.city}${match.lawyer.state ? "/" + match.lawyer.state : ""}`
+    : "";
+  const distance = typeof match.distanceKm === "number" ? ` a ${match.distanceKm.toFixed(1)} km de voce` : "";
+  return `Advogado mais proximo${place}${distance}.`;
+}
+
+/** Abre o WhatsApp do advogado (normaliza para DDI 55 quando ausente). */
+function openWhatsApp(rawNumber: string) {
+  const digits = rawNumber.replace(/\D/g, "");
+  const intl = digits.startsWith("55") ? digits : `55${digits}`;
+  return Linking.openURL(`https://wa.me/${intl}`);
+}
 
 function getFriendlyError(error: unknown) {
   if (error instanceof Error) {
@@ -284,18 +307,24 @@ export function HomeScreen() {
         <View style={styles.lawyerCard}>
           <Text style={styles.cardLabel}>Advogado Indicado</Text>
           <Text style={styles.cardTitle}>{match?.lawyer?.name ?? "Aguardando match"}</Text>
-          <Text style={styles.panelText}>
-            {match?.message ??
-              "O backend ja recebe a busca com area e localizacao. O match real com PostGIS fica para o proximo ciclo."}
-          </Text>
+          <Text style={styles.panelText}>{match?.message ?? describeMatch(match)}</Text>
           <TouchableOpacity
             disabled={!location || selectedAreaIds.length === 0}
-            style={[styles.whatsButton, (!location || selectedAreaIds.length === 0) && styles.disabledButton]}
+            style={[styles.primaryButton, (!location || selectedAreaIds.length === 0) && styles.disabledButton]}
             accessibilityRole="button"
             onPress={handleMatch}
           >
-            <Text style={styles.whatsButtonText}>Buscar match</Text>
+            <Text style={styles.primaryButtonText}>Buscar match</Text>
           </TouchableOpacity>
+          {match?.lawyer?.whatsapp ? (
+            <TouchableOpacity
+              style={styles.whatsButton}
+              accessibilityRole="button"
+              onPress={() => openWhatsApp(match.lawyer!.whatsapp!)}
+            >
+              <Text style={styles.whatsButtonText}>Falar no WhatsApp</Text>
+            </TouchableOpacity>
+          ) : null}
         </View>
 
         <View style={[styles.statusBox, status === "error" && styles.statusBoxError]}>

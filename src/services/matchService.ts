@@ -12,9 +12,13 @@ export type MatchResponse = {
   lawyer: null | {
     id: string;
     name: string;
-    distanceKm?: number;
     whatsapp?: string;
+    city?: string | null;
+    state?: string | null;
+    areaIds?: string[];
   };
+  // distanceKm vem no nivel raiz da resposta do backend (irmao de lawyer).
+  distanceKm?: number;
   status: "stub" | "matched" | "empty";
   algorithmVersion?: string;
   message?: string;
