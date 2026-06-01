@@ -73,4 +73,22 @@ if (
   throw new Error("Smoke mobile falhou. Links legais publicos nao estao acessiveis na Home.");
 }
 
-console.log("Smoke mobile OK: Expo entry, Auth, API backend, SecureStore, Location, Match, LawyerProfile e links legais existem.");
+if (
+  !home.includes("ShellHeader") ||
+  !home.includes("BottomNavigation") ||
+  !home.includes('label: "Inicio"') ||
+  !home.includes('label: "Buscar"') ||
+  !home.includes('label: "Conta"') ||
+  !home.includes('onSelect: (tab: ShellTab) => void') ||
+  !home.includes("Buscar por area juridica")
+) {
+  throw new Error("Smoke mobile falhou. Shell autenticado com Inicio/Buscar/Conta nao esta presente.");
+}
+
+if (/Mensagens|Agenda|Plant[aã]o|Favoritos|avalia[cç][oõ]es|24h/i.test(home)) {
+  throw new Error("Smoke mobile falhou. Home nao deve criar navegacao funcional fora do MVP.");
+}
+
+console.log(
+  "Smoke mobile OK: Expo entry, Auth, API backend, SecureStore, Location, Match, LawyerProfile, shell Inicio/Buscar/Conta e links legais existem."
+);

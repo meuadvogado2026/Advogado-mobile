@@ -1,6 +1,6 @@
 # Mobile Project - Meu Advogado 2.0
 
-**Fase:** produto MVP / spec 004 mobile implementada com smoke visual pendente
+**Fase:** produto MVP / spec 005 navegacao e design shell implementada com smoke visual proporcional
 **Plataforma inicial:** Android  
 **Plataforma futura:** iOS  
 **Stack alvo:** React Native + Expo + TypeScript
@@ -51,6 +51,8 @@ Todo ciclo de implementacao deve seguir SDD, Harness CLI e smoke final.
 - `src/services/` com Auth Supabase REST, SecureStore, API client, areas, match e location.
 - Harness CLI, smoke estrutural cobrindo Auth/API/Location/Match e smoke runtime proporcional contra backend local.
 - `src/screens/LawyerProfileScreen.tsx` e `src/services/lawyerProfileService.ts` fecham `Home -> Perfil -> WhatsApp` via backend.
+- `src/screens/HomeScreen.tsx` com shell autenticado, header e bottom navigation MVP `Inicio`, `Buscar` e `Conta`, sem Mensagens/Agenda.
+- `expo-font` instalado/configurado para suportar a iconografia de `@expo/vector-icons` no runtime Android.
 
 ## Scripts
 

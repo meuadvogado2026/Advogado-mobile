@@ -2,7 +2,7 @@
 
 **Referencia principal:** `../Telas/`  
 **Sistema visual:** Lex Elite  
-**Estado:** draft inicial
+**Estado:** spec 005 implementada com shell e navegacao MVP
 
 ## Direcao Visual
 
@@ -31,21 +31,28 @@ App dark-first, premium juridico, com fundo azul-marinho/obsidian, acentos doura
 
 - Home do cliente.
 - Perfil do advogado.
+- Estado de permissao negada.
+- Estado sem advogado encontrado.
+
+Backlog visual fora da spec 005 sem contrato proprio:
+
 - Dashboard do advogado.
 - Cartao VIP.
 - Beneficios VIP.
-- Estado de permissao negada.
-- Estado sem advogado encontrado.
-- Modal de urgencia.
+- Modal de urgencia/plantao.
+- Mensagens internas.
+- Agenda interna.
 
 ## Regras De UI
 
 - Touch targets com minimo 44x44.
-- Bottom navigation fixa em mobile.
+- Bottom navigation fixa em mobile: `Inicio`, `Buscar` e `Conta`.
 - Permissao de localizacao deve ser explicada antes do prompt nativo.
 - CTA WhatsApp sempre verde.
 - Urgencia sempre exige confirmacao.
 - O card do advogado indicado e o elemento principal da home.
+- `Buscar` e apenas atalho para o fluxo real de areas/localizacao/match, nao uma feature separada.
+- `Conta` concentra sessao, sair e links legais.
 
 ## Validacao Visual
 
@@ -57,4 +64,4 @@ Antes de fechar telas:
 
 ## Implementacao Inicial
 
-`src/screens/HomeScreen.tsx` implementa login, estado autenticado, carregamento de areas juridicas, explicacao de localizacao antes do prompt nativo e card "Advogado Indicado" com match inicial. Ela evita mensagens/agenda internas e mantem WhatsApp como CTA externo futuro.
+`src/screens/HomeScreen.tsx` implementa login, estado autenticado, shell/header, bottom navigation `Inicio`/`Buscar`/`Conta`, carregamento de areas juridicas, explicacao de localizacao antes do prompt nativo e card "Advogado Indicado" com match real. `src/screens/LawyerProfileScreen.tsx` fecha perfil e WhatsApp externo conforme spec 004. A spec 005 nao reintroduz mensagens, agenda ou plantao como funcionalidades internas.
