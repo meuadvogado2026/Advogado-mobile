@@ -1,8 +1,8 @@
 # Mobile Status - Meu Advogado 2.0
 
 **Ultima atualizacao:** 2026-06-02
-**Fase:** PRODUTO MVP / SPEC 008 PARTE 2 PUBLICACAO BLOQUEADA
-**Veredito:** QUESTIONAR_PUBLICACAO_GITHUB_403
+**Fase:** PRODUTO MVP / SPEC 008 PARTE 2 PUBLICADA
+**Veredito:** PUBLICADA_OK_COM_RESSALVA_VISUAL
 
 ## Concluido
 
@@ -64,7 +64,7 @@
 - [x] Gates spec 008 Parte 1 mobile: `npm run typecheck` exit 0, `npm run test` exit 0 (10 testes), `npm run smoke` exit 0, `npm run harness` exit 0, `npm run smoke:runtime` contra Railway exit 0 com Auth real redigido, 6 areas, match `matched` e perfil seguro.
 - [x] Spec 008 Parte 2 implementada localmente: `LawyerProfile` renderiza capa, avatar, mini bio e bio completa quando o backend retorna campos opcionais seguros; sem imagem, usa fallback visual.
 - [x] Gates spec 008 Parte 2 mobile: `npm run harness` exit 0; `npm run smoke:runtime` contra Railway exit 0 (`OK_COM_RESSALVAS`) com env publica carregada da `.env` raiz sem imprimir valor, Auth real redigido, 6 areas, match `matched` e perfil seguro.
-- [ ] Publicacao mobile bloqueada: commits locais `0aa8ed8` (spec 005 shell) e `7b7a7c3` (spec 008 Parte 2 visual) aguardam push; `git push origin main` falhou com GitHub `403` para `israelcknegocios`.
+- [x] Publicacao mobile destravada: commits `0aa8ed8` (spec 005 shell), `7b7a7c3` (spec 008 Parte 2 visual) e `8c6ec19` (gate documental) publicados no GitHub.
 - [ ] Fluxo visual completo do novo APK preview nao fechou no AVD: localizacao nativa ficou indisponivel com fallback dev desligado antes de `match -> LawyerProfile -> WhatsApp`.
 
 ## Em Andamento
@@ -112,4 +112,4 @@
 
 ## Proximo Passo
 
-Spec 008 Parte 2 esta validada localmente, mas bloqueada para publicacao por GitHub `403`. Proximo gate mobile: corrigir permissao/credencial de push, publicar os commits locais e repetir smoke visual Android do perfil com foto/capa e fallback sem imagem em device/emulador estavel apos publicacao do backend. O gate independente da spec 005 segue pendente: validar o APK `harness-results/preview-5c9741f9-spec005-shell.apk` em device fisico com GPS real/WhatsApp, ou por checklist manual assistido, no fluxo `Login -> Home com shell -> match -> Ver perfil -> LawyerProfile -> Voltar -> Falar no WhatsApp`.
+Spec 008 Parte 2 esta publicada com ressalva visual. Proximo gate mobile: repetir smoke visual Android do perfil com foto/capa e fallback sem imagem em device/emulador estavel. O gate independente da spec 005 segue pendente: validar o APK `harness-results/preview-5c9741f9-spec005-shell.apk` em device fisico com GPS real/WhatsApp, ou por checklist manual assistido, no fluxo `Login -> Home com shell -> match -> Ver perfil -> LawyerProfile -> Voltar -> Falar no WhatsApp`.
