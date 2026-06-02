@@ -6,6 +6,7 @@ import { createAreasService } from "../src/services/areasService";
 import { requestDeviceLocation } from "../src/services/locationService";
 import { createLawyerProfileService } from "../src/services/lawyerProfileService";
 import { createMatchService } from "../src/services/matchService";
+import { createMeService } from "../src/services/meService";
 import type { Session, SessionStorage } from "../src/services/sessionStorage";
 
 const locationMock = vi.hoisted(() => ({
@@ -55,6 +56,7 @@ describe("mobile foundation contracts", () => {
 
   it("uses backend API contracts instead of Supabase direct access", () => {
     expect(apiContracts.match).toBe("/v1/match");
+    expect(apiContracts.me).toBe("/v1/me");
     expect(Object.values(apiContracts).some((path) => path.includes("supabase"))).toBe(false);
   });
 
@@ -107,6 +109,29 @@ describe("mobile foundation contracts", () => {
     });
   });
 
+  it("loads the current user role through the authenticated backend API", async () => {
+    const api = createApiClient({
+      config: publicTestConfig,
+      getSession: async () => ({
+        accessToken: "jwt-redacted",
+        email: "advogado@advogado20.com"
+      }),
+      fetchImpl: (async (url, init) => {
+        const headers = new Headers(init?.headers);
+        expect(String(url)).toBe("http://127.0.0.1:3333/v1/me");
+        expect(headers.get("Authorization")).toBe("Bearer jwt-redacted");
+        return new Response(
+          JSON.stringify({ user: { id: "lawyer-user", email: "advogado@advogado20.com", role: "lawyer" } }),
+          { status: 200 }
+        );
+      }) as typeof fetch
+    });
+
+    await expect(createMeService(api).getCurrentUser()).resolves.toEqual({
+      user: { id: "lawyer-user", email: "advogado@advogado20.com", role: "lawyer" }
+    });
+  });
+
   it("posts match payload with bearer token when a session exists", async () => {
     const api = createApiClient({
       config: publicTestConfig,
@@ -156,7 +181,12 @@ describe("mobile foundation contracts", () => {
               areaIds: ["civil"],
               areas: [{ id: "civil", name: "Direito Civil" }],
               whatsapp: "61999999999",
-              verified: true
+              verified: true,
+              avatarUrl: "https://cdn.example.test/avatar.jpg",
+              coverUrl: null,
+              miniBio: "Atendimento civil preventivo.",
+              fullBio: null,
+              emergencyAvailable: false
             }
           }),
           { status: 200 }
@@ -168,7 +198,11 @@ describe("mobile foundation contracts", () => {
       lawyer: {
         id: "lawyer-123",
         verified: true,
-        areas: [{ id: "civil", name: "Direito Civil" }]
+        areas: [{ id: "civil", name: "Direito Civil" }],
+        avatarUrl: "https://cdn.example.test/avatar.jpg",
+        coverUrl: null,
+        miniBio: "Atendimento civil preventivo.",
+        fullBio: null
       }
     });
   });

@@ -1,8 +1,8 @@
 # Mobile Status - Meu Advogado 2.0
 
-**Ultima atualizacao:** 2026-06-01
-**Fase:** PRODUTO MVP / SPEC 005 NAVEGACAO E DESIGN SHELL IMPLEMENTADA
-**Veredito:** OK
+**Ultima atualizacao:** 2026-06-02
+**Fase:** PRODUTO MVP / SPEC 008 PARTE 2 LOCAL IMPLEMENTADA
+**Veredito:** OK_COM_RESSALVAS
 
 ## Concluido
 
@@ -54,6 +54,17 @@
 - [x] `Buscar` funciona como atalho para o fluxo real de areas/localizacao/match; `Conta` concentra sessao, sair e links legais.
 - [x] `Mensagens`, `Agenda`, `Plantao`, favoritos, rating, avatar, bio e metricas nao foram criados.
 - [x] `expo-font` instalado/configurado para suportar `@expo/vector-icons` no runtime Android.
+- [x] APK preview da spec 005 gerado no EAS Build `5c9741f9-ecac-44bb-b9ae-c1e2c6f25200`, instalado e aberto no AVD `Pixel_9`.
+- [x] APK preview local da spec 005 confirmado com SHA-256 `61D2DF3D1D76D8AEB8397FCA9C5FBB2BE118CBD625BB6C048620EFCD59C249EC`.
+- [x] Rechecagem do gate fisico da spec 005 confirmou APK local com `66185270` bytes e o mesmo SHA-256; `adb` nao esta disponivel no PATH.
+- [x] Rechecagem pos-admin producao em 2026-06-02 confirmou novamente o mesmo APK local, tamanho `66185270` bytes, SHA-256 `61D2DF3D1D76D8AEB8397FCA9C5FBB2BE118CBD625BB6C048620EFCD59C249EC`; `adb` segue indisponivel no PATH.
+- [x] Home autenticada do APK preview renderizou header `ADVOGADO 2.0`, areas, card `ADVOGADO INDICADO` e bottom navigation `Inicio`, `Buscar`, `Conta`.
+- [x] Spec 008 Parte 1 implementada no mobile sem backend/schema novo: `GET /v1/me` passou a decidir role, shell cliente e shell advogado ficaram separados, menus usam icones e abrem views reais sem `scrollTo`, logo arredondada aparece no login e no topo autenticado.
+- [x] Menu cliente agora tem views reais `Inicio`, `Buscar`, `Oracao`, `Conta`; menu advogado tem `Inicio`, `Cartao`, `Perfil`, `Conta`. `Oracao`, `Cartao` e `Perfil` do advogado ficam como views seguras sem persistencia/contrato sensivel novo ate as Partes 2/3.
+- [x] Gates spec 008 Parte 1 mobile: `npm run typecheck` exit 0, `npm run test` exit 0 (10 testes), `npm run smoke` exit 0, `npm run harness` exit 0, `npm run smoke:runtime` contra Railway exit 0 com Auth real redigido, 6 areas, match `matched` e perfil seguro.
+- [x] Spec 008 Parte 2 implementada localmente: `LawyerProfile` renderiza capa, avatar, mini bio e bio completa quando o backend retorna campos opcionais seguros; sem imagem, usa fallback visual.
+- [x] Gates spec 008 Parte 2 mobile: `npm run harness` exit 0; `npm run smoke:runtime` contra Railway exit 0 (`OK_COM_RESSALVAS`) com env publica carregada da `.env` raiz sem imprimir valor, Auth real redigido, 6 areas, match `matched` e perfil seguro.
+- [ ] Fluxo visual completo do novo APK preview nao fechou no AVD: localizacao nativa ficou indisponivel com fallback dev desligado antes de `match -> LawyerProfile -> WhatsApp`.
 
 ## Em Andamento
 
@@ -66,6 +77,7 @@
 - [x] Validar APK preview em device fisico Android com WhatsApp instalado.
 - [x] Implementar shell/header/bottom navigation MVP da spec 005.
 - [x] Validar shell autenticado no AVD `Pixel_9` com Metro/Expo Go.
+- [x] Implementar spec 008 Parte 1 com shell cliente/advogado por role, views reais e icones.
 
 ## Bloqueios E Lacunas
 
@@ -75,6 +87,9 @@
 - `npm install` reportou vulnerabilidades transitivas do ecossistema Expo; revisar antes de release.
 - Localizacao real do AVD/Expo Go segue instavel; fallback dev local fecha apenas smoke Android local e nao deve ser usado em producao/release.
 - Match real PostGIS implementado e validado e2e no backend contra Supabase com token de cliente real (`back/scripts/match-smoke.ts`: matched SP/civil 0km, empty, 401) e ponta-a-ponta no APK preview em device fisico com GPS real, sem fallback dev.
+- Novo APK preview da spec 005 precisa de validacao em device fisico com GPS real/WhatsApp ou checklist manual assistido; o AVD nao entregou coordenada nativa ao Expo Location.
+- Spec 008 Parte 1 ainda precisa de smoke visual mobile/Android conclusivo. Nesta tentativa, o AVD `Pixel_9` bootou, Expo Go existia, Metro respondeu `packager-status:running` e o deep link foi enviado, mas o ADB travou em `screencap`/consultas posteriores; processos Android foram encerrados. Evidencia em `harness-results/spec008-mobile-visual-attempt-2026-06-02.md`.
+- Nesta retomada, `adb` nao esta disponivel no PATH da sessao; sem device fisico acessivel ou confirmacao manual, o gate permanece `QUESTIONAR`.
 - WhatsApp app nao esta instalado no AVD; no APK preview da spec 004 o CTA abriu Chrome como handler externo de URL.
 - Nenhum device Android fisico apareceu no ADB durante o gate de WhatsApp fisico; a validacao foi concluida pelo caminho manual sem depuracao USB.
 - Proximos ciclos devem ser iniciados pela raiz do projeto para carregar a governanca central `.codex/` e specs em `.codex/specs/`.
@@ -84,7 +99,7 @@
 - APK preview gerado via EAS Build (perfil `preview`, projeto `@advogado2.0/meu-advogado-20`), apontando para o backend de producao na Railway.
 - Instalado em device Android fisico: login real `usuario@advogado20.com` OK, 6 areas via backend, **permissao de localizacao concedida e GPS real** disparou `POST /v1/match`.
 - **Match real retornou a fixture DF (Dra. Carla Lima) via PostGIS** com base na localizacao real (device a <=200km de Brasilia). GPS real -> match real ponta-a-ponta, sem fallback dev.
-- Bug de UX corrigido: a tela mostrava copy antigo ("match fica para o proximo ciclo"); agora exibe cidade/distancia do advogado + botao "Falar no WhatsApp". Rebuild gerado; smoke fisico do novo APK pendente.
+- Bug de UX corrigido: a tela mostrava copy antigo ("match fica para o proximo ciclo"); agora exibe cidade/distancia do advogado + botao "Falar no WhatsApp". Depois disso, a spec 004 foi validada no APK preview e o direcionamento ao WhatsApp foi confirmado manualmente em device fisico. A lacuna atual e gerar novo build/preview ja com o shell da spec 005.
 
 ## Validacao Do APK Preview Da Spec 004
 
@@ -96,4 +111,4 @@
 
 ## Proximo Passo
 
-Spec 005 implementada com smoke proporcional. Antes de release/Play Store, gerar build/preview novo e executar smoke visual completo do fluxo `Login -> Home com shell -> match -> Ver perfil -> LawyerProfile -> Voltar -> Falar no WhatsApp`.
+Spec 008 Parte 2 esta `LOCAL_OK_COM_RESSALVAS`: repetir smoke visual Android do perfil com foto/capa e fallback sem imagem em device/emulador estavel apos publicacao do backend. O gate independente da spec 005 segue pendente: validar o APK `harness-results/preview-5c9741f9-spec005-shell.apk` em device fisico com GPS real/WhatsApp, ou por checklist manual assistido, no fluxo `Login -> Home com shell -> match -> Ver perfil -> LawyerProfile -> Voltar -> Falar no WhatsApp`.

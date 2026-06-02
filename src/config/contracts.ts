@@ -1,5 +1,6 @@
 export const apiContracts = {
   health: "/health",
+  me: "/v1/me",
   areas: "/v1/areas",
   match: "/v1/match",
   lawyerProfile: "/v1/lawyers/:id",

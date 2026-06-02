@@ -2,7 +2,7 @@
 
 **Referencia principal:** `../Telas/`  
 **Sistema visual:** Lex Elite  
-**Estado:** spec 005 implementada com shell e navegacao MVP
+**Estado:** spec 008 Parte 2 local implementada
 
 ## Direcao Visual
 
@@ -53,6 +53,8 @@ Backlog visual fora da spec 005 sem contrato proprio:
 - O card do advogado indicado e o elemento principal da home.
 - `Buscar` e apenas atalho para o fluxo real de areas/localizacao/match, nao uma feature separada.
 - `Conta` concentra sessao, sair e links legais.
+- Perfil do advogado pode exibir capa, avatar, mini bio e bio completa quando o backend retornar campos HTTPS seguros.
+- Quando foto/capa estiverem ausentes ou invalidas, usar fallback visual premium sem quebrar a tela.
 
 ## Validacao Visual
 
@@ -64,4 +66,4 @@ Antes de fechar telas:
 
 ## Implementacao Inicial
 
-`src/screens/HomeScreen.tsx` implementa login, estado autenticado, shell/header, bottom navigation `Inicio`/`Buscar`/`Conta`, carregamento de areas juridicas, explicacao de localizacao antes do prompt nativo e card "Advogado Indicado" com match real. `src/screens/LawyerProfileScreen.tsx` fecha perfil e WhatsApp externo conforme spec 004. A spec 005 nao reintroduz mensagens, agenda ou plantao como funcionalidades internas.
+`src/screens/HomeScreen.tsx` implementa login, estado autenticado, shell/header, bottom navigation, carregamento de areas juridicas, explicacao de localizacao antes do prompt nativo e card "Advogado Indicado" com match real. `src/screens/LawyerProfileScreen.tsx` fecha perfil, WhatsApp externo e, na spec 008 Parte 2, foto/capa/bio com fallback seguro. As specs 005/008 nao reintroduzem mensagens, agenda ou plantao como funcionalidades internas.

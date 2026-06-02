@@ -1,10 +1,9 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   Image,
   Linking,
   ScrollView,
-  type ScrollView as ScrollViewType,
   StyleSheet,
   Text,
   TextInput,
@@ -16,17 +15,21 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { RootStackParamList } from "../../App";
 import { appCopy } from "../config/contracts";
-import { createAuthService } from "../services/authService";
 import { createApiClient } from "../services/apiClient";
 import { createAreasService, type LegalArea } from "../services/areasService";
+import { createAuthService } from "../services/authService";
 import { requestDeviceLocation, type DeviceLocation } from "../services/locationService";
 import { createMatchService, type MatchResponse } from "../services/matchService";
+import { createMeService, type CurrentUser } from "../services/meService";
 import { secureSessionStorage } from "../services/secureSessionStorage";
 import type { Session } from "../services/sessionStorage";
 import { colors, spacing } from "../theme/tokens";
 
 type ViewStatus = "idle" | "loading" | "error";
-type ShellTab = "home" | "search" | "account";
+type ClientTab = "home" | "search" | "prayer" | "account";
+type LawyerTab = "dashboard" | "card" | "profile" | "account";
+type Props = NativeStackScreenProps<RootStackParamList, "Home">;
+
 const logo = require("../../assets/logo-blue.png");
 const legalUrls = {
   privacy: "https://meuadvogado2026.github.io/meu-advogado-legal/privacidade.html",
@@ -34,7 +37,6 @@ const legalUrls = {
   deletion: "https://meuadvogado2026.github.io/meu-advogado-legal/exclusao-de-dados.html"
 };
 
-/** Descreve o resultado do match em linguagem util ao cliente. */
 function describeMatch(match: MatchResponse | null): string {
   if (!match) {
     return "Selecione uma area, permita a localizacao e toque em Buscar match.";
@@ -49,11 +51,20 @@ function describeMatch(match: MatchResponse | null): string {
   return `Advogado mais proximo${place}${distance}.`;
 }
 
-/** Abre o WhatsApp do advogado (normaliza para DDI 55 quando ausente). */
 function openWhatsApp(rawNumber: string) {
   const digits = rawNumber.replace(/\D/g, "");
   const intl = digits.startsWith("55") ? digits : `55${digits}`;
   return Linking.openURL(`https://wa.me/${intl}`);
+}
+
+function getFriendlyError(error: unknown) {
+  if (error instanceof Error) {
+    if (error.message === "SUPABASE_AUTH_PUBLICO_AUSENTE") {
+      return "Configure a anon key publica do Supabase para entrar.";
+    }
+    return error.message;
+  }
+  return "Nao foi possivel concluir a acao.";
 }
 
 function LegalLinks() {
@@ -72,24 +83,18 @@ function LegalLinks() {
   );
 }
 
-function ShellHeader({ email, onAccountPress }: { email: string; onAccountPress: () => void }) {
+function ShellHeader({ email, role }: { email: string; role: CurrentUser["role"] }) {
   return (
     <View style={styles.shellHeader}>
       <View style={styles.brandRow}>
         <Image accessibilityIgnoresInvertColors source={logo} style={styles.headerLogo} />
         <View style={styles.brandTextBlock}>
           <Text style={styles.brandTitle}>{appCopy.brand}</Text>
-          <Text style={styles.brandSubtitle}>Atendimento juridico proximo</Text>
+          <Text style={styles.brandSubtitle}>
+            {role === "lawyer" ? "Painel do advogado" : "Atendimento juridico proximo"}
+          </Text>
         </View>
       </View>
-      <TouchableOpacity
-        accessibilityLabel="Abrir conta"
-        accessibilityRole="button"
-        onPress={onAccountPress}
-        style={styles.headerIconButton}
-      >
-        <Ionicons color={colors.gold} name="person-circle-outline" size={28} />
-      </TouchableOpacity>
       <Text style={styles.sessionHint} numberOfLines={1}>
         {email}
       </Text>
@@ -97,19 +102,15 @@ function ShellHeader({ email, onAccountPress }: { email: string; onAccountPress:
   );
 }
 
-function BottomNavigation({
+function BottomNavigation<TTab extends string>({
   activeTab,
+  items,
   onSelect
 }: {
-  activeTab: ShellTab;
-  onSelect: (tab: ShellTab) => void;
+  activeTab: TTab;
+  items: Array<{ label: string; tab: TTab; icon: keyof typeof Ionicons.glyphMap }>;
+  onSelect: (tab: TTab) => void;
 }) {
-  const items: Array<{ label: string; tab: ShellTab; icon: keyof typeof Ionicons.glyphMap }> = [
-    { label: "Inicio", tab: "home", icon: "home-outline" },
-    { label: "Buscar", tab: "search", icon: "search-outline" },
-    { label: "Conta", tab: "account", icon: "person-outline" }
-  ];
-
   return (
     <View style={styles.bottomNavigation}>
       {items.map((item) => {
@@ -122,7 +123,7 @@ function BottomNavigation({
             onPress={() => onSelect(item.tab)}
             style={styles.bottomNavItem}
           >
-            <Ionicons color={selected ? colors.gold : colors.textMuted} name={item.icon} size={24} />
+            <Ionicons color={selected ? colors.gold : colors.textMuted} name={item.icon} size={23} />
             <Text style={[styles.bottomNavText, selected && styles.bottomNavTextActive]}>{item.label}</Text>
           </TouchableOpacity>
         );
@@ -131,24 +132,129 @@ function BottomNavigation({
   );
 }
 
-function getFriendlyError(error: unknown) {
-  if (error instanceof Error) {
-    if (error.message === "SUPABASE_AUTH_PUBLICO_AUSENTE") {
-      return "Configure a anon key publica do Supabase para entrar.";
-    }
+const clientNavItems: Array<{ label: string; tab: ClientTab; icon: keyof typeof Ionicons.glyphMap }> = [
+  { label: "Inicio", tab: "home", icon: "home-outline" },
+  { label: "Buscar", tab: "search", icon: "search-outline" },
+  { label: "Oracao", tab: "prayer", icon: "heart-outline" },
+  { label: "Conta", tab: "account", icon: "person-outline" }
+];
 
-    return error.message;
-  }
+const lawyerNavItems: Array<{ label: string; tab: LawyerTab; icon: keyof typeof Ionicons.glyphMap }> = [
+  { label: "Inicio", tab: "dashboard", icon: "grid-outline" },
+  { label: "Cartao", tab: "card", icon: "card-outline" },
+  { label: "Perfil", tab: "profile", icon: "ribbon-outline" },
+  { label: "Conta", tab: "account", icon: "settings-outline" }
+];
 
-  return "Nao foi possivel concluir a acao.";
+function StatusBox({ status, message }: { status: ViewStatus; message: string }) {
+  return (
+    <View style={[styles.statusBox, status === "error" && styles.statusBoxError]}>
+      {status === "loading" && <ActivityIndicator color={colors.gold} />}
+      <Text style={styles.statusText}>{message}</Text>
+    </View>
+  );
 }
 
-type Props = NativeStackScreenProps<RootStackParamList, "Home">;
+function AreaGrid({
+  areas,
+  selectedAreaIds,
+  onToggle
+}: {
+  areas: LegalArea[];
+  selectedAreaIds: string[];
+  onToggle: (areaId: string) => void;
+}) {
+  if (areas.length === 0) {
+    return null;
+  }
+
+  return (
+    <>
+      <View style={styles.sectionHeader}>
+        <Text style={styles.sectionTitle}>Areas juridicas</Text>
+        <Text style={styles.sectionAction}>fluxo real</Text>
+      </View>
+      <View style={styles.areaGrid}>
+        {areas.map((area) => {
+          const selected = selectedAreaIds.includes(area.id);
+          return (
+            <TouchableOpacity
+              accessibilityRole="checkbox"
+              accessibilityState={{ checked: selected }}
+              key={area.id}
+              onPress={() => onToggle(area.id)}
+              style={[styles.areaPill, selected && styles.areaPillSelected]}
+            >
+              <Ionicons color={selected ? colors.surfaceDeep : colors.gold} name="briefcase-outline" size={18} />
+              <Text style={[styles.areaText, selected && styles.areaTextSelected]}>{area.name}</Text>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+    </>
+  );
+}
+
+function MatchCard({
+  match,
+  selectedAreaIds,
+  status,
+  onMatch,
+  onOpenProfile
+}: {
+  match: MatchResponse | null;
+  selectedAreaIds: string[];
+  status: ViewStatus;
+  onMatch: () => void;
+  onOpenProfile: () => void;
+}) {
+  return (
+    <View style={styles.lawyerCard}>
+      <Text style={styles.cardLabel}>Advogado Indicado</Text>
+      <Text style={styles.cardTitle}>{match?.lawyer?.name ?? "Aguardando match"}</Text>
+      <Text style={styles.panelText}>{match?.message ?? describeMatch(match)}</Text>
+      {match?.lawyer?.city ? (
+        <Text style={styles.matchMeta}>
+          {match.lawyer.city}
+          {match.lawyer.state ? `/${match.lawyer.state}` : ""}
+          {typeof match.distanceKm === "number" ? ` - ${match.distanceKm.toFixed(1)} km` : ""}
+        </Text>
+      ) : null}
+      <TouchableOpacity
+        disabled={selectedAreaIds.length === 0 || status === "loading"}
+        style={[styles.primaryButton, (selectedAreaIds.length === 0 || status === "loading") && styles.disabledButton]}
+        accessibilityRole="button"
+        onPress={onMatch}
+      >
+        <Text style={styles.primaryButtonText}>Buscar match</Text>
+      </TouchableOpacity>
+      <View style={styles.cardActions}>
+        {match?.lawyer ? (
+          <TouchableOpacity style={styles.secondaryButton} accessibilityRole="button" onPress={onOpenProfile}>
+            <Ionicons color={colors.gold} name="person-outline" size={18} />
+            <Text style={styles.secondaryButtonText}>Ver perfil</Text>
+          </TouchableOpacity>
+        ) : null}
+        {match?.lawyer?.whatsapp ? (
+          <TouchableOpacity
+            style={styles.whatsButton}
+            accessibilityRole="button"
+            onPress={() => openWhatsApp(match.lawyer!.whatsapp!)}
+          >
+            <Ionicons color={colors.surfaceDeep} name="logo-whatsapp" size={18} />
+            <Text style={styles.whatsButtonText}>Falar no WhatsApp</Text>
+          </TouchableOpacity>
+        ) : null}
+      </View>
+    </View>
+  );
+}
 
 export function HomeScreen({ navigation }: Props) {
-  const scrollRef = useRef<ScrollViewType | null>(null);
-  const [activeTab, setActiveTab] = useState<ShellTab>("home");
+  const [clientTab, setClientTab] = useState<ClientTab>("home");
+  const [lawyerTab, setLawyerTab] = useState<LawyerTab>("dashboard");
   const [session, setSession] = useState<Session | null>(null);
+  const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);
   const [email, setEmail] = useState("usuario@advogado20.com");
   const [password, setPassword] = useState("");
   const [areas, setAreas] = useState<LegalArea[]>([]);
@@ -162,26 +268,31 @@ export function HomeScreen({ navigation }: Props) {
   const apiClient = useMemo(() => createApiClient({ getSession: authService.getSession }), [authService]);
   const legalAreas = useMemo(() => createAreasService(apiClient), [apiClient]);
   const matches = useMemo(() => createMatchService(apiClient), [apiClient]);
+  const me = useMemo(() => createMeService(apiClient), [apiClient]);
+
+  async function hydrateUser(restoredSession: Session) {
+    const response = await me.getCurrentUser();
+    setCurrentUser(response.user);
+    setSession(restoredSession);
+    setMessage(response.user.role === "lawyer" ? "Painel do advogado carregado." : "Sessao restaurada.");
+  }
 
   useEffect(() => {
     let mounted = true;
-
     authService
       .getSession()
-      .then((restoredSession) => {
-        if (!mounted) {
+      .then(async (restoredSession) => {
+        if (!mounted) return;
+        if (!restoredSession) {
+          setStatus("idle");
+          setMessage("Entre com um usuario de teste.");
           return;
         }
-
-        setSession(restoredSession);
+        await hydrateUser(restoredSession);
         setStatus("idle");
-        setMessage(restoredSession ? "Sessao restaurada." : "Entre com um usuario de teste.");
       })
       .catch(() => {
-        if (!mounted) {
-          return;
-        }
-
+        if (!mounted) return;
         setStatus("idle");
         setMessage("Entre com um usuario de teste.");
       });
@@ -191,9 +302,8 @@ export function HomeScreen({ navigation }: Props) {
     };
   }, []);
 
-  // Carrega as areas automaticamente quando ha sessao (menos um toque para o cliente).
   useEffect(() => {
-    if (!session) {
+    if (!session || currentUser?.role !== "client") {
       return;
     }
 
@@ -201,32 +311,28 @@ export function HomeScreen({ navigation }: Props) {
     legalAreas
       .listAreas()
       .then((response) => {
-        if (!active) {
-          return;
-        }
-
+        if (!active) return;
         setAreas(response.areas);
         setSelectedAreaIds((current) =>
           current.length > 0 ? current : response.areas[0] ? [response.areas[0].id] : []
         );
       })
       .catch(() => {
-        // Falha silenciosa: o botao "Areas" continua disponivel como fallback manual.
+        // O botao de atualizar areas segue disponivel como fallback manual.
       });
 
     return () => {
       active = false;
     };
-  }, [session, legalAreas]);
+  }, [session, currentUser, legalAreas]);
 
   async function handleSignIn() {
     setStatus("loading");
     setMessage("Entrando com Supabase Auth.");
     try {
       const signedSession = await authService.signIn(email, password);
-      setSession(signedSession);
+      await hydrateUser(signedSession);
       setPassword("");
-      setMessage("Login concluido. Carregue as areas juridicas.");
       setStatus("idle");
     } catch (error) {
       setStatus("error");
@@ -237,10 +343,13 @@ export function HomeScreen({ navigation }: Props) {
   async function handleSignOut() {
     await authService.signOut();
     setSession(null);
+    setCurrentUser(null);
     setAreas([]);
     setSelectedAreaIds([]);
     setLocation(null);
     setMatch(null);
+    setClientTab("home");
+    setLawyerTab("dashboard");
     setMessage("Sessao encerrada.");
   }
 
@@ -266,7 +375,6 @@ export function HomeScreen({ navigation }: Props) {
       return;
     }
 
-    // Obtem a localizacao na hora da busca (permissao em contexto), se ainda nao houver.
     let activeLocation = location;
     if (!activeLocation) {
       setStatus("loading");
@@ -310,17 +418,15 @@ export function HomeScreen({ navigation }: Props) {
     );
   }
 
-  function handleTabSelect(tab: ShellTab) {
-    setActiveTab(tab);
-    const yByTab: Record<ShellTab, number> = {
-      home: 0,
-      search: 260,
-      account: 760
-    };
-    scrollRef.current?.scrollTo({ animated: true, y: yByTab[tab] });
+  function openMatchedProfile() {
+    if (!match?.lawyer) return;
+    navigation.navigate("LawyerProfile", {
+      lawyerId: match.lawyer.id,
+      distanceKm: match.distanceKm
+    });
   }
 
-  if (!session) {
+  if (!session || !currentUser) {
     return (
       <SafeAreaView style={styles.safeArea}>
         <ScrollView contentContainerStyle={styles.loginContainer} keyboardShouldPersistTaps="handled">
@@ -358,12 +464,77 @@ export function HomeScreen({ navigation }: Props) {
             </TouchableOpacity>
           </View>
 
-          <View style={[styles.statusBox, status === "error" && styles.statusBoxError]}>
-            {status === "loading" && <ActivityIndicator color={colors.gold} />}
-            <Text style={styles.statusText}>{message}</Text>
-          </View>
+          <StatusBox status={status} message={message} />
           <LegalLinks />
         </ScrollView>
+      </SafeAreaView>
+    );
+  }
+
+  if (currentUser.role === "lawyer") {
+    return (
+      <SafeAreaView style={styles.safeArea}>
+        <View style={styles.authenticatedShell}>
+          <ShellHeader email={session.email} role={currentUser.role} />
+          <ScrollView contentContainerStyle={styles.container}>
+            {lawyerTab === "dashboard" ? (
+              <>
+                <View style={styles.heroPanel}>
+                  <Text style={styles.heroTitle}>Painel do advogado</Text>
+                  <Text style={styles.panelText}>
+                    Acompanhe sua presenca profissional no Meu Advogado 2.0 sem misturar com a jornada do cliente.
+                  </Text>
+                </View>
+                <View style={styles.metricsGrid}>
+                  <View style={styles.metricCard}>
+                    <Text style={styles.cardLabel}>Perfil</Text>
+                    <Text style={styles.metricValue}>Ativo</Text>
+                  </View>
+                  <View style={styles.metricCard}>
+                    <Text style={styles.cardLabel}>WhatsApp</Text>
+                    <Text style={styles.metricValue}>Externo</Text>
+                  </View>
+                </View>
+              </>
+            ) : null}
+
+            {lawyerTab === "card" ? (
+              <View style={styles.vipCard}>
+                <Text style={styles.cardLabel}>Cartao digital</Text>
+                <Text style={styles.cardTitle}>{currentUser.email ?? "Advogado 2.0"}</Text>
+                <Text style={styles.panelText}>
+                  O cartao de beneficios sera conectado ao backend na Parte 3. Esta view ja separa o ambiente do
+                  advogado.
+                </Text>
+                <View style={styles.benefitRow}>
+                  <Ionicons color={colors.gold} name="shield-checkmark-outline" size={22} />
+                  <Text style={styles.panelText}>Beneficios seguros e sem pagamento nesta etapa.</Text>
+                </View>
+              </View>
+            ) : null}
+
+            {lawyerTab === "profile" ? (
+              <View style={styles.panel}>
+                <Text style={styles.panelTitle}>Perfil publico</Text>
+                <Text style={styles.panelText}>
+                  Foto, capa e bio ficam bloqueadas ate a validacao de seguranca da Parte 2.
+                </Text>
+              </View>
+            ) : null}
+
+            {lawyerTab === "account" ? (
+              <View style={styles.accountPanel}>
+                <Text style={styles.panelTitle}>Conta do advogado</Text>
+                <Text style={styles.panelText}>Conectado como {session.email}.</Text>
+                <TouchableOpacity style={styles.signOutButton} accessibilityRole="button" onPress={handleSignOut}>
+                  <Ionicons color={colors.gold} name="log-out-outline" size={18} />
+                  <Text style={styles.secondaryButtonText}>Sair</Text>
+                </TouchableOpacity>
+              </View>
+            ) : null}
+          </ScrollView>
+          <BottomNavigation activeTab={lawyerTab} items={lawyerNavItems} onSelect={setLawyerTab} />
+        </View>
       </SafeAreaView>
     );
   }
@@ -371,151 +542,103 @@ export function HomeScreen({ navigation }: Props) {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.authenticatedShell}>
-        <ShellHeader email={session.email} onAccountPress={() => handleTabSelect("account")} />
-        <ScrollView ref={scrollRef} contentContainerStyle={styles.container}>
-          <View style={styles.heroPanel}>
-            <Text style={styles.heroTitle}>A justica ao alcance de um toque</Text>
-            <View style={styles.locationBanner}>
-              <Ionicons color={colors.gold} name="location-outline" size={22} />
-              <Text style={styles.locationText}>{appCopy.location}</Text>
-            </View>
-            <TouchableOpacity
-              accessibilityRole="button"
-              onPress={() => handleTabSelect("search")}
-              style={styles.searchShortcut}
-            >
-              <Ionicons color={colors.surfaceDeep} name="search-outline" size={22} />
-              <Text style={styles.searchShortcutText}>Buscar por area juridica</Text>
-            </TouchableOpacity>
-          </View>
+        <ShellHeader email={session.email} role={currentUser.role} />
+        <ScrollView contentContainerStyle={styles.container}>
+          {clientTab === "home" ? (
+            <>
+              <View style={styles.heroPanel}>
+                <Text style={styles.heroTitle}>A justica ao alcance de um toque</Text>
+                <View style={styles.locationBanner}>
+                  <Ionicons color={colors.gold} name="location-outline" size={22} />
+                  <Text style={styles.locationText}>{appCopy.location}</Text>
+                </View>
+                <TouchableOpacity
+                  accessibilityRole="button"
+                  onPress={() => setClientTab("search")}
+                  style={styles.searchShortcut}
+                >
+                  <Ionicons color={colors.surfaceDeep} name="search-outline" size={22} />
+                  <Text style={styles.searchShortcutText}>Buscar por area juridica</Text>
+                </TouchableOpacity>
+              </View>
+              <View style={styles.howItWorks}>
+                <Text style={styles.sectionTitle}>Como funciona?</Text>
+                <View style={styles.stepsRow}>
+                  <View style={styles.stepItem}>
+                    <Ionicons color={colors.gold} name="search-outline" size={20} />
+                    <Text style={styles.stepText}>Buscar</Text>
+                  </View>
+                  <View style={styles.stepItem}>
+                    <Ionicons color={colors.gold} name="shield-checkmark-outline" size={20} />
+                    <Text style={styles.stepText}>Conferir</Text>
+                  </View>
+                  <View style={styles.stepItem}>
+                    <Ionicons color={colors.gold} name="logo-whatsapp" size={20} />
+                    <Text style={styles.stepText}>Conversar</Text>
+                  </View>
+                </View>
+              </View>
+              <MatchCard
+                match={match}
+                selectedAreaIds={selectedAreaIds}
+                status={status}
+                onMatch={handleMatch}
+                onOpenProfile={openMatchedProfile}
+              />
+            </>
+          ) : null}
 
-          <View style={styles.panel}>
-            <Text style={styles.panelTitle}>Encontre o advogado certo</Text>
-            <Text style={styles.panelText}>
-              Escolha uma area e use sua localizacao somente no momento da busca.
-            </Text>
-            <View style={styles.actions}>
-              <TouchableOpacity
-                style={styles.secondaryButton}
-                accessibilityRole="button"
-                onPress={handleLoadAreas}
-              >
-                <Text style={styles.secondaryButtonText}>Atualizar areas</Text>
+          {clientTab === "search" ? (
+            <>
+              <View style={styles.panel}>
+                <Text style={styles.panelTitle}>Encontre o advogado certo</Text>
+                <Text style={styles.panelText}>
+                  Escolha uma area e use sua localizacao somente no momento da busca.
+                </Text>
+                <TouchableOpacity style={styles.secondaryButton} accessibilityRole="button" onPress={handleLoadAreas}>
+                  <Ionicons color={colors.gold} name="refresh-outline" size={18} />
+                  <Text style={styles.secondaryButtonText}>Atualizar areas</Text>
+                </TouchableOpacity>
+              </View>
+              <AreaGrid areas={areas} selectedAreaIds={selectedAreaIds} onToggle={toggleArea} />
+              <MatchCard
+                match={match}
+                selectedAreaIds={selectedAreaIds}
+                status={status}
+                onMatch={handleMatch}
+                onOpenProfile={openMatchedProfile}
+              />
+              <StatusBox status={status} message={message} />
+            </>
+          ) : null}
+
+          {clientTab === "prayer" ? (
+            <View style={styles.panel}>
+              <Text style={styles.panelTitle}>Pedido de oracao</Text>
+              <Text style={styles.panelText}>
+                Esta tela ja tem rota propria. O envio sera liberado na Parte 3, depois da validacao de seguranca para
+                texto livre e LGPD.
+              </Text>
+              <View style={styles.noticeRow}>
+                <Ionicons color={colors.gold} name="lock-closed-outline" size={20} />
+                <Text style={styles.panelText}>Sem envio, persistencia ou logs nesta etapa.</Text>
+              </View>
+            </View>
+          ) : null}
+
+          {clientTab === "account" ? (
+            <View style={styles.accountPanel}>
+              <Text style={styles.panelTitle}>Conta</Text>
+              <Text style={styles.panelText}>Conectado como {session.email}.</Text>
+              <LegalLinks />
+              <TouchableOpacity style={styles.signOutButton} accessibilityRole="button" onPress={handleSignOut}>
+                <Ionicons color={colors.gold} name="log-out-outline" size={18} />
+                <Text style={styles.secondaryButtonText}>Sair</Text>
               </TouchableOpacity>
             </View>
-          </View>
-
-          {areas.length > 0 && (
-            <>
-              <View style={styles.sectionHeader}>
-                <Text style={styles.sectionTitle}>Areas juridicas</Text>
-                <Text style={styles.sectionAction}>fluxo real</Text>
-              </View>
-              <View style={styles.areaGrid}>
-                {areas.map((area) => {
-                  const selected = selectedAreaIds.includes(area.id);
-                  return (
-                    <TouchableOpacity
-                      accessibilityRole="checkbox"
-                      accessibilityState={{ checked: selected }}
-                      key={area.id}
-                      onPress={() => toggleArea(area.id)}
-                      style={[styles.areaPill, selected && styles.areaPillSelected]}
-                    >
-                      <Ionicons color={selected ? colors.surfaceDeep : colors.gold} name="briefcase-outline" size={18} />
-                      <Text style={[styles.areaText, selected && styles.areaTextSelected]}>{area.name}</Text>
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
-            </>
-          )}
-
-          <View style={styles.lawyerCard}>
-            <Text style={styles.cardLabel}>Advogado Indicado</Text>
-            <Text style={styles.cardTitle}>{match?.lawyer?.name ?? "Aguardando match"}</Text>
-            <Text style={styles.panelText}>{match?.message ?? describeMatch(match)}</Text>
-            {match?.lawyer?.city ? (
-              <Text style={styles.matchMeta}>
-                {match.lawyer.city}
-                {match.lawyer.state ? `/${match.lawyer.state}` : ""}
-                {typeof match.distanceKm === "number" ? ` - ${match.distanceKm.toFixed(1)} km` : ""}
-              </Text>
-            ) : null}
-            <TouchableOpacity
-              disabled={selectedAreaIds.length === 0 || status === "loading"}
-              style={[
-                styles.primaryButton,
-                (selectedAreaIds.length === 0 || status === "loading") && styles.disabledButton
-              ]}
-              accessibilityRole="button"
-              onPress={handleMatch}
-            >
-              <Text style={styles.primaryButtonText}>Buscar match</Text>
-            </TouchableOpacity>
-            <View style={styles.cardActions}>
-              {match?.lawyer ? (
-                <TouchableOpacity
-                  style={styles.secondaryButton}
-                  accessibilityRole="button"
-                  onPress={() =>
-                    navigation.navigate("LawyerProfile", {
-                      lawyerId: match.lawyer!.id,
-                      distanceKm: match.distanceKm
-                    })
-                  }
-                >
-                  <Ionicons color={colors.gold} name="person-outline" size={18} />
-                  <Text style={styles.secondaryButtonText}>Ver perfil</Text>
-                </TouchableOpacity>
-              ) : null}
-              {match?.lawyer?.whatsapp ? (
-                <TouchableOpacity
-                  style={styles.whatsButton}
-                  accessibilityRole="button"
-                  onPress={() => openWhatsApp(match.lawyer!.whatsapp!)}
-                >
-                  <Ionicons color={colors.surfaceDeep} name="logo-whatsapp" size={18} />
-                  <Text style={styles.whatsButtonText}>Falar no WhatsApp</Text>
-                </TouchableOpacity>
-              ) : null}
-            </View>
-          </View>
-
-          <View style={styles.howItWorks}>
-            <Text style={styles.sectionTitle}>Como funciona?</Text>
-            <View style={styles.stepsRow}>
-              <View style={styles.stepItem}>
-                <Ionicons color={colors.gold} name="search-outline" size={20} />
-                <Text style={styles.stepText}>Buscar</Text>
-              </View>
-              <View style={styles.stepItem}>
-                <Ionicons color={colors.gold} name="shield-checkmark-outline" size={20} />
-                <Text style={styles.stepText}>Conferir</Text>
-              </View>
-              <View style={styles.stepItem}>
-                <Ionicons color={colors.gold} name="logo-whatsapp" size={20} />
-                <Text style={styles.stepText}>Conversar</Text>
-              </View>
-            </View>
-          </View>
-
-          <View style={[styles.statusBox, status === "error" && styles.statusBoxError]}>
-            {status === "loading" && <ActivityIndicator color={colors.gold} />}
-            <Text style={styles.statusText}>{message}</Text>
-          </View>
-
-          <View style={styles.accountPanel}>
-            <Text style={styles.panelTitle}>Conta</Text>
-            <Text style={styles.panelText}>Conectado como {session.email}.</Text>
-            <LegalLinks />
-            <TouchableOpacity style={styles.signOutButton} accessibilityRole="button" onPress={handleSignOut}>
-              <Ionicons color={colors.gold} name="log-out-outline" size={18} />
-              <Text style={styles.secondaryButtonText}>Sair</Text>
-            </TouchableOpacity>
-          </View>
+          ) : null}
         </ScrollView>
-        <BottomNavigation activeTab={activeTab} onSelect={handleTabSelect} />
+        <BottomNavigation activeTab={clientTab} items={clientNavItems} onSelect={setClientTab} />
       </View>
     </SafeAreaView>
   );
@@ -544,7 +667,7 @@ const styles = StyleSheet.create({
   },
   loginLogo: {
     aspectRatio: 1,
-    borderRadius: 8,
+    borderRadius: 16,
     height: 180,
     width: 180
   },
@@ -560,11 +683,6 @@ const styles = StyleSheet.create({
     gap: spacing.md,
     padding: spacing.lg
   },
-  loginTitle: {
-    color: colors.textPrimary,
-    fontSize: 24,
-    fontWeight: "800"
-  },
   panel: {
     backgroundColor: colors.surface,
     borderColor: colors.borderSubtle,
@@ -572,6 +690,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     gap: spacing.md,
     padding: spacing.lg
+  },
+  loginTitle: {
+    color: colors.textPrimary,
+    fontSize: 24,
+    fontWeight: "800"
   },
   authenticatedShell: {
     flex: 1
@@ -591,9 +714,9 @@ const styles = StyleSheet.create({
     gap: spacing.md
   },
   headerLogo: {
-    borderRadius: 8,
-    height: 44,
-    width: 44
+    borderRadius: 12,
+    height: 48,
+    width: 48
   },
   brandTextBlock: {
     flex: 1
@@ -608,22 +731,10 @@ const styles = StyleSheet.create({
     fontSize: 12,
     lineHeight: 16
   },
-  headerIconButton: {
-    alignItems: "center",
-    borderColor: colors.borderSubtle,
-    borderRadius: 999,
-    borderWidth: 1,
-    height: 44,
-    justifyContent: "center",
-    position: "absolute",
-    right: 20,
-    top: spacing.sm,
-    width: 44
-  },
   sessionHint: {
     color: colors.textMuted,
     fontSize: 12,
-    paddingLeft: 60
+    paddingLeft: 64
   },
   heroPanel: {
     gap: spacing.md
@@ -743,6 +854,30 @@ const styles = StyleSheet.create({
     gap: spacing.md,
     padding: spacing.lg
   },
+  accountPanel: {
+    backgroundColor: colors.surface,
+    borderColor: colors.borderSubtle,
+    borderRadius: 16,
+    borderWidth: 1,
+    gap: spacing.md,
+    padding: spacing.lg
+  },
+  vipCard: {
+    backgroundColor: colors.surface,
+    borderColor: colors.borderSubtle,
+    borderRadius: 16,
+    borderWidth: 1,
+    gap: spacing.md,
+    padding: spacing.lg
+  },
+  metricCard: {
+    backgroundColor: colors.surface,
+    borderColor: colors.borderSubtle,
+    borderRadius: 16,
+    borderWidth: 1,
+    gap: spacing.md,
+    padding: spacing.lg
+  },
   cardLabel: {
     color: colors.gold,
     fontSize: 12,
@@ -754,6 +889,11 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "800"
   },
+  metricValue: {
+    color: colors.textPrimary,
+    fontSize: 22,
+    fontWeight: "900"
+  },
   matchMeta: {
     color: colors.gold,
     fontSize: 13,
@@ -761,11 +901,6 @@ const styles = StyleSheet.create({
   },
   cardActions: {
     gap: spacing.sm
-  },
-  actions: {
-    flexDirection: "row",
-    gap: spacing.sm,
-    marginTop: spacing.sm
   },
   secondaryButton: {
     alignItems: "center",
@@ -836,14 +971,6 @@ const styles = StyleSheet.create({
     fontWeight: "800",
     textAlign: "center"
   },
-  accountPanel: {
-    backgroundColor: colors.surface,
-    borderColor: colors.borderSubtle,
-    borderRadius: 16,
-    borderWidth: 1,
-    gap: spacing.md,
-    padding: spacing.lg
-  },
   signOutButton: {
     alignItems: "center",
     borderColor: colors.gold,
@@ -903,5 +1030,19 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
     flex: 1,
     lineHeight: 20
+  },
+  noticeRow: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: spacing.sm
+  },
+  benefitRow: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: spacing.sm
+  },
+  metricsGrid: {
+    flexDirection: "row",
+    gap: spacing.md
   }
 });

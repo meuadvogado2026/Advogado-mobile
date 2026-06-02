@@ -130,3 +130,19 @@ Evidencias:
 - `harness-results/spec005-shell-auth.xml`
 
 Ressalva: o smoke visual completo de match/perfil/WhatsApp nao foi repetido nesta spec; a integracao foi preservada por smoke runtime Railway e ja havia sido demonstrada visualmente na spec 004. Antes de release, gerar build/preview novo e repetir o fluxo visual completo com o shell.
+
+## Resultado Do APK Preview Da Spec 005
+
+Em 2026-06-01, foi gerado o EAS Build Android preview `5c9741f9-ecac-44bb-b9ae-c1e2c6f25200`, commit mobile `0aa8ed898d6df099e9a311b879ac2afac0f88ac5`, package `com.advogado20.app`, appBuildVersion `2`, com fallback dev desligado. O APK foi baixado para `harness-results/preview-5c9741f9-spec005-shell.apk` com SHA-256 `61D2DF3D1D76D8AEB8397FCA9C5FBB2BE118CBD625BB6C048620EFCD59C249EC`.
+
+Gates: `npm run harness` exit code 0; `npm run smoke:runtime` contra Railway exit code 0, com Auth real redigido, 6 areas, match `matched`, perfil `verified=true`, duas areas e `hasForbiddenField=false`; `git diff --check` exit code 0 com avisos CRLF esperados no Windows.
+
+Smoke visual no AVD `Pixel_9`: `eas build:run --platform android --latest` baixou, instalou e iniciou o APK. A Home autenticada renderizou header `ADVOGADO 2.0`, areas juridicas, card `ADVOGADO INDICADO` e bottom navigation `Inicio`, `Buscar`, `Conta`. O fluxo completo nao fechou porque o AVD nao entregou localizacao nativa ao Expo Location com fallback dev desligado; o app exibiu `Nao foi possivel obter sua localizacao agora. Tente novamente.`. Resultado: `QUESTIONAR` ate validar em device fisico com GPS real/WhatsApp ou por checklist manual assistido.
+
+Evidencias: `harness-results/spec005-preview-build-visual-smoke.md`, `manual-device-spec005-preview-validation-2026-06-01.md`, `spec005-preview-*.png` e `spec005-preview-*.xml`.
+
+## Resultado Da Retomada Do Gate Fisico Da Spec 005
+
+Em 2026-06-01, o ciclo foi retomado sem codigo novo para fechar o gate fisico do APK preview da spec 005. O arquivo `harness-results/preview-5c9741f9-spec005-shell.apk` foi confirmado com `66185270` bytes e o SHA-256 local bateu com `61D2DF3D1D76D8AEB8397FCA9C5FBB2BE118CBD625BB6C048620EFCD59C249EC`.
+
+Resultado: `QUESTIONAR`. `adb` nao esta disponivel no PATH desta sessao, portanto nao foi possivel instalar/inspecionar device fisico de forma assistida. Sem confirmacao manual do usuario, o fluxo `Login -> Home com shell -> match -> Ver perfil -> LawyerProfile -> Voltar -> Falar no WhatsApp` ainda precisa ser validado em device Android fisico com GPS real e WhatsApp instalado. Nenhuma senha, token, telefone completo, coordenada exata ou payload sensivel foi registrado.

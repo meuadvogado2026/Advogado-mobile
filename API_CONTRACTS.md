@@ -65,13 +65,22 @@ Resposta planejada:
     "areaIds": ["uuid"],
     "areas": [{ "id": "uuid", "name": "Direito Civil" }],
     "whatsapp": "...",
-    "verified": true
+    "verified": true,
+    "avatarUrl": "https://cdn.example.com/avatar.jpg",
+    "coverUrl": "https://cdn.example.com/capa.jpg",
+    "miniBio": "Atendimento consultivo em direito civil.",
+    "fullBio": "Texto publico do perfil profissional.",
+    "yearsExperience": null,
+    "planLabel": null,
+    "emergencyAvailable": false
   }
 }
 ```
 
-Nao expor CEP, endereco completo, coordenada, email ou auditoria. Distancia vem como
-contexto efemero do match, nao como dado do perfil.
+Campos visuais sao opcionais. O app renderiza foto/capa apenas quando a URL HTTPS vem
+do backend; ausente ou invalida usa fallback visual. Nao expor CEP, endereco completo,
+coordenada, email ou auditoria. Distancia vem como contexto efemero do match, nao como
+dado do perfil.
 
 ## Advogado Logado
 

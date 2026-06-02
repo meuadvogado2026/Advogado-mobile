@@ -12,6 +12,13 @@ export type PublicLawyerProfile = {
   areas: Array<{ id: string; name: string }>;
   whatsapp?: string | null;
   verified: boolean;
+  avatarUrl?: string | null;
+  coverUrl?: string | null;
+  miniBio?: string | null;
+  fullBio?: string | null;
+  yearsExperience?: number | null;
+  planLabel?: string | null;
+  emergencyAvailable?: boolean;
 };
 
 export type LawyerProfileResponse = {

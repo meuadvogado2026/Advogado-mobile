@@ -12,6 +12,7 @@ const requiredFiles = [
   "src/services/areasService.ts",
   "src/services/matchService.ts",
   "src/services/lawyerProfileService.ts",
+  "src/services/meService.ts",
   "src/screens/LawyerProfileScreen.tsx",
   "src/services/locationService.ts",
   "src/services/sessionStorage.ts",
@@ -25,6 +26,9 @@ if (missing.length > 0) {
 
 if (apiContracts.match !== "/v1/match") {
   throw new Error("Smoke mobile falhou. Contrato de match divergente.");
+}
+if (apiContracts.me !== "/v1/me") {
+  throw new Error("Smoke mobile falhou. Contrato de sessao/role divergente.");
 }
 if (apiContracts.lawyerProfile !== "/v1/lawyers/:id") {
   throw new Error("Smoke mobile falhou. Contrato de perfil divergente.");
@@ -78,11 +82,14 @@ if (
   !home.includes("BottomNavigation") ||
   !home.includes('label: "Inicio"') ||
   !home.includes('label: "Buscar"') ||
+  !home.includes('label: "Oracao"') ||
+  !home.includes('label: "Cartao"') ||
+  !home.includes('label: "Perfil"') ||
   !home.includes('label: "Conta"') ||
-  !home.includes('onSelect: (tab: ShellTab) => void') ||
+  home.includes("scrollTo") ||
   !home.includes("Buscar por area juridica")
 ) {
-  throw new Error("Smoke mobile falhou. Shell autenticado com Inicio/Buscar/Conta nao esta presente.");
+  throw new Error("Smoke mobile falhou. Shell com views reais e menus cliente/advogado nao esta presente.");
 }
 
 if (/Mensagens|Agenda|Plant[aã]o|Favoritos|avalia[cç][oõ]es|24h/i.test(home)) {
@@ -90,5 +97,5 @@ if (/Mensagens|Agenda|Plant[aã]o|Favoritos|avalia[cç][oõ]es|24h/i.test(home))
 }
 
 console.log(
-  "Smoke mobile OK: Expo entry, Auth, API backend, SecureStore, Location, Match, LawyerProfile, shell Inicio/Buscar/Conta e links legais existem."
+  "Smoke mobile OK: Expo entry, Auth, API backend, SecureStore, Location, Match, LawyerProfile, role shell cliente/advogado e links legais existem."
 );
