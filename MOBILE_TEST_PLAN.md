@@ -202,18 +202,22 @@ e deploy.
 
 ## Resultado Do Gate De Publicacao Da Spec 008 Parte 3
 
-Em 2026-06-03, o gate de publicacao/validacao da Parte 3 foi executado sem Play Console,
-sem APK, sem AAB e sem deploy. O backend revalidou `0003_prayer_requests.sql` em dry-run
-e passou no harness; o mobile passou novamente no harness. A aplicacao remota da migration
-ficou bloqueada porque `psql`, `SUPABASE_DB_URL` e flags de apply nao estao disponiveis
-nesta sessao. Por regra, backend/mobile nao foram publicados.
+Em 2026-06-03, o gate de publicacao/validacao da Parte 3 foi fechado sem Play Console,
+sem APK novo e sem AAB. A primeira tentativa ficou bloqueada porque a migration ainda nao
+estava aplicada; depois o usuario aplicou `0003_prayer_requests.sql` manualmente no
+Supabase SQL Editor aprovado (`Success. No rows returned`). Backend commit `a5db016`
+foi publicado no Railway e mobile commit `f5ed433` foi publicado no GitHub.
 
 Gates:
 
 - Backend `npm run migration:check`; exit code 0; `OK_DRY_RUN_STATIC`.
 - Backend `npm run harness`; exit code 0; 45 testes, build e smoke local.
+- Backend `npm run prod:smoke` contra Railway; exit code 0; dashboard advogado `401/403/200` e prayer requests `401/403/422/201`, sem ecoar texto nem `clientProfileId`.
 - Mobile `npm run harness`; exit code 0; 12 testes e smoke estrutural.
-- Railway atual respondeu `404` sem credenciais para os endpoints novos.
+- Mobile `npm run smoke:runtime` contra Railway; exit code 0; `OK_COM_RESSALVAS`, login real com token redigido, 6 areas, match `matched` e perfil seguro.
 
-Resultado: `QUESTIONAR_MIGRATION_SUPABASE`. Evidencia:
+Ressalva: smoke visual Android da Parte 3 nao foi executado porque nenhum device/AVD
+estava conectado/bootado. Nenhum texto sensivel de oracao, token, senha, telefone completo
+ou coordenada exata foi registrado. Resultado: `SPEC008_PARTE3_PUBLICADA_OK_COM_RESSALVAS`.
+Evidencia:
 `harness-results/spec008-part3-published-validation-2026-06-03.md`.

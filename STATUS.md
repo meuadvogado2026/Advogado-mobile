@@ -1,8 +1,8 @@
 # Mobile Status - Meu Advogado 2.0
 
 **Ultima atualizacao:** 2026-06-03
-**Fase:** PRODUTO MVP / SPEC 008 PARTE 3 PUBLICATION GATE
-**Veredito:** QUESTIONAR_MIGRATION_SUPABASE / QUESTIONAR_CREDENCIAIS_PLAY_CONSOLE
+**Fase:** PRODUTO MVP / SPEC 008 PARTE 3 PUBLICADA
+**Veredito:** SPEC008_PARTE3_PUBLICADA_OK_COM_RESSALVAS / QUESTIONAR_CREDENCIAIS_PLAY_CONSOLE
 
 ## Concluido
 
@@ -71,7 +71,7 @@
 - [x] Fluxo fisico/manual completo do novo APK preview fechado por confirmacao assistida do usuario: GPS real, match, `LawyerProfile`, `Voltar` e WhatsApp real.
 - [x] Spec 008 Parte 3 implementada localmente no mobile: shell do advogado consome `GET /v1/lawyer/me/dashboard`, cartao exibe beneficios estaticos/seguros e aba cliente `Oracao` envia `POST /v1/prayer-requests` com anonimato e resposta sem ecoar texto.
 - [x] Gates spec 008 Parte 3 mobile: `npm run harness` exit 0; typecheck, 12 testes e smoke estrutural passaram.
-- [x] Gate de publicacao da Parte 3 reexecutou mobile `npm run harness` com exit 0, mas runtime/smoke visual contra Railway foi bloqueado porque a migration 0003 nao foi aplicada e o backend publicado ainda nao contem os endpoints novos.
+- [x] Spec 008 Parte 3 publicada: mobile commit `f5ed433` publicado no GitHub sem gerar APK/AAB; backend Railway validado apos migration 0003 manual. Mobile `npm run harness` exit 0 e `npm run smoke:runtime` contra Railway exit 0 (`OK_COM_RESSALVAS`) com token redigido, 6 areas, match `matched` e perfil seguro.
 
 ## Em Andamento
 
@@ -102,8 +102,8 @@
 - Diagnostico de release readiness da Spec 003 em 2026-06-02 fechou como `QUESTIONAR_COMPLIANCE_RELEASE`: fluxo principal/APK preview e package Android estao evidenciados, mas Data Safety, conta de teste, AAB, crash reporting/decisao de adiamento, auditoria PII/logs/secrets, credenciais/keystore e rollback ainda bloqueiam internal testing executavel.
 - Package gate da Spec 003 em 2026-06-03 fechou como `QUESTIONAR_CREDENCIAIS_PLAY_CONSOLE`: checklist Data Safety, conta de teste, auditoria PII/logs/secrets, decisao recomendada de adiar crash reporting, runbook de rollback e criterios para AAB foram documentados, mas falta humano confirmar Play Console/EAS/keystore e conta de teste.
 - Gate assistido da Spec 003 em 2026-06-03 manteve `QUESTIONAR_CREDENCIAIS_PLAY_CONSOLE`: docs/configs/APK e referencias oficiais foram reconfirmados, mas nao houve confirmacao humana explicita de Play Console/app, EAS/keystore, conta de teste ou Data Safety no console.
-- Spec 008 Parte 3 esta localmente OK com ressalvas: backend/mobile passaram em harness, mas falta aplicar migration `0003_prayer_requests.sql`, publicar backend/mobile conforme estrategia e executar smoke visual Android/runtime contra ambiente publicado.
-- Gate de publicacao da Spec 008 Parte 3 esta `QUESTIONAR_MIGRATION_SUPABASE`: sem migration aplicada, nao houve deploy, runtime Railway ou smoke visual Android.
+- Spec 008 Parte 3 esta `SPEC008_PARTE3_PUBLICADA_OK_COM_RESSALVAS`: migration aplicada manualmente no Supabase, backend Railway publicado/validado e mobile GitHub publicado. Falta smoke visual Android da Parte 3 porque nenhum device/AVD estava conectado/bootado.
+- Play Console/AAB/APK novo continuaram fora do ciclo; Spec 003 segue `QUESTIONAR_CREDENCIAIS_PLAY_CONSOLE`.
 - Proximos ciclos devem ser iniciados pela raiz do projeto para carregar a governanca central `.codex/` e specs em `.codex/specs/`.
 
 ## Validacao Em Device Fisico (APK EAS)
@@ -123,4 +123,4 @@
 
 ## Proximo Passo
 
-Spec 008 Parte 3 esta `QUESTIONAR_MIGRATION_SUPABASE` para publicacao. Proximo gate mobile: apos aplicar/publicar backend da Parte 3, repetir runtime/smoke visual Android para cliente `Oracao` e advogado `Dashboard/Cartao`. Play Console continua bloqueado por confirmacao humana objetiva de app `com.advogado20.app`, EAS/keystore, conta de teste e Data Safety antes de qualquer `SPEC003_AAB_INTERNAL_TESTING_BUILD`.
+Spec 008 Parte 3 esta `SPEC008_PARTE3_PUBLICADA_OK_COM_RESSALVAS`. Proximo gate mobile: fechar smoke visual Android proporcional para cliente `Oracao` e advogado `Dashboard/Cartao/Perfil` quando houver device/AVD bootado, sem APK/AAB novo. Play Console continua bloqueado por confirmacao humana objetiva de app `com.advogado20.app`, EAS/keystore, conta de teste e Data Safety antes de qualquer `SPEC003_AAB_INTERNAL_TESTING_BUILD`.
