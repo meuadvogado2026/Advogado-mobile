@@ -393,3 +393,39 @@ Gates:
 Resultado: `SPEC008_PARTE3_RETENCAO_ORACAO_PUBLICADA_OK` no backend/compliance,
 com mobile preservado. Lacuna visual Android da Parte 3 continua separada;
 nenhum texto de oracao foi enviado pelo mobile neste ciclo.
+
+## Resultado Do Polimento Visual Mobile Spec 008 Parte 1R
+
+Em 2026-06-03, o feedback do APK de teste apontou que os icones nao apareciam no
+menu inferior, nas areas juridicas e no `Como funciona?`, que o topo autenticado
+estava pesado com logo lateral e textos de marca/sessao, que o aviso de
+localizacao estava visualmente agressivo no topo e que botoes/detalhes podiam
+ficar mais dourados.
+
+Implementacao:
+
+- `App.tsx` passou a carregar explicitamente `Ionicons.font` via `useFonts`.
+- Home autenticada passou a mostrar somente a logo centralizada no topo, com
+  cantos arredondados.
+- Bottom nav, cards de areas juridicas e `Como funciona?` ganharam badges de
+  icone em dourado de alto contraste.
+- Cards de areas juridicas ficaram maiores, com labels em ate duas linhas e
+  nomes mais legiveis sem o prefixo repetitivo `Direito`.
+- O aviso de localizacao saiu do topo e virou nota discreta no fim da Home,
+  sem negrito, borda ou card pesado.
+- Botoes primarios/secundarios e detalhes passaram a usar dourado mais forte.
+
+Gates:
+
+- `npm run typecheck`; exit code 0.
+- `npm run smoke`; exit code 0; smoke estrutural cobre carregamento de
+  `Ionicons.font`, ausencia do bloco antigo de marca/sessao, `locationFootnote`
+  e badges de icones.
+- `npm run harness`; exit code 0; typecheck, 12 testes e smoke estrutural.
+- `npm run smoke:runtime` contra Railway; exit code 0; `OK_COM_RESSALVAS`, Auth
+  real com token redigido, 6 areas, match `matched` e perfil seguro.
+- `git diff --check`; exit code 0; apenas avisos CRLF esperados no Windows.
+
+Resultado: `SPEC008_PARTE1R_POLIMENTO_VISUAL_MOBILE_OK`. Smoke visual Android
+nao foi executado neste ciclo porque nenhum device Android estava
+conectado/bootado; nenhum APK/AAB foi gerado e Play Console nao foi aberto.

@@ -86,19 +86,10 @@ function LegalLinks() {
   );
 }
 
-function ShellHeader({ role }: { role: CurrentUser["role"] }) {
+function ShellHeader() {
   return (
     <View style={styles.shellHeader}>
-      <View style={styles.brandRow}>
-        <Image accessibilityIgnoresInvertColors source={logo} style={styles.headerLogo} />
-        <View style={styles.brandTextBlock}>
-          <Text style={styles.brandTitle}>{appCopy.brand}</Text>
-          <Text style={styles.brandSubtitle}>
-            {role === "lawyer" ? "Painel do advogado" : "Atendimento juridico proximo"}
-          </Text>
-        </View>
-      </View>
-      <Text style={styles.sessionHint} numberOfLines={1}>Sessao autenticada</Text>
+      <Image accessibilityIgnoresInvertColors source={logo} style={styles.headerLogo} />
     </View>
   );
 }
@@ -124,7 +115,9 @@ function BottomNavigation<TTab extends string>({
             onPress={() => onSelect(item.tab)}
             style={styles.bottomNavItem}
           >
-            <Ionicons color={selected ? colors.gold : colors.textMuted} name={item.icon} size={23} />
+            <View style={[styles.bottomIconBadge, selected && styles.bottomIconBadgeActive]}>
+              <Ionicons color={selected ? colors.surfaceDeep : colors.goldBright} name={item.icon} size={22} />
+            </View>
             <Text style={[styles.bottomNavText, selected && styles.bottomNavTextActive]}>{item.label}</Text>
           </TouchableOpacity>
         );
@@ -188,9 +181,11 @@ function AreaCarousel({
               onPress={() => onToggle(area.id)}
               style={[styles.areaTile, selected && styles.areaTileSelected]}
             >
-              <Ionicons color={colors.gold} name={getAreaIcon(area.name)} size={30} />
-              <Text numberOfLines={1} style={[styles.areaTileText, selected && styles.areaTileTextSelected]}>
-                {area.name}
+              <View style={[styles.areaIconBadge, selected && styles.areaIconBadgeSelected]}>
+                <Ionicons color={selected ? colors.surfaceDeep : colors.goldBright} name={getAreaIcon(area.name)} size={31} />
+              </View>
+              <Text numberOfLines={2} style={[styles.areaTileText, selected && styles.areaTileTextSelected]}>
+                {getAreaLabel(area.name)}
               </Text>
             </TouchableOpacity>
           );
@@ -204,10 +199,16 @@ function getAreaIcon(areaName: string): keyof typeof Ionicons.glyphMap {
   const normalized = areaName.toLowerCase();
   if (normalized.includes("trabalh")) return "briefcase-outline";
   if (normalized.includes("famil")) return "people-outline";
+  if (normalized.includes("consum")) return "cart-outline";
   if (normalized.includes("imob")) return "business-outline";
   if (normalized.includes("criminal")) return "scale-outline";
   if (normalized.includes("previd")) return "shield-checkmark-outline";
-  return "hammer-outline";
+  if (normalized.includes("civil") || normalized.includes("civel")) return "document-text-outline";
+  return "library-outline";
+}
+
+function getAreaLabel(areaName: string): string {
+  return areaName.replace(/^direito\s+(de|da|do|das|dos)?\s*/i, "").trim();
 }
 
 function MatchCard({
@@ -653,7 +654,7 @@ export function HomeScreen({ navigation }: Props) {
     return (
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.authenticatedShell}>
-          <ShellHeader role={currentUser.role} />
+          <ShellHeader />
           <ScrollView contentContainerStyle={styles.container}>
             {lawyerTab === "dashboard" ? (
               <>
@@ -740,16 +741,12 @@ export function HomeScreen({ navigation }: Props) {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.authenticatedShell}>
-        <ShellHeader role={currentUser.role} />
+        <ShellHeader />
         <ScrollView contentContainerStyle={styles.container}>
           {clientTab === "home" ? (
             <>
               <View style={styles.clientHero}>
                 <Text style={styles.heroKicker}>A justica ao alcance de um toque</Text>
-                <View style={styles.locationBanner}>
-                  <Ionicons color={colors.gold} name="location-outline" size={22} />
-                  <Text style={styles.locationText}>{appCopy.location}</Text>
-                </View>
               </View>
 
               <View style={styles.searchBar}>
@@ -789,23 +786,33 @@ export function HomeScreen({ navigation }: Props) {
                 <View style={styles.timelineLine} />
                 <View style={styles.stepsRow}>
                   <View style={styles.stepItem}>
-                    <Ionicons color={colors.gold} name="search-outline" size={21} />
+                    <View style={styles.stepIconBadge}>
+                      <Ionicons color={colors.surfaceDeep} name="search-outline" size={24} />
+                    </View>
                     <Text style={styles.stepText}>1. Buscar</Text>
                   </View>
                   <View style={styles.stepItem}>
-                    <Ionicons color={colors.gold} name="shield-checkmark-outline" size={21} />
+                    <View style={styles.stepIconBadge}>
+                      <Ionicons color={colors.surfaceDeep} name="shield-checkmark-outline" size={24} />
+                    </View>
                     <Text style={styles.stepText}>2. Conferir</Text>
                   </View>
                   <View style={styles.stepItem}>
-                    <Ionicons color={colors.gold} name="logo-whatsapp" size={21} />
+                    <View style={styles.stepIconBadge}>
+                      <Ionicons color={colors.surfaceDeep} name="logo-whatsapp" size={24} />
+                    </View>
                     <Text style={styles.stepText}>3. Conversar</Text>
                   </View>
                   <View style={styles.stepItem}>
-                    <Ionicons color={colors.gold} name="checkmark-circle-outline" size={21} />
+                    <View style={styles.stepIconBadge}>
+                      <Ionicons color={colors.surfaceDeep} name="checkmark-circle-outline" size={24} />
+                    </View>
                     <Text style={styles.stepText}>4. Resolver</Text>
                   </View>
                 </View>
               </View>
+
+              <Text style={styles.locationFootnote}>{appCopy.location}</Text>
 
               <StatusBox status={status} message={message} />
             </>
@@ -889,41 +896,20 @@ const styles = StyleSheet.create({
     flex: 1
   },
   shellHeader: {
-    backgroundColor: colors.surfaceDeep,
+    alignItems: "center",
+    backgroundColor: colors.background,
     borderBottomColor: colors.borderSubtle,
     borderBottomWidth: 1,
-    gap: spacing.xs,
     paddingHorizontal: 20,
     paddingTop: spacing.sm,
-    paddingBottom: spacing.md
-  },
-  brandRow: {
-    alignItems: "center",
-    flexDirection: "row",
-    gap: spacing.md
+    paddingBottom: spacing.sm
   },
   headerLogo: {
-    borderRadius: 999,
-    height: 40,
-    width: 40
-  },
-  brandTextBlock: {
-    flex: 1
-  },
-  brandTitle: {
-    color: colors.gold,
-    fontSize: 24,
-    fontWeight: "900"
-  },
-  brandSubtitle: {
-    color: colors.textMuted,
-    fontSize: 12,
-    lineHeight: 16
-  },
-  sessionHint: {
-    color: colors.textMuted,
-    fontSize: 12,
-    paddingLeft: 56
+    borderColor: "rgba(255,224,138,0.34)",
+    borderRadius: 20,
+    borderWidth: 1,
+    height: 76,
+    width: 76
   },
   clientHero: {
     gap: spacing.sm
@@ -943,20 +929,12 @@ const styles = StyleSheet.create({
     fontWeight: "800",
     lineHeight: 32
   },
-  locationBanner: {
-    alignItems: "center",
-    backgroundColor: colors.surfaceContainer,
-    borderRadius: 12,
-    flexDirection: "row",
-    gap: spacing.sm,
-    padding: spacing.md
-  },
-  locationText: {
+  locationFootnote: {
     color: colors.textPrimary,
-    flex: 1,
-    fontSize: 14,
-    fontWeight: "700",
-    lineHeight: 21
+    fontSize: 13,
+    fontWeight: "400",
+    lineHeight: 20,
+    opacity: 0.88
   },
   searchBar: {
     alignItems: "center",
@@ -1007,8 +985,10 @@ const styles = StyleSheet.create({
   },
   primaryButton: {
     alignItems: "center",
-    backgroundColor: colors.goldContainer,
+    backgroundColor: colors.goldBright,
     borderRadius: 8,
+    borderColor: colors.goldDeep,
+    borderWidth: 1,
     flexDirection: "row",
     gap: spacing.sm,
     minHeight: 44,
@@ -1017,7 +997,7 @@ const styles = StyleSheet.create({
   },
   primaryButtonText: {
     color: colors.surfaceDeep,
-    fontWeight: "800"
+    fontWeight: "900"
   },
   sectionTitle: {
     color: colors.textPrimary,
@@ -1042,30 +1022,47 @@ const styles = StyleSheet.create({
   areaTile: {
     alignItems: "center",
     backgroundColor: "#081b35",
-    borderColor: "rgba(244,210,100,0.14)",
+    borderColor: "rgba(255,224,138,0.22)",
     borderRadius: 18,
     borderWidth: 1,
-    gap: spacing.sm,
-    height: 88,
+    gap: 10,
+    height: 118,
     justifyContent: "center",
-    shadowColor: colors.goldContainer,
+    paddingHorizontal: spacing.sm,
+    shadowColor: colors.goldBright,
     shadowOpacity: 0.16,
     shadowRadius: 14,
-    width: 88
+    width: 118
   },
   areaTileSelected: {
-    borderColor: colors.gold,
+    backgroundColor: "rgba(255,224,138,0.08)",
+    borderColor: colors.goldBright,
     shadowOpacity: 0.28
   },
+  areaIconBadge: {
+    alignItems: "center",
+    backgroundColor: "rgba(255,224,138,0.12)",
+    borderColor: "rgba(255,224,138,0.34)",
+    borderRadius: 18,
+    borderWidth: 1,
+    height: 48,
+    justifyContent: "center",
+    width: 48
+  },
+  areaIconBadgeSelected: {
+    backgroundColor: colors.goldBright,
+    borderColor: colors.goldBright
+  },
   areaTileText: {
-    color: colors.textMuted,
-    fontSize: 12,
-    fontWeight: "700",
-    maxWidth: 82,
+    color: colors.textPrimary,
+    fontSize: 13,
+    fontWeight: "800",
+    lineHeight: 17,
+    maxWidth: 104,
     textAlign: "center"
   },
   areaTileTextSelected: {
-    color: colors.textPrimary
+    color: colors.goldBright
   },
   areaGrid: {
     flexDirection: "row",
@@ -1256,7 +1253,7 @@ const styles = StyleSheet.create({
   },
   secondaryButton: {
     alignItems: "center",
-    borderColor: colors.gold,
+    borderColor: colors.goldBright,
     borderRadius: 8,
     borderWidth: 1,
     flexDirection: "row",
@@ -1266,8 +1263,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md
   },
   secondaryButtonText: {
-    color: colors.gold,
-    fontWeight: "800"
+    color: colors.goldBright,
+    fontWeight: "900"
   },
   whatsButton: {
     alignItems: "center",
@@ -1320,15 +1317,25 @@ const styles = StyleSheet.create({
     borderColor: "transparent",
     borderWidth: 1,
     flex: 1,
-    gap: spacing.sm,
-    minHeight: 96,
+    gap: 10,
+    minHeight: 106,
     justifyContent: "center",
     padding: spacing.sm
   },
+  stepIconBadge: {
+    alignItems: "center",
+    backgroundColor: colors.goldBright,
+    borderColor: colors.goldDeep,
+    borderRadius: 999,
+    borderWidth: 1,
+    height: 46,
+    justifyContent: "center",
+    width: 46
+  },
   stepText: {
-    color: colors.textMuted,
+    color: colors.textPrimary,
     fontSize: 12,
-    fontWeight: "800",
+    fontWeight: "900",
     textAlign: "center"
   },
   signOutButton: {
@@ -1353,7 +1360,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-around",
     left: 0,
-    minHeight: 76,
+    minHeight: 84,
     paddingBottom: spacing.sm,
     paddingTop: spacing.sm,
     position: "absolute",
@@ -1365,6 +1372,20 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
     minHeight: 56,
     justifyContent: "center"
+  },
+  bottomIconBadge: {
+    alignItems: "center",
+    backgroundColor: "rgba(255,224,138,0.10)",
+    borderColor: "rgba(255,224,138,0.20)",
+    borderRadius: 999,
+    borderWidth: 1,
+    height: 38,
+    justifyContent: "center",
+    width: 38
+  },
+  bottomIconBadgeActive: {
+    backgroundColor: colors.goldBright,
+    borderColor: colors.goldBright
   },
   bottomNavText: {
     color: colors.textMuted,

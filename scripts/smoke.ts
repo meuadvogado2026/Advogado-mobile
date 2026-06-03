@@ -68,6 +68,7 @@ if (
 }
 
 if (
+  !app.includes("useFonts(Ionicons.font)") ||
   !app.includes("LawyerProfile") ||
   !home.includes("openMatchedProfile") ||
   !home.includes('navigate("LawyerProfile"') ||
@@ -89,6 +90,10 @@ if (
 
 if (
   !home.includes("ShellHeader") ||
+  home.includes("brandTitle") ||
+  home.includes("Atendimento juridico proximo") ||
+  !home.includes("locationFootnote") ||
+  home.includes("locationBanner") ||
   !home.includes("BottomNavigation") ||
   !home.includes('label: "Home"') ||
   !home.includes('label: "Cartao"') ||
@@ -99,6 +104,9 @@ if (
   home.includes("scrollTo") ||
   !home.includes("Buscar por area ou problema juridico") ||
   !home.includes("AreaCarousel") ||
+  !home.includes("areaIconBadge") ||
+  !home.includes("stepIconBadge") ||
+  !home.includes("bottomIconBadge") ||
   !home.includes("PrayerHomeBlock") ||
   !home.includes("prayer-bible-cross.png")
 ) {
