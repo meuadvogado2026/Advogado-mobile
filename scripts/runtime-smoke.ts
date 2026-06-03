@@ -28,7 +28,25 @@ const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
 const androidSdk = process.env.ANDROID_HOME ?? resolve(process.env.LOCALAPPDATA ?? "", "Android", "Sdk");
 const adbPath = resolve(androidSdk, "platform-tools", "adb.exe");
 const emulatorPath = resolve(androidSdk, "emulator", "emulator.exe");
-const publicProfileKeys = new Set(["id", "name", "oabNumber", "oabState", "city", "state", "areaIds", "areas", "whatsapp", "verified"]);
+const publicProfileKeys = new Set([
+  "id",
+  "name",
+  "oabNumber",
+  "oabState",
+  "city",
+  "state",
+  "areaIds",
+  "areas",
+  "whatsapp",
+  "verified",
+  "avatarUrl",
+  "coverUrl",
+  "miniBio",
+  "fullBio",
+  "yearsExperience",
+  "planLabel",
+  "emergencyAvailable"
+]);
 const publicAreaKeys = new Set(["id", "name"]);
 
 function redact(value: string) {

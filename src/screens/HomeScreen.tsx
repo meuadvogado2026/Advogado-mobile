@@ -28,11 +28,12 @@ import type { Session } from "../services/sessionStorage";
 import { colors, spacing } from "../theme/tokens";
 
 type ViewStatus = "idle" | "loading" | "error";
-type ClientTab = "home" | "search" | "prayer" | "account";
+type ClientTab = "home" | "profile";
 type LawyerTab = "dashboard" | "card" | "profile" | "account";
 type Props = NativeStackScreenProps<RootStackParamList, "Home">;
 
 const logo = require("../../assets/logo-blue.png");
+const prayerArt = require("../../assets/prayer-bible-cross.png");
 const legalUrls = {
   privacy: "https://meuadvogado2026.github.io/meu-advogado-legal/privacidade.html",
   terms: "https://meuadvogado2026.github.io/meu-advogado-legal/termos.html",
@@ -85,7 +86,7 @@ function LegalLinks() {
   );
 }
 
-function ShellHeader({ email, role }: { email: string; role: CurrentUser["role"] }) {
+function ShellHeader({ role }: { role: CurrentUser["role"] }) {
   return (
     <View style={styles.shellHeader}>
       <View style={styles.brandRow}>
@@ -97,9 +98,7 @@ function ShellHeader({ email, role }: { email: string; role: CurrentUser["role"]
           </Text>
         </View>
       </View>
-      <Text style={styles.sessionHint} numberOfLines={1}>
-        {email}
-      </Text>
+      <Text style={styles.sessionHint} numberOfLines={1}>Sessao autenticada</Text>
     </View>
   );
 }
@@ -135,10 +134,8 @@ function BottomNavigation<TTab extends string>({
 }
 
 const clientNavItems: Array<{ label: string; tab: ClientTab; icon: keyof typeof Ionicons.glyphMap }> = [
-  { label: "Inicio", tab: "home", icon: "home-outline" },
-  { label: "Buscar", tab: "search", icon: "search-outline" },
-  { label: "Oracao", tab: "prayer", icon: "heart-outline" },
-  { label: "Conta", tab: "account", icon: "person-outline" }
+  { label: "Home", tab: "home", icon: "home-outline" },
+  { label: "Perfil", tab: "profile", icon: "person-outline" }
 ];
 
 const lawyerNavItems: Array<{ label: string; tab: LawyerTab; icon: keyof typeof Ionicons.glyphMap }> = [
@@ -157,7 +154,7 @@ function StatusBox({ status, message }: { status: ViewStatus; message: string })
   );
 }
 
-function AreaGrid({
+function AreaCarousel({
   areas,
   selectedAreaIds,
   onToggle
@@ -174,9 +171,13 @@ function AreaGrid({
     <>
       <View style={styles.sectionHeader}>
         <Text style={styles.sectionTitle}>Areas juridicas</Text>
-        <Text style={styles.sectionAction}>fluxo real</Text>
+        <Text style={styles.sectionAction}>selecionar</Text>
       </View>
-      <View style={styles.areaGrid}>
+      <ScrollView
+        contentContainerStyle={styles.areaCarousel}
+        horizontal
+        showsHorizontalScrollIndicator={false}
+      >
         {areas.map((area) => {
           const selected = selectedAreaIds.includes(area.id);
           return (
@@ -185,16 +186,28 @@ function AreaGrid({
               accessibilityState={{ checked: selected }}
               key={area.id}
               onPress={() => onToggle(area.id)}
-              style={[styles.areaPill, selected && styles.areaPillSelected]}
+              style={[styles.areaTile, selected && styles.areaTileSelected]}
             >
-              <Ionicons color={selected ? colors.surfaceDeep : colors.gold} name="briefcase-outline" size={18} />
-              <Text style={[styles.areaText, selected && styles.areaTextSelected]}>{area.name}</Text>
+              <Ionicons color={colors.gold} name={getAreaIcon(area.name)} size={30} />
+              <Text numberOfLines={1} style={[styles.areaTileText, selected && styles.areaTileTextSelected]}>
+                {area.name}
+              </Text>
             </TouchableOpacity>
           );
         })}
-      </View>
+      </ScrollView>
     </>
   );
+}
+
+function getAreaIcon(areaName: string): keyof typeof Ionicons.glyphMap {
+  const normalized = areaName.toLowerCase();
+  if (normalized.includes("trabalh")) return "briefcase-outline";
+  if (normalized.includes("famil")) return "people-outline";
+  if (normalized.includes("imob")) return "business-outline";
+  if (normalized.includes("criminal")) return "scale-outline";
+  if (normalized.includes("previd")) return "shield-checkmark-outline";
+  return "hammer-outline";
 }
 
 function MatchCard({
@@ -210,42 +223,138 @@ function MatchCard({
   onMatch: () => void;
   onOpenProfile: () => void;
 }) {
+  const hasLawyer = Boolean(match?.lawyer);
+  const lawyerInitial = match?.lawyer?.name?.slice(0, 1).toUpperCase() ?? "A";
+
   return (
     <View style={styles.lawyerCard}>
-      <Text style={styles.cardLabel}>Advogado Indicado</Text>
-      <Text style={styles.cardTitle}>{match?.lawyer?.name ?? "Aguardando match"}</Text>
-      <Text style={styles.panelText}>{match?.message ?? describeMatch(match)}</Text>
-      {match?.lawyer?.city ? (
-        <Text style={styles.matchMeta}>
-          {match.lawyer.city}
-          {match.lawyer.state ? `/${match.lawyer.state}` : ""}
-          {typeof match.distanceKm === "number" ? ` - ${match.distanceKm.toFixed(1)} km` : ""}
-        </Text>
-      ) : null}
+      <View style={styles.lawyerCover} />
+      <View style={styles.lawyerContent}>
+        <View style={styles.lawyerIdentityRow}>
+          <View style={styles.matchAvatar}>
+            <Text style={styles.matchAvatarText}>{lawyerInitial}</Text>
+            {hasLawyer ? (
+              <View style={styles.verifiedDot}>
+                <Ionicons color={colors.textPrimary} name="checkmark" size={12} />
+              </View>
+            ) : null}
+          </View>
+          <View style={styles.lawyerNameBlock}>
+            <Text style={styles.cardTitle}>{match?.lawyer?.name ?? "Advogado indicado"}</Text>
+            {match?.lawyer ? (
+              <View style={styles.oabBadge}>
+                <Text style={styles.oabBadgeText}>Perfil verificado</Text>
+              </View>
+            ) : (
+              <Text style={styles.panelText}>Selecione uma area para iniciar o match.</Text>
+            )}
+          </View>
+        </View>
+        <Text style={styles.panelText}>{match?.message ?? describeMatch(match)}</Text>
+        {match?.lawyer?.city ? (
+          <View style={styles.matchMetaRow}>
+            <Ionicons color={colors.textMuted} name="navigate-outline" size={17} />
+            <Text style={styles.matchMeta}>
+              {match.lawyer.city}
+              {match.lawyer.state ? `/${match.lawyer.state}` : ""}
+              {typeof match.distanceKm === "number" ? ` - ${match.distanceKm.toFixed(1)} km` : ""}
+            </Text>
+          </View>
+        ) : null}
+      </View>
       <TouchableOpacity
         disabled={selectedAreaIds.length === 0 || status === "loading"}
         style={[styles.primaryButton, (selectedAreaIds.length === 0 || status === "loading") && styles.disabledButton]}
         accessibilityRole="button"
         onPress={onMatch}
       >
+        <Ionicons color={colors.surfaceDeep} name="search-outline" size={18} />
         <Text style={styles.primaryButtonText}>Buscar match</Text>
       </TouchableOpacity>
       <View style={styles.cardActions}>
         {match?.lawyer ? (
-          <TouchableOpacity style={styles.secondaryButton} accessibilityRole="button" onPress={onOpenProfile}>
+          <TouchableOpacity style={styles.lawyerActionButton} accessibilityRole="button" onPress={onOpenProfile}>
             <Ionicons color={colors.gold} name="person-outline" size={18} />
-            <Text style={styles.secondaryButtonText}>Ver perfil</Text>
+            <Text style={styles.lawyerActionText}>Perfil</Text>
           </TouchableOpacity>
         ) : null}
         {match?.lawyer?.whatsapp ? (
           <TouchableOpacity
-            style={styles.whatsButton}
+            style={styles.lawyerWhatsButton}
             accessibilityRole="button"
             onPress={() => openWhatsApp(match.lawyer!.whatsapp!)}
           >
-            <Ionicons color={colors.surfaceDeep} name="logo-whatsapp" size={18} />
-            <Text style={styles.whatsButtonText}>Falar no WhatsApp</Text>
+            <Ionicons color={colors.whatsapp} name="logo-whatsapp" size={18} />
+            <Text style={styles.lawyerWhatsText}>WhatsApp</Text>
           </TouchableOpacity>
+        ) : null}
+      </View>
+    </View>
+  );
+}
+
+function PrayerHomeBlock({
+  anonymous,
+  message,
+  receipt,
+  status,
+  onAnonymousChange,
+  onMessageChange,
+  onSubmit
+}: {
+  anonymous: boolean;
+  message: string;
+  receipt: string | null;
+  status: ViewStatus;
+  onAnonymousChange: () => void;
+  onMessageChange: (message: string) => void;
+  onSubmit: () => void;
+}) {
+  return (
+    <View style={styles.prayerCard}>
+      <Image accessibilityIgnoresInvertColors source={prayerArt} style={styles.prayerImage} />
+      <View style={styles.prayerOverlay} />
+      <View style={styles.prayerContent}>
+        <Text style={styles.cardLabel}>Pedido de oracao</Text>
+        <Text style={styles.prayerTitle}>Um espaco reservado e anonimo</Text>
+        <Text style={styles.prayerText}>
+          Envie um pedido breve. Nao inclua senha, documento, endereco completo, telefone ou detalhes juridicos
+          sensiveis.
+        </Text>
+        <TextInput
+          multiline
+          onChangeText={onMessageChange}
+          placeholder="Escreva entre 20 e 500 caracteres"
+          placeholderTextColor={colors.textMuted}
+          style={[styles.input, styles.prayerInput]}
+          value={message}
+        />
+        <TouchableOpacity
+          accessibilityRole="checkbox"
+          accessibilityState={{ checked: anonymous }}
+          onPress={onAnonymousChange}
+          style={styles.toggleRow}
+        >
+          <Ionicons color={colors.gold} name={anonymous ? "checkbox-outline" : "square-outline"} size={22} />
+          <Text style={styles.prayerText}>Enviar como anonimo</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          disabled={status === "loading" || message.trim().length < 20}
+          style={[
+            styles.primaryButton,
+            (status === "loading" || message.trim().length < 20) && styles.disabledButton
+          ]}
+          accessibilityRole="button"
+          onPress={onSubmit}
+        >
+          <Ionicons color={colors.surfaceDeep} name="heart-outline" size={18} />
+          <Text style={styles.primaryButtonText}>Enviar pedido</Text>
+        </TouchableOpacity>
+        {receipt ? (
+          <View style={styles.noticeRow}>
+            <Ionicons color={colors.gold} name="checkmark-circle-outline" size={20} />
+            <Text style={styles.prayerText}>Pedido recebido com seguranca.</Text>
+          </View>
         ) : null}
       </View>
     </View>
@@ -261,6 +370,7 @@ export function HomeScreen({ navigation }: Props) {
   const [password, setPassword] = useState("");
   const [areas, setAreas] = useState<LegalArea[]>([]);
   const [selectedAreaIds, setSelectedAreaIds] = useState<string[]>([]);
+  const [areaSearch, setAreaSearch] = useState("");
   const [location, setLocation] = useState<DeviceLocation | null>(null);
   const [match, setMatch] = useState<MatchResponse | null>(null);
   const [lawyerDashboard, setLawyerDashboard] = useState<LawyerDashboardResponse | null>(null);
@@ -277,6 +387,11 @@ export function HomeScreen({ navigation }: Props) {
   const me = useMemo(() => createMeService(apiClient), [apiClient]);
   const lawyerDashboards = useMemo(() => createLawyerDashboardService(apiClient), [apiClient]);
   const prayerRequests = useMemo(() => createPrayerRequestService(apiClient), [apiClient]);
+  const visibleAreas = useMemo(() => {
+    const query = areaSearch.trim().toLowerCase();
+    if (!query) return areas;
+    return areas.filter((area) => area.name.toLowerCase().includes(query));
+  }, [areaSearch, areas]);
 
   async function hydrateUser(restoredSession: Session) {
     const response = await me.getCurrentUser();
@@ -376,6 +491,7 @@ export function HomeScreen({ navigation }: Props) {
     setCurrentUser(null);
     setAreas([]);
     setSelectedAreaIds([]);
+    setAreaSearch("");
     setLocation(null);
     setMatch(null);
     setClientTab("home");
@@ -537,7 +653,7 @@ export function HomeScreen({ navigation }: Props) {
     return (
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.authenticatedShell}>
-          <ShellHeader email={session.email} role={currentUser.role} />
+          <ShellHeader role={currentUser.role} />
           <ScrollView contentContainerStyle={styles.container}>
             {lawyerTab === "dashboard" ? (
               <>
@@ -607,7 +723,7 @@ export function HomeScreen({ navigation }: Props) {
             {lawyerTab === "account" ? (
               <View style={styles.accountPanel}>
                 <Text style={styles.panelTitle}>Conta do advogado</Text>
-                <Text style={styles.panelText}>Conectado como {session.email}.</Text>
+                <Text style={styles.panelText}>Sessao autenticada com seguranca.</Text>
                 <TouchableOpacity style={styles.signOutButton} accessibilityRole="button" onPress={handleSignOut}>
                   <Ionicons color={colors.gold} name="log-out-outline" size={18} />
                   <Text style={styles.secondaryButtonText}>Sair</Text>
@@ -624,129 +740,85 @@ export function HomeScreen({ navigation }: Props) {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.authenticatedShell}>
-        <ShellHeader email={session.email} role={currentUser.role} />
+        <ShellHeader role={currentUser.role} />
         <ScrollView contentContainerStyle={styles.container}>
           {clientTab === "home" ? (
             <>
-              <View style={styles.heroPanel}>
-                <Text style={styles.heroTitle}>A justica ao alcance de um toque</Text>
+              <View style={styles.clientHero}>
+                <Text style={styles.heroKicker}>A justica ao alcance de um toque</Text>
                 <View style={styles.locationBanner}>
                   <Ionicons color={colors.gold} name="location-outline" size={22} />
                   <Text style={styles.locationText}>{appCopy.location}</Text>
                 </View>
-                <TouchableOpacity
-                  accessibilityRole="button"
-                  onPress={() => setClientTab("search")}
-                  style={styles.searchShortcut}
-                >
-                  <Ionicons color={colors.surfaceDeep} name="search-outline" size={22} />
-                  <Text style={styles.searchShortcutText}>Buscar por area juridica</Text>
-                </TouchableOpacity>
               </View>
+
+              <View style={styles.searchBar}>
+                <Ionicons color={colors.outline} name="search-outline" size={25} />
+                <TextInput
+                  autoCapitalize="none"
+                  onChangeText={setAreaSearch}
+                  placeholder="Buscar por area ou problema juridico"
+                  placeholderTextColor={colors.searchPlaceholder}
+                  style={styles.searchInput}
+                  value={areaSearch}
+                />
+              </View>
+
+              <AreaCarousel areas={visibleAreas} selectedAreaIds={selectedAreaIds} onToggle={toggleArea} />
+
+              <MatchCard
+                match={match}
+                selectedAreaIds={selectedAreaIds}
+                status={status}
+                onMatch={handleMatch}
+                onOpenProfile={openMatchedProfile}
+              />
+
+              <PrayerHomeBlock
+                anonymous={prayerAnonymous}
+                message={prayerMessage}
+                receipt={prayerReceipt}
+                status={status}
+                onAnonymousChange={() => setPrayerAnonymous((current) => !current)}
+                onMessageChange={setPrayerMessage}
+                onSubmit={handleSubmitPrayer}
+              />
+
               <View style={styles.howItWorks}>
                 <Text style={styles.sectionTitle}>Como funciona?</Text>
+                <View style={styles.timelineLine} />
                 <View style={styles.stepsRow}>
                   <View style={styles.stepItem}>
-                    <Ionicons color={colors.gold} name="search-outline" size={20} />
-                    <Text style={styles.stepText}>Buscar</Text>
+                    <Ionicons color={colors.gold} name="search-outline" size={21} />
+                    <Text style={styles.stepText}>1. Buscar</Text>
                   </View>
                   <View style={styles.stepItem}>
-                    <Ionicons color={colors.gold} name="shield-checkmark-outline" size={20} />
-                    <Text style={styles.stepText}>Conferir</Text>
+                    <Ionicons color={colors.gold} name="shield-checkmark-outline" size={21} />
+                    <Text style={styles.stepText}>2. Conferir</Text>
                   </View>
                   <View style={styles.stepItem}>
-                    <Ionicons color={colors.gold} name="logo-whatsapp" size={20} />
-                    <Text style={styles.stepText}>Conversar</Text>
+                    <Ionicons color={colors.gold} name="logo-whatsapp" size={21} />
+                    <Text style={styles.stepText}>3. Conversar</Text>
+                  </View>
+                  <View style={styles.stepItem}>
+                    <Ionicons color={colors.gold} name="checkmark-circle-outline" size={21} />
+                    <Text style={styles.stepText}>4. Resolver</Text>
                   </View>
                 </View>
               </View>
-              <MatchCard
-                match={match}
-                selectedAreaIds={selectedAreaIds}
-                status={status}
-                onMatch={handleMatch}
-                onOpenProfile={openMatchedProfile}
-              />
-            </>
-          ) : null}
 
-          {clientTab === "search" ? (
-            <>
-              <View style={styles.panel}>
-                <Text style={styles.panelTitle}>Encontre o advogado certo</Text>
-                <Text style={styles.panelText}>
-                  Escolha uma area e use sua localizacao somente no momento da busca.
-                </Text>
-                <TouchableOpacity style={styles.secondaryButton} accessibilityRole="button" onPress={handleLoadAreas}>
-                  <Ionicons color={colors.gold} name="refresh-outline" size={18} />
-                  <Text style={styles.secondaryButtonText}>Atualizar areas</Text>
-                </TouchableOpacity>
-              </View>
-              <AreaGrid areas={areas} selectedAreaIds={selectedAreaIds} onToggle={toggleArea} />
-              <MatchCard
-                match={match}
-                selectedAreaIds={selectedAreaIds}
-                status={status}
-                onMatch={handleMatch}
-                onOpenProfile={openMatchedProfile}
-              />
               <StatusBox status={status} message={message} />
             </>
           ) : null}
 
-          {clientTab === "prayer" ? (
-            <View style={styles.panel}>
-              <Text style={styles.panelTitle}>Pedido de oracao</Text>
-              <Text style={styles.panelText}>
-                Envie um pedido breve. Nao inclua senha, documento, endereco completo, telefone ou detalhes juridicos
-                sensiveis.
-              </Text>
-              <TextInput
-                multiline
-                onChangeText={setPrayerMessage}
-                placeholder="Escreva entre 20 e 500 caracteres"
-                placeholderTextColor={colors.textMuted}
-                style={[styles.input, styles.prayerInput]}
-                value={prayerMessage}
-              />
-              <TouchableOpacity
-                accessibilityRole="checkbox"
-                accessibilityState={{ checked: prayerAnonymous }}
-                onPress={() => setPrayerAnonymous((current) => !current)}
-                style={styles.toggleRow}
-              >
-                <Ionicons
-                  color={colors.gold}
-                  name={prayerAnonymous ? "checkbox-outline" : "square-outline"}
-                  size={22}
-                />
-                <Text style={styles.panelText}>Enviar como anonimo</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                disabled={status === "loading" || prayerMessage.trim().length < 20}
-                style={[
-                  styles.primaryButton,
-                  (status === "loading" || prayerMessage.trim().length < 20) && styles.disabledButton
-                ]}
-                accessibilityRole="button"
-                onPress={handleSubmitPrayer}
-              >
-                <Text style={styles.primaryButtonText}>Enviar pedido</Text>
-              </TouchableOpacity>
-              {prayerReceipt ? (
-                <View style={styles.noticeRow}>
-                  <Ionicons color={colors.gold} name="checkmark-circle-outline" size={20} />
-                  <Text style={styles.panelText}>Pedido recebido em {prayerReceipt}.</Text>
-                </View>
-              ) : null}
-              <StatusBox status={status} message={message} />
-            </View>
-          ) : null}
-
-          {clientTab === "account" ? (
+          {clientTab === "profile" ? (
             <View style={styles.accountPanel}>
-              <Text style={styles.panelTitle}>Conta</Text>
-              <Text style={styles.panelText}>Conectado como {session.email}.</Text>
+              <Text style={styles.panelTitle}>Perfil do cliente</Text>
+              <Text style={styles.panelText}>Sessao autenticada com seguranca.</Text>
+              <TouchableOpacity style={styles.secondaryButton} accessibilityRole="button" onPress={handleLoadAreas}>
+                <Ionicons color={colors.gold} name="refresh-outline" size={18} />
+                <Text style={styles.secondaryButtonText}>Atualizar areas</Text>
+              </TouchableOpacity>
               <LegalLinks />
               <TouchableOpacity style={styles.signOutButton} accessibilityRole="button" onPress={handleSignOut}>
                 <Ionicons color={colors.gold} name="log-out-outline" size={18} />
@@ -774,9 +846,9 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.xl
   },
   container: {
-    gap: spacing.lg,
+    gap: 28,
     padding: 20,
-    paddingBottom: 112
+    paddingBottom: 124
   },
   loginHeader: {
     alignItems: "center",
@@ -831,16 +903,16 @@ const styles = StyleSheet.create({
     gap: spacing.md
   },
   headerLogo: {
-    borderRadius: 12,
-    height: 48,
-    width: 48
+    borderRadius: 999,
+    height: 40,
+    width: 40
   },
   brandTextBlock: {
     flex: 1
   },
   brandTitle: {
     color: colors.gold,
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: "900"
   },
   brandSubtitle: {
@@ -851,7 +923,16 @@ const styles = StyleSheet.create({
   sessionHint: {
     color: colors.textMuted,
     fontSize: 12,
-    paddingLeft: 64
+    paddingLeft: 56
+  },
+  clientHero: {
+    gap: spacing.sm
+  },
+  heroKicker: {
+    color: colors.textMuted,
+    fontSize: 20,
+    fontWeight: "500",
+    lineHeight: 28
   },
   heroPanel: {
     gap: spacing.md
@@ -864,8 +945,8 @@ const styles = StyleSheet.create({
   },
   locationBanner: {
     alignItems: "center",
-    backgroundColor: colors.surfaceDeep,
-    borderRadius: 16,
+    backgroundColor: colors.surfaceContainer,
+    borderRadius: 12,
     flexDirection: "row",
     gap: spacing.sm,
     padding: spacing.md
@@ -875,7 +956,22 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 14,
     fontWeight: "700",
-    lineHeight: 20
+    lineHeight: 21
+  },
+  searchBar: {
+    alignItems: "center",
+    backgroundColor: colors.searchSurface,
+    borderRadius: 16,
+    flexDirection: "row",
+    gap: spacing.sm,
+    minHeight: 56,
+    paddingHorizontal: spacing.md
+  },
+  searchInput: {
+    color: colors.background,
+    flex: 1,
+    fontSize: 16,
+    minHeight: 52
   },
   searchShortcut: {
     alignItems: "center",
@@ -913,6 +1009,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: colors.goldContainer,
     borderRadius: 8,
+    flexDirection: "row",
+    gap: spacing.sm,
     minHeight: 44,
     justifyContent: "center",
     paddingHorizontal: spacing.md
@@ -923,7 +1021,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     color: colors.textPrimary,
-    fontSize: 18,
+    fontSize: 24,
     fontWeight: "800"
   },
   sectionHeader: {
@@ -936,6 +1034,38 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "800",
     textTransform: "uppercase"
+  },
+  areaCarousel: {
+    gap: spacing.md,
+    paddingRight: 20
+  },
+  areaTile: {
+    alignItems: "center",
+    backgroundColor: "#081b35",
+    borderColor: "rgba(244,210,100,0.14)",
+    borderRadius: 18,
+    borderWidth: 1,
+    gap: spacing.sm,
+    height: 88,
+    justifyContent: "center",
+    shadowColor: colors.goldContainer,
+    shadowOpacity: 0.16,
+    shadowRadius: 14,
+    width: 88
+  },
+  areaTileSelected: {
+    borderColor: colors.gold,
+    shadowOpacity: 0.28
+  },
+  areaTileText: {
+    color: colors.textMuted,
+    fontSize: 12,
+    fontWeight: "700",
+    maxWidth: 82,
+    textAlign: "center"
+  },
+  areaTileTextSelected: {
+    color: colors.textPrimary
   },
   areaGrid: {
     flexDirection: "row",
@@ -964,12 +1094,75 @@ const styles = StyleSheet.create({
     color: colors.surfaceDeep
   },
   lawyerCard: {
-    backgroundColor: colors.surface,
-    borderColor: colors.borderSubtle,
-    borderRadius: 16,
+    backgroundColor: "#071931",
+    borderColor: "rgba(244,210,100,0.18)",
+    borderRadius: 18,
     borderWidth: 1,
     gap: spacing.md,
-    padding: spacing.lg
+    overflow: "hidden",
+    padding: spacing.lg,
+    paddingTop: 0
+  },
+  lawyerCover: {
+    backgroundColor: colors.surfaceDeep,
+    height: 112,
+    marginHorizontal: -spacing.lg,
+    opacity: 0.86
+  },
+  lawyerContent: {
+    gap: spacing.md,
+    marginTop: -42
+  },
+  lawyerIdentityRow: {
+    alignItems: "flex-end",
+    flexDirection: "row",
+    gap: spacing.md
+  },
+  matchAvatar: {
+    alignItems: "center",
+    backgroundColor: colors.surfaceDeep,
+    borderColor: colors.surface,
+    borderRadius: 12,
+    borderWidth: 4,
+    height: 96,
+    justifyContent: "center",
+    position: "relative",
+    width: 96
+  },
+  matchAvatarText: {
+    color: colors.gold,
+    fontSize: 38,
+    fontWeight: "900"
+  },
+  verifiedDot: {
+    alignItems: "center",
+    backgroundColor: colors.blue,
+    borderColor: "#071931",
+    borderRadius: 999,
+    borderWidth: 2,
+    bottom: -4,
+    height: 28,
+    justifyContent: "center",
+    position: "absolute",
+    right: -4,
+    width: 28
+  },
+  lawyerNameBlock: {
+    flex: 1,
+    gap: spacing.xs,
+    paddingBottom: spacing.sm
+  },
+  oabBadge: {
+    alignSelf: "flex-start",
+    backgroundColor: "rgba(244,210,100,0.12)",
+    borderRadius: 6,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 3
+  },
+  oabBadgeText: {
+    color: colors.gold,
+    fontSize: 12,
+    fontWeight: "800"
   },
   accountPanel: {
     backgroundColor: colors.surface,
@@ -1003,8 +1196,9 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     color: colors.textPrimary,
-    fontSize: 20,
-    fontWeight: "800"
+    fontSize: 24,
+    fontWeight: "800",
+    lineHeight: 30
   },
   metricValue: {
     color: colors.textPrimary,
@@ -1012,12 +1206,53 @@ const styles = StyleSheet.create({
     fontWeight: "900"
   },
   matchMeta: {
-    color: colors.gold,
+    color: colors.textMuted,
     fontSize: 13,
     fontWeight: "800"
   },
+  matchMetaRow: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: spacing.xs
+  },
   cardActions: {
+    flexDirection: "row",
     gap: spacing.sm
+  },
+  lawyerActionButton: {
+    alignItems: "center",
+    borderColor: "rgba(244,210,100,0.45)",
+    borderRadius: 14,
+    borderWidth: 1,
+    flex: 1,
+    gap: spacing.xs,
+    minHeight: 64,
+    justifyContent: "center",
+    paddingHorizontal: spacing.md
+  },
+  lawyerActionText: {
+    color: colors.textPrimary,
+    fontSize: 12,
+    fontWeight: "800",
+    textTransform: "uppercase"
+  },
+  lawyerWhatsButton: {
+    alignItems: "center",
+    backgroundColor: "rgba(37,211,102,0.12)",
+    borderColor: "rgba(37,211,102,0.32)",
+    borderRadius: 14,
+    borderWidth: 1,
+    flex: 1,
+    gap: spacing.xs,
+    minHeight: 64,
+    justifyContent: "center",
+    paddingHorizontal: spacing.md
+  },
+  lawyerWhatsText: {
+    color: colors.whatsapp,
+    fontSize: 12,
+    fontWeight: "800",
+    textTransform: "uppercase"
   },
   secondaryButton: {
     alignItems: "center",
@@ -1064,7 +1299,16 @@ const styles = StyleSheet.create({
     textDecorationLine: "underline"
   },
   howItWorks: {
+    position: "relative",
     gap: spacing.md
+  },
+  timelineLine: {
+    backgroundColor: "rgba(244,210,100,0.24)",
+    height: 1,
+    left: 36,
+    position: "absolute",
+    right: 36,
+    top: 74
   },
   stepsRow: {
     flexDirection: "row",
@@ -1072,13 +1316,12 @@ const styles = StyleSheet.create({
   },
   stepItem: {
     alignItems: "center",
-    backgroundColor: colors.surface,
-    borderColor: colors.borderSubtle,
-    borderRadius: 16,
+    backgroundColor: "transparent",
+    borderColor: "transparent",
     borderWidth: 1,
     flex: 1,
     gap: spacing.sm,
-    minHeight: 88,
+    minHeight: 96,
     justifyContent: "center",
     padding: spacing.sm
   },
@@ -1101,7 +1344,7 @@ const styles = StyleSheet.create({
   },
   bottomNavigation: {
     alignItems: "center",
-    backgroundColor: colors.surfaceDeep,
+    backgroundColor: colors.surfaceContainer,
     borderColor: colors.borderSubtle,
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
@@ -1170,6 +1413,41 @@ const styles = StyleSheet.create({
     minHeight: 120,
     paddingVertical: spacing.md,
     textAlignVertical: "top"
+  },
+  prayerCard: {
+    backgroundColor: colors.surface,
+    borderColor: "rgba(244,210,100,0.18)",
+    borderRadius: 18,
+    borderWidth: 1,
+    overflow: "hidden"
+  },
+  prayerImage: {
+    height: 150,
+    width: "100%"
+  },
+  prayerOverlay: {
+    backgroundColor: "rgba(7,20,38,0.34)",
+    bottom: 0,
+    height: 150,
+    left: 0,
+    position: "absolute",
+    right: 0,
+    top: 0
+  },
+  prayerContent: {
+    gap: spacing.md,
+    padding: spacing.lg
+  },
+  prayerTitle: {
+    color: colors.textPrimary,
+    fontSize: 22,
+    fontWeight: "800",
+    lineHeight: 28
+  },
+  prayerText: {
+    color: colors.textMuted,
+    fontSize: 14,
+    lineHeight: 20
   },
   toggleRow: {
     alignItems: "center",

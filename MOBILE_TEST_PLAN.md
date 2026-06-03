@@ -221,3 +221,175 @@ estava conectado/bootado. Nenhum texto sensivel de oracao, token, senha, telefon
 ou coordenada exata foi registrado. Resultado: `SPEC008_PARTE3_PUBLICADA_OK_COM_RESSALVAS`.
 Evidencia:
 `harness-results/spec008-part3-published-validation-2026-06-03.md`.
+
+## Resultado Do Smoke Visual Android Da Spec 008 Parte 3
+
+Em 2026-06-03, o gate visual Android proporcional da Parte 3 foi executado sem
+Play Console, sem AAB, sem APK novo e sem feature nova. `npm run harness`
+passou com exit code 0. `npm run smoke:runtime` contra
+`https://advogado-back-production.up.railway.app`, carregando somente envs
+publicas necessarias sem imprimir valores, passou com exit code 0 e resultado
+`OK_COM_RESSALVAS`.
+
+No AVD `Pixel_9` com Expo Go/Metro local, o fluxo cliente chegou a `Oracao`,
+enviou pedido anonimo com texto neutro de teste e confirmou sucesso sem ecoar o
+texto no XML pos-envio. A screenshot segura mantida foi
+`harness-results/spec008p3-client-prayer-after-crop.png`.
+
+Resultado: `REPROVADO`. Durante a tentativa do fluxo advogado
+`Dashboard/Cartao/Perfil`, a automacao registrou senha de teste em XML bruto ao
+preencher credenciais. O artefato bruto foi apagado, mas o gate visual Android
+nao pode ser fechado como OK por regra de compliance. Lacuna: repetir o smoke
+visual com entrada manual assistida ou metodo que nao capture campos de
+credencial. Evidencia:
+`harness-results/spec008-part3-visual-android-2026-06-03.md`.
+
+## Resultado Da Spec 008 Parte 1R Replicacao Visual Cliente
+
+Em 2026-06-03, o painel cliente foi refeito para seguir `Telas/home_do_cliente`
+e o perfil completo do advogado foi redesenhado com base em
+`Telas/perfil_do_advogado`, sem backend/schema/migration, sem APK/AAB e sem
+Play Console. A Home do cliente passou a ter somente bottom nav `Home` e
+`Perfil`; busca, aviso de localizacao, areas em cards quadrados horizontais,
+advogado indicado, pedido de oracao e `Como funciona?` vivem na Home. O pedido
+de oracao usa arte original `assets/prayer-bible-cross.png` e nao ecoa texto
+sensivel. O perfil do advogado preserva CTA WhatsApp externo e a allowlist
+publica segura.
+
+Gates:
+
+- `npm run harness`; exit code 0; typecheck, 12 testes e smoke estrutural.
+- `npm run smoke:runtime` contra Railway; exit code 0; `OK_COM_RESSALVAS`, 6
+  areas, Auth real com token redigido, match `matched` e perfil seguro.
+
+Smoke visual Android: AVD `Pixel_9` e Expo Go/Metro local abriram o app.
+Screenshots seguras confirmaram Home com `Home`/`Perfil`, areas horizontais e
+bloco de oracao com Biblia/cruz:
+`harness-results/spec008-client-home-visual-clean2.png` e
+`harness-results/spec008-client-home-prayer-block.png`.
+
+Resultado: `QUESTIONAR_SMOKE_VISUAL_ANDROID`. O AVD exibiu alerta de
+`System UI isn't responding`; depois disso renderizou a tela, mas nao processou
+toques de forma confiavel para concluir `Buscar match -> LawyerProfile ->
+Voltar`. O contrato desse fluxo passou no runtime Railway. Evidencia:
+`harness-results/spec008-client-home-replication-visual-2026-06-03.md`.
+
+## Resultado Do Gate Visual Android Spec 008 Parte 1R
+
+Em 2026-06-03, o gate visual Android pendente foi repetido sem backend/schema/migration,
+sem APK/AAB e sem Play Console. `npm run harness` passou com exit code 0. O
+`npm run smoke:runtime`, contra Railway e carregando somente `EXPO_PUBLIC_*`
+necessarias sem imprimir valores, passou com exit code 0 (`OK_COM_RESSALVAS`):
+6 areas, Auth real com token redigido, match `matched` e perfil seguro.
+
+No AVD `Pixel_9`, via Expo Go/Metro local, o fluxo visual fechou:
+`Home -> Buscar match -> Perfil completo do advogado -> Voltar para Home`. A
+Home exibiu bottom nav somente `Home`/`Perfil`, areas juridicas em cards
+quadrados horizontais e pedido de oracao acoplado com Biblia/cruz. O perfil
+exibiu visual premium com hero/fallback, avatar, selo, OAB, cidade/UF, distancia
+efemera, areas, bio/fallback e CTA WhatsApp. O WhatsApp externo nao foi acionado
+para evitar handler com telefone completo.
+
+Resultado: `SPEC008_CLIENTE_HOME_REPLICACAO_VISUAL_OK`. Screenshot de login com
+e-mail de teste foi descartada; nao houve captura durante senha preenchida; XMLs
+temporarios da Home autenticada foram removidos; nenhum texto de oracao foi
+enviado ou registrado. Evidencia:
+`harness-results/spec008-client-home-replication-visual-ok-2026-06-03.md`.
+
+## Resultado Do Pacote Final Spec 003 AAB
+
+Em 2026-06-03, a Spec 003 foi retomada como gate final de decisao para liberar ou
+bloquear o ciclo de AAB internal testing, sem alterar produto/backend/schema, sem
+APK/AAB novo e sem abrir Play Console.
+
+Gates:
+
+- `npm run harness`; exit code 0; typecheck, 12 testes e smoke estrutural passaram.
+- `npm run smoke:runtime` contra Railway; exit code 0; `OK_COM_RESSALVAS`, com
+  Auth real redigido, 6 areas, match `matched` e perfil seguro.
+- Config Android/EAS: package `com.advogado20.app`, `versionCode=2`, EAS
+  production `app-bundle/store`, backend Railway nos perfis EAS e fallback dev
+  desligado.
+- APK baseline da Spec 005 reconfirmado com `66185270` bytes e SHA-256 esperado.
+- URLs publicas de politica, termos e exclusao responderam HTTP 200.
+
+Resultado: `QUESTIONAR_COMPLIANCE_RELEASE`. `npm audit --omit=dev` retornou 17
+vulnerabilidades de producao, sendo 12 altas e 5 moderadas, ainda sem triagem ou
+aceite formal. O AAB tambem segue bloqueado por falta de confirmacao humana de
+Play Console, EAS/keystore, conta de teste e Data Safety/Data deletion no console.
+Evidencia:
+`harness-results/spec003-final-aab-decision-package-2026-06-03.md`.
+
+## Resultado Do Gate De Dependencias Spec 003
+
+Em 2026-06-03, o bloqueio de producao do `npm audit --omit=dev` foi tratado sem
+backend/schema/migration, sem feature nova, sem APK/AAB e sem Play Console. A
+triagem inicial confirmou que o `fixAvailable` automatico exigia `expo@56.0.8`
+com `isSemVerMajor=true`, portanto a rota de `npm audit fix --force`/Expo SDK
+major foi descartada. A correcao aplicada foi por overrides transitivos
+documentados para `@expo/plist/@xmldom`, `postcss`, `tar` e `uuid`, preservando
+Expo SDK 52.
+
+Gates:
+
+- `npm audit --omit=dev --json`; exit code 1 antes da correcao; 17 vulnerabilidades
+  de producao.
+- `npm audit fix --omit=dev --dry-run --json`; exit code 1; proposta exigia
+  `expo@56.0.8`.
+- `npx expo install --check`; exit code 0; dependencias SDK 52 up to date.
+- `npm audit --omit=dev`; exit code 0 apos correcao; `found 0 vulnerabilities`.
+- `npm ls @xmldom/xmldom postcss tar uuid --all`; exit code 0; arvore coerente.
+- `npm run harness`; exit code 0; typecheck, 12 testes e smoke estrutural passaram.
+- `npm run smoke:runtime` contra Railway; exit code 0; `OK_COM_RESSALVAS`, Auth
+  real redigido, 6 areas, match `matched` e perfil seguro.
+- `git diff --check`; exit code 0; apenas avisos CRLF esperados no Windows.
+
+Resultado: `SPEC003_DEPENDENCIAS_RELEASE_OK`. Audit total sem `--omit=dev` ainda
+aponta tooling de desenvolvimento fora do gate solicitado. AAB continua bloqueado
+por `QUESTIONAR_CREDENCIAIS_PLAY_CONSOLE`. Evidencia:
+`harness-results/spec003-dependencias-release-audit-2026-06-03.md`.
+
+## Resultado Do Gate Humano Final Spec 003 AAB
+
+Em 2026-06-03, a Spec 003 foi retomada para preparar a decisao humana final do
+AAB de internal testing, sem backend/schema/migration, sem feature nova, sem
+APK/AAB e sem Play Console. O checklist assistido cobre Play Console/app
+`com.advogado20.app`, track internal testing, EAS/keystore, conta de teste,
+Data Safety/Data deletion, crash reporting adiado, versionCode/versionName e
+rollback.
+
+Gates:
+
+- Inventario redigido de `app.json`/`eas.json`; exit code 0; package
+  `com.advogado20.app`, version `0.1.0`, `versionCode=2`, production EAS
+  `store/app-bundle`, envs apenas `EXPO_PUBLIC_*` e fallback dev desligado.
+- `npm audit --omit=dev`; exit code 0; `found 0 vulnerabilities`.
+- `npm audit --omit=dev --json`; exit code 0; total `0`.
+- `npm run harness`; exit code 0; typecheck, 12 testes e smoke estrutural passaram.
+- `npm run smoke:runtime` contra Railway; exit code 0; `OK_COM_RESSALVAS`, Auth
+  real redigido, 6 areas, match `matched` e perfil seguro.
+- `git diff --check`; exit code 0; apenas avisos CRLF esperados no Windows.
+
+Resultado: `QUESTIONAR_CREDENCIAIS_PLAY_CONSOLE`. A parte local esta pronta para
+decisao humana, mas nenhuma confirmacao humana objetiva foi fornecida nesta
+sessao. Evidencia:
+`harness-results/spec003-gate-humano-final-aab-2026-06-03.md`.
+
+## Resultado Do Gate Compliance Oracao Spec 008 Parte 3
+
+Em 2026-06-03, o foco saiu de Play Console/AAB e voltou para compliance de
+`prayer_requests`. Nao houve mudanca visual, APK ou AAB. O mobile foi revalidado
+proporcionalmente porque consome `POST /v1/prayer-requests` pela Home.
+
+Gates:
+
+- `npm run harness`; exit code 0; typecheck, 12 testes e smoke estrutural passaram.
+- Primeira tentativa de `npm run smoke:runtime`; exit code 1 por falta de
+  `EXPO_PUBLIC_SUPABASE_ANON_KEY` no processo, sem expor valor.
+- Repeticao correta carregando somente `EXPO_PUBLIC_*` da `.env` raiz e Railway;
+  exit code 0; `OK_COM_RESSALVAS`, Auth real com token redigido, 6 areas, match
+  `matched` e perfil seguro.
+
+Resultado: `SPEC008_PARTE3_RETENCAO_ORACAO_PUBLICADA_OK` no backend/compliance,
+com mobile preservado. Lacuna visual Android da Parte 3 continua separada;
+nenhum texto de oracao foi enviado pelo mobile neste ciclo.

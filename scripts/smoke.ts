@@ -69,12 +69,12 @@ if (
 
 if (
   !app.includes("LawyerProfile") ||
-  !home.includes("Ver perfil") ||
+  !home.includes("openMatchedProfile") ||
   !home.includes('navigate("LawyerProfile"') ||
   !lawyerProfile.includes("Carregando perfil profissional.") ||
   !lawyerProfile.includes("Este perfil nao esta disponivel no momento. Busque outro advogado.") ||
-  !lawyerProfile.includes("Este profissional ainda nao tem WhatsApp disponivel.") ||
-  !lawyerProfile.includes("Falar no WhatsApp")
+  !lawyerProfile.includes("WhatsApp indisponivel para este profissional.") ||
+  !lawyerProfile.includes("WhatsApp VIP")
 ) {
   throw new Error("Smoke mobile falhou. Fluxo Home -> LawyerProfile -> WhatsApp ou estados seguros ausentes.");
 }
@@ -90,16 +90,19 @@ if (
 if (
   !home.includes("ShellHeader") ||
   !home.includes("BottomNavigation") ||
-  !home.includes('label: "Inicio"') ||
-  !home.includes('label: "Buscar"') ||
-  !home.includes('label: "Oracao"') ||
+  !home.includes('label: "Home"') ||
   !home.includes('label: "Cartao"') ||
   !home.includes('label: "Perfil"') ||
   !home.includes('label: "Conta"') ||
+  home.includes('label: "Oracao"') ||
+  home.includes('label: "Buscar"') ||
   home.includes("scrollTo") ||
-  !home.includes("Buscar por area juridica")
+  !home.includes("Buscar por area ou problema juridico") ||
+  !home.includes("AreaCarousel") ||
+  !home.includes("PrayerHomeBlock") ||
+  !home.includes("prayer-bible-cross.png")
 ) {
-  throw new Error("Smoke mobile falhou. Shell com views reais e menus cliente/advogado nao esta presente.");
+  throw new Error("Smoke mobile falhou. Shell cliente Home/Perfil, areas horizontais ou oracao na Home nao esta presente.");
 }
 
 if (/Mensagens|Agenda|Plant[aã]o|Favoritos|avalia[cç][oõ]es|24h/i.test(home)) {

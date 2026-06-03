@@ -1,8 +1,8 @@
 # Mobile Status - Meu Advogado 2.0
 
 **Ultima atualizacao:** 2026-06-03
-**Fase:** PRODUTO MVP / SPEC 008 PARTE 3 PUBLICADA
-**Veredito:** SPEC008_PARTE3_PUBLICADA_OK_COM_RESSALVAS / QUESTIONAR_CREDENCIAIS_PLAY_CONSOLE
+**Fase:** PRODUTO MVP / SPEC 003 RELEASE INTERNO ANDROID
+**Veredito:** SPEC003_DEPENDENCIAS_RELEASE_OK / QUESTIONAR_CREDENCIAIS_PLAY_CONSOLE / SPEC008_CLIENTE_HOME_REPLICACAO_VISUAL_OK
 
 ## Concluido
 
@@ -72,6 +72,12 @@
 - [x] Spec 008 Parte 3 implementada localmente no mobile: shell do advogado consome `GET /v1/lawyer/me/dashboard`, cartao exibe beneficios estaticos/seguros e aba cliente `Oracao` envia `POST /v1/prayer-requests` com anonimato e resposta sem ecoar texto.
 - [x] Gates spec 008 Parte 3 mobile: `npm run harness` exit 0; typecheck, 12 testes e smoke estrutural passaram.
 - [x] Spec 008 Parte 3 publicada: mobile commit `f5ed433` publicado no GitHub sem gerar APK/AAB; backend Railway validado apos migration 0003 manual. Mobile `npm run harness` exit 0 e `npm run smoke:runtime` contra Railway exit 0 (`OK_COM_RESSALVAS`) com token redigido, 6 areas, match `matched` e perfil seguro.
+- [x] Gate visual Android da Spec 008 Parte 3 tentado em 2026-06-03 no AVD `Pixel_9`: cliente `Oracao` passou com confirmacao e sem texto no XML pos-envio, mas fluxo advogado ficou `REPROVADO` porque XML bruto capturou senha de teste durante login automatizado. XML bruto removido.
+- [x] Direcao visual corrigida pelo usuario em 2026-06-03: painel atual e apenas base estrutural; o proximo gate deve replicar fielmente `Telas/home_do_cliente`, limitar menu cliente a `Home` e `Perfil`, mover `Oracao` para bloco da Home com Biblia/cruz, manter areas juridicas em quadrados horizontais e abrir perfil completo do advogado em pagina propria fiel a `Telas/perfil_do_advogado`.
+- [x] Spec 008 Parte 1R implementada localmente: cliente agora tem bottom nav somente `Home`/`Perfil`; Home contem busca, aviso de localizacao, areas em cards quadrados horizontais, advogado indicado, pedido de oracao com arte original `assets/prayer-bible-cross.png` e `Como funciona?`; `LawyerProfile` segue a referencia com hero/capa/avatar/chips/bio/areas/CTA WhatsApp externo.
+- [x] Gates Spec 008 Parte 1R: `npm run harness` exit 0; `npm run smoke:runtime` contra Railway exit 0 com envs publicas carregadas sem imprimir valores, 6 areas, Auth real com token redigido, match `matched` e perfil seguro.
+- [x] Gate visual Android da Spec 008 Parte 1R fechado no AVD `Pixel_9`: Home cliente, bottom nav somente `Home`/`Perfil`, areas quadradas horizontais, bloco de oracao com Biblia/cruz, `Buscar match`, card de advogado indicado, perfil completo premium e retorno para Home.
+- [x] Bloqueio de dependencias de producao da Spec 003 tratado: `npm audit --omit=dev` zerou apos overrides transitivos documentados para `@expo/plist/@xmldom`, `postcss`, `tar` e `uuid`, preservando Expo SDK 52 e sem `npm audit fix --force`.
 
 ## Em Andamento
 
@@ -91,7 +97,7 @@
 - Runtime real depende de `EXPO_PUBLIC_SUPABASE_ANON_KEY`; a key existe na `.env` raiz e deve continuar sendo carregada apenas no ambiente do comando.
 - Politica, termos e canal de exclusao publicados via GitHub Pages e linkados no app.
 - `npm run android` em modo nao interativo ainda para no prompt da Expo CLI porque o APK instalado a partir do release `Expo-Go-2.32.20` reporta `versionName=2.32.19`; o workaround validado foi `npx expo start --localhost --clear` + `adb reverse` + deep link `exp://127.0.0.1:8081`.
-- `npm install` reportou vulnerabilidades transitivas do ecossistema Expo; revisar antes de release.
+- `npm audit --omit=dev` foi corrigido para producao em 2026-06-03 (`SPEC003_DEPENDENCIAS_RELEASE_OK`); audit total sem `--omit=dev` ainda aponta tooling de desenvolvimento fora do gate atual e deve ser reavaliado em ciclo proprio se virar criterio de release.
 - Localizacao real do AVD/Expo Go segue instavel; fallback dev local fecha apenas smoke Android local e nao deve ser usado em producao/release.
 - Match real PostGIS implementado e validado e2e no backend contra Supabase com token de cliente real (`back/scripts/match-smoke.ts`: matched SP/civil 0km, empty, 401) e ponta-a-ponta no APK preview em device fisico com GPS real, sem fallback dev.
 - Novo APK preview da spec 005 foi validado por checklist manual assistido em device fisico com GPS real/WhatsApp; ADB automatico continuou sem listar device na sessao local, entao a evidencia e textual assistida.
@@ -102,8 +108,11 @@
 - Diagnostico de release readiness da Spec 003 em 2026-06-02 fechou como `QUESTIONAR_COMPLIANCE_RELEASE`: fluxo principal/APK preview e package Android estao evidenciados, mas Data Safety, conta de teste, AAB, crash reporting/decisao de adiamento, auditoria PII/logs/secrets, credenciais/keystore e rollback ainda bloqueiam internal testing executavel.
 - Package gate da Spec 003 em 2026-06-03 fechou como `QUESTIONAR_CREDENCIAIS_PLAY_CONSOLE`: checklist Data Safety, conta de teste, auditoria PII/logs/secrets, decisao recomendada de adiar crash reporting, runbook de rollback e criterios para AAB foram documentados, mas falta humano confirmar Play Console/EAS/keystore e conta de teste.
 - Gate assistido da Spec 003 em 2026-06-03 manteve `QUESTIONAR_CREDENCIAIS_PLAY_CONSOLE`: docs/configs/APK e referencias oficiais foram reconfirmados, mas nao houve confirmacao humana explicita de Play Console/app, EAS/keystore, conta de teste ou Data Safety no console.
-- Spec 008 Parte 3 esta `SPEC008_PARTE3_PUBLICADA_OK_COM_RESSALVAS`: migration aplicada manualmente no Supabase, backend Railway publicado/validado e mobile GitHub publicado. Falta smoke visual Android da Parte 3 porque nenhum device/AVD estava conectado/bootado.
-- Play Console/AAB/APK novo continuaram fora do ciclo; Spec 003 segue `QUESTIONAR_CREDENCIAIS_PLAY_CONSOLE`.
+- Pacote final de decisao da Spec 003 em 2026-06-03 ficou `QUESTIONAR_COMPLIANCE_RELEASE`: `npm run harness` exit 0, `npm run smoke:runtime` contra Railway exit 0, configs Android/EAS OK e Spec 005/Spec 008 reaproveitaveis, mas `npm audit --omit=dev` retornou 17 vulnerabilidades de producao (12 altas, 5 moderadas) ainda sem triagem/aceite.
+- Retomada de dependencias da Spec 003 em 2026-06-03 fechou `SPEC003_DEPENDENCIAS_RELEASE_OK`: `npm audit --omit=dev` exit 0, `npx expo install --check` exit 0, `npm run harness` exit 0, `npm run smoke:runtime` contra Railway exit 0 e `git diff --check` exit 0. AAB segue bloqueado por `QUESTIONAR_CREDENCIAIS_PLAY_CONSOLE`.
+- Gate humano final da Spec 003 em 2026-06-03 manteve `QUESTIONAR_CREDENCIAIS_PLAY_CONSOLE`: checklist final AAB preparado para Play Console/app, EAS/keystore, conta de teste, Data Safety/Data deletion, crash reporting, versionCode e rollback; configs Android/EAS, audit de producao, harness, runtime Railway e `git diff --check` passaram, mas nenhuma confirmacao humana foi fornecida.
+- Spec 008 Parte 1R foi fechada como `SPEC008_CLIENTE_HOME_REPLICACAO_VISUAL_OK` no AVD `Pixel_9`; nao houve captura de senha, token completo, telefone completo, coordenada exata ou texto de oracao. XMLs temporarios da Home autenticada foram removidos e WhatsApp externo nao foi acionado para evitar handler com telefone completo.
+- Play Console/AAB/APK novo continuaram fora do ciclo; Spec 003 segue com dependencias de producao `SPEC003_DEPENDENCIAS_RELEASE_OK` e bloqueio humano `QUESTIONAR_CREDENCIAIS_PLAY_CONSOLE`.
 - Proximos ciclos devem ser iniciados pela raiz do projeto para carregar a governanca central `.codex/` e specs em `.codex/specs/`.
 
 ## Validacao Em Device Fisico (APK EAS)
@@ -123,4 +132,4 @@
 
 ## Proximo Passo
 
-Spec 008 Parte 3 esta `SPEC008_PARTE3_PUBLICADA_OK_COM_RESSALVAS`. Proximo gate mobile: fechar smoke visual Android proporcional para cliente `Oracao` e advogado `Dashboard/Cartao/Perfil` quando houver device/AVD bootado, sem APK/AAB novo. Play Console continua bloqueado por confirmacao humana objetiva de app `com.advogado20.app`, EAS/keystore, conta de teste e Data Safety antes de qualquer `SPEC003_AAB_INTERNAL_TESTING_BUILD`.
+Spec 003 nao deve gerar AAB ainda. A parte local esta revalidada, mas o `SPEC003_AAB_INTERNAL_TESTING_BUILD` ainda depende de confirmacao humana objetiva de app `com.advogado20.app`, EAS/keystore, conta de teste, Data Safety/Data deletion, crash reporting adiado, versionCode/versionName e rollback. Spec 008 Parte 3 esta `SPEC008_PARTE3_RETENCAO_ORACAO_PUBLICADA_OK`; Parte 1R continua `SPEC008_CLIENTE_HOME_REPLICACAO_VISUAL_OK`. O proximo gate mobile e versionar localmente o pacote visual/dependencias ja validado, mantendo push, APK/AAB e Play Console fora do ciclo.

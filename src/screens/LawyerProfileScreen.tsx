@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, Image, Linking, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { RootStackParamList } from "../../App";
@@ -30,12 +31,27 @@ function safeImageUrl(url?: string | null) {
   return typeof url === "string" && url.startsWith("https://") ? url : null;
 }
 
+function getAreaIcon(areaName: string): keyof typeof Ionicons.glyphMap {
+  const normalized = areaName.toLowerCase();
+  if (normalized.includes("criminal")) return "shield-outline";
+  if (normalized.includes("trabalh")) return "briefcase-outline";
+  if (normalized.includes("imob")) return "business-outline";
+  if (normalized.includes("famil")) return "people-outline";
+  return "hammer-outline";
+}
+
 function LegalLinks() {
   return (
     <View style={styles.legalLinks}>
-      <Text style={styles.legalText} onPress={() => Linking.openURL(legalUrls.privacy)}>Privacidade</Text>
-      <Text style={styles.legalText} onPress={() => Linking.openURL(legalUrls.terms)}>Termos</Text>
-      <Text style={styles.legalText} onPress={() => Linking.openURL(legalUrls.deletion)}>Excluir dados</Text>
+      <Text style={styles.legalText} onPress={() => Linking.openURL(legalUrls.privacy)}>
+        Privacidade
+      </Text>
+      <Text style={styles.legalText} onPress={() => Linking.openURL(legalUrls.terms)}>
+        Termos
+      </Text>
+      <Text style={styles.legalText} onPress={() => Linking.openURL(legalUrls.deletion)}>
+        Excluir dados
+      </Text>
     </View>
   );
 }
@@ -68,22 +84,24 @@ export function LawyerProfileScreen({ navigation, route }: Props) {
   const whatsapp = normalizeWhatsApp(profile?.whatsapp);
   const avatarUrl = safeImageUrl(profile?.avatarUrl);
   const coverUrl = safeImageUrl(profile?.coverUrl);
-  const place = [profile?.city, profile?.state].filter(Boolean).join("/");
+  const place = [profile?.city, profile?.state].filter(Boolean).join(", ");
   const distance =
-    typeof route.params.distanceKm === "number" ? `${route.params.distanceKm.toFixed(1)} km de voce` : null;
+    typeof route.params.distanceKm === "number" ? `A ${route.params.distanceKm.toFixed(1)} km de voce` : null;
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <ScrollView contentContainerStyle={styles.container}>
-        <TouchableOpacity accessibilityRole="button" onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Text style={styles.backText}>Voltar</Text>
+      <View style={styles.topControls}>
+        <TouchableOpacity accessibilityRole="button" onPress={() => navigation.goBack()} style={styles.iconButton}>
+          <Ionicons color={colors.textPrimary} name="arrow-back" size={24} />
         </TouchableOpacity>
-
-        <View style={styles.hero}>
-          <Text style={styles.eyebrow}>Perfil profissional</Text>
-          <Text style={styles.heroTitle}>Advogado verificado para atendimento externo</Text>
+        <View style={styles.topRightControls}>
+          <View style={styles.passiveIcon}>
+            <Ionicons color={colors.textPrimary} name="shield-checkmark-outline" size={20} />
+          </View>
         </View>
+      </View>
 
+      <ScrollView contentContainerStyle={styles.container}>
         {status === "loading" ? (
           <View style={styles.statePanel}>
             <ActivityIndicator color={colors.gold} />
@@ -105,101 +123,321 @@ export function LawyerProfileScreen({ navigation, route }: Props) {
 
         {status === "ready" && profile ? (
           <>
-            <View style={styles.profileCard}>
-              <View style={styles.coverFrame}>
-                {coverUrl ? (
-                  <Image accessibilityIgnoresInvertColors source={{ uri: coverUrl }} style={styles.coverImage} />
-                ) : (
-                  <View style={styles.coverFallback}>
-                    <Text style={styles.coverFallbackText}>Advogado 2.0</Text>
-                  </View>
-                )}
-              </View>
+            <View style={styles.hero}>
+              {coverUrl ? (
+                <Image accessibilityIgnoresInvertColors source={{ uri: coverUrl }} style={styles.coverImage} />
+              ) : (
+                <View style={styles.coverFallback}>
+                  <Ionicons color={colors.gold} name="business-outline" size={56} />
+                </View>
+              )}
+              <View style={styles.heroScrim} />
+            </View>
+
+            <View style={styles.identitySection}>
               <View style={styles.avatarFrame}>
                 {avatarUrl ? (
                   <Image accessibilityIgnoresInvertColors source={{ uri: avatarUrl }} style={styles.avatarImage} />
                 ) : (
                   <Text style={styles.avatarInitial}>{profile.name.slice(0, 1).toUpperCase()}</Text>
                 )}
+                <View style={styles.verifiedBadge}>
+                  <Ionicons color={colors.surfaceDeep} name="checkmark" size={14} />
+                </View>
               </View>
-              <View style={styles.verifiedRow}>
-                <Text style={styles.eyebrow}>{profile.verified ? "Perfil verificado" : "Perfil profissional"}</Text>
+
+              <View style={styles.identityRow}>
+                <View style={styles.identityText}>
+                  <Text style={styles.name}>{profile.name}</Text>
+                  <Text style={styles.oab}>
+                    OAB/{profile.oabState} {profile.oabNumber}
+                  </Text>
+                </View>
+                <View style={styles.verifiedStack}>
+                  <Ionicons color={colors.gold} name="star" size={18} />
+                  <Text style={styles.verifiedText}>Verificado</Text>
+                </View>
               </View>
-              <Text style={styles.name}>{profile.name}</Text>
-              <Text style={styles.oab}>OAB/{profile.oabState} {profile.oabNumber}</Text>
-              {place || distance ? <Text style={styles.panelText}>{[distance, place].filter(Boolean).join(" - ")}</Text> : null}
-              {profile.miniBio ? <Text style={styles.miniBio}>{profile.miniBio}</Text> : null}
-              <View style={styles.areaGrid}>
-                {profile.areas.map((area) => (
-                  <View key={area.id} style={styles.areaPill}>
-                    <Text style={styles.areaText}>{area.name}</Text>
+
+              {distance || place ? (
+                <View style={styles.locationRow}>
+                  <Ionicons color={colors.textMuted} name="location-outline" size={17} />
+                  <Text style={styles.panelText}>{[distance, place].filter(Boolean).join(" - ")}</Text>
+                </View>
+              ) : null}
+
+              <View style={styles.chipRow}>
+                {profile.areas.slice(0, 3).map((area) => (
+                  <View key={area.id} style={styles.specialtyChip}>
+                    <Text style={styles.specialtyText}>{area.name.toUpperCase()}</Text>
                   </View>
                 ))}
               </View>
-              {profile.fullBio ? (
-                <View style={styles.bioPanel}>
-                  <Text style={styles.sectionTitle}>Sobre o profissional</Text>
-                  <Text style={styles.panelText}>{profile.fullBio}</Text>
-                </View>
-              ) : null}
             </View>
 
-            <View style={styles.contactCard}>
-              <Text style={styles.sectionTitle}>Contato profissional</Text>
-              <Text style={styles.panelText}>
-                O atendimento continua fora da plataforma. Combine diretamente os proximos passos com o profissional.
+            <View style={styles.statsGrid}>
+              <View style={styles.statCard}>
+                <Text style={styles.statValue}>{profile.yearsExperience ? `${profile.yearsExperience}+` : "--"}</Text>
+                <Text style={styles.statLabel}>Anos Exp.</Text>
+              </View>
+              <View style={styles.statCard}>
+                <Text style={styles.statValue}>{profile.verified ? "Sim" : "--"}</Text>
+                <Text style={styles.statLabel}>Verificado</Text>
+              </View>
+              <View style={styles.statCard}>
+                <Text style={styles.statValue}>{whatsapp ? "Sim" : "--"}</Text>
+                <Text style={styles.statLabel}>WhatsApp</Text>
+              </View>
+            </View>
+
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Sobre o Profissional</Text>
+              <Text style={styles.bioText}>
+                {profile.fullBio ?? profile.miniBio ?? "Este profissional ainda nao publicou uma bio completa."}
               </Text>
-              {whatsapp ? (
-                <TouchableOpacity
-                  accessibilityRole="button"
-                  onPress={() => Linking.openURL(`https://wa.me/${whatsapp}`)}
-                  style={styles.whatsButton}
-                >
-                  <Text style={styles.whatsButtonText}>Falar no WhatsApp</Text>
-                </TouchableOpacity>
-              ) : (
-                <Text style={styles.panelText}>Este profissional ainda nao tem WhatsApp disponivel.</Text>
-              )}
+            </View>
+
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Areas de Atuacao</Text>
+              <View style={styles.areaList}>
+                {profile.areas.map((area) => (
+                  <View key={area.id} style={styles.areaCard}>
+                    <View style={styles.areaIcon}>
+                      <Ionicons color={colors.gold} name={getAreaIcon(area.name)} size={22} />
+                    </View>
+                    <View style={styles.areaTextBlock}>
+                      <Text style={styles.areaTitle}>{area.name}</Text>
+                      <Text style={styles.panelText}>Atendimento profissional por canal externo seguro.</Text>
+                    </View>
+                  </View>
+                ))}
+              </View>
             </View>
           </>
         ) : null}
 
         <LegalLinks />
       </ScrollView>
+
+      {status === "ready" && profile ? (
+        <View style={styles.footerBar}>
+          {whatsapp ? (
+            <TouchableOpacity
+              accessibilityRole="button"
+              onPress={() => Linking.openURL(`https://wa.me/${whatsapp}`)}
+              style={styles.whatsButton}
+            >
+              <Ionicons color={colors.surfaceDeep} name="logo-whatsapp" size={22} />
+              <Text style={styles.whatsButtonText}>WhatsApp VIP</Text>
+            </TouchableOpacity>
+          ) : (
+            <View style={styles.unavailableContact}>
+              <Text style={styles.panelText}>WhatsApp indisponivel para este profissional.</Text>
+            </View>
+          )}
+        </View>
+      ) : null}
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: colors.background },
-  container: { gap: spacing.lg, padding: 20, paddingBottom: spacing.xl },
-  backButton: { alignSelf: "flex-start", borderColor: colors.gold, borderRadius: 8, borderWidth: 1, paddingHorizontal: spacing.md, paddingVertical: spacing.sm },
-  backText: { color: colors.gold, fontWeight: "800" },
-  hero: { backgroundColor: colors.surfaceDeep, borderRadius: 8, gap: spacing.sm, padding: spacing.lg },
-  eyebrow: { color: colors.gold, fontSize: 12, fontWeight: "800", textTransform: "uppercase" },
-  heroTitle: { color: colors.textPrimary, fontSize: 22, fontWeight: "800", lineHeight: 30 },
-  statePanel: { alignItems: "center", backgroundColor: colors.surface, borderColor: colors.borderSubtle, borderRadius: 8, borderWidth: 1, flexDirection: "row", gap: spacing.sm, padding: spacing.lg },
-  profileCard: { backgroundColor: colors.surface, borderColor: colors.borderSubtle, borderRadius: 8, borderWidth: 1, gap: spacing.md, overflow: "hidden", padding: spacing.lg, paddingTop: 0 },
-  coverFrame: { backgroundColor: colors.surfaceDeep, height: 136, marginHorizontal: -spacing.lg, marginBottom: -spacing.lg },
+  container: { gap: spacing.lg, paddingBottom: 124 },
+  topControls: {
+    alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    left: 20,
+    position: "absolute",
+    right: 20,
+    top: 16,
+    zIndex: 10
+  },
+  iconButton: {
+    alignItems: "center",
+    backgroundColor: "rgba(11,22,40,0.78)",
+    borderColor: colors.borderSubtle,
+    borderRadius: 999,
+    borderWidth: 1,
+    height: 44,
+    justifyContent: "center",
+    width: 44
+  },
+  topRightControls: { flexDirection: "row", gap: spacing.sm },
+  passiveIcon: {
+    alignItems: "center",
+    backgroundColor: "rgba(11,22,40,0.78)",
+    borderColor: colors.borderSubtle,
+    borderRadius: 999,
+    borderWidth: 1,
+    height: 44,
+    justifyContent: "center",
+    width: 44
+  },
+  hero: {
+    backgroundColor: colors.surfaceDeep,
+    height: 320,
+    overflow: "hidden",
+    position: "relative"
+  },
   coverImage: { height: "100%", width: "100%" },
-  coverFallback: { alignItems: "center", backgroundColor: colors.surfaceDeep, borderBottomColor: colors.borderSubtle, borderBottomWidth: 1, flex: 1, justifyContent: "center" },
-  coverFallbackText: { color: colors.gold, fontSize: 16, fontWeight: "800", textTransform: "uppercase" },
-  avatarFrame: { alignItems: "center", alignSelf: "flex-start", backgroundColor: colors.surfaceDeep, borderColor: colors.gold, borderRadius: 36, borderWidth: 2, height: 72, justifyContent: "center", marginTop: -20, overflow: "hidden", width: 72 },
+  coverFallback: {
+    alignItems: "center",
+    backgroundColor: colors.surfaceDeep,
+    flex: 1,
+    justifyContent: "center"
+  },
+  heroScrim: {
+    backgroundColor: "rgba(7,20,38,0.42)",
+    bottom: 0,
+    left: 0,
+    position: "absolute",
+    right: 0,
+    top: 0
+  },
+  statePanel: {
+    alignItems: "center",
+    backgroundColor: colors.surface,
+    borderColor: colors.borderSubtle,
+    borderRadius: 12,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: spacing.sm,
+    margin: 20,
+    padding: spacing.lg
+  },
+  identitySection: {
+    gap: spacing.md,
+    marginTop: -72,
+    paddingHorizontal: 20
+  },
+  avatarFrame: {
+    alignItems: "center",
+    backgroundColor: colors.surfaceDeep,
+    borderColor: colors.gold,
+    borderRadius: 999,
+    borderWidth: 4,
+    height: 112,
+    justifyContent: "center",
+    position: "relative",
+    width: 112
+  },
   avatarImage: { height: "100%", width: "100%" },
-  avatarInitial: { color: colors.gold, fontSize: 28, fontWeight: "800" },
-  verifiedRow: { flexDirection: "row" },
-  name: { color: colors.textPrimary, fontSize: 24, fontWeight: "800" },
-  oab: { color: colors.gold, fontSize: 13, fontWeight: "800" },
-  miniBio: { color: colors.textPrimary, fontSize: 15, fontWeight: "700", lineHeight: 22 },
+  avatarInitial: { color: colors.gold, fontSize: 42, fontWeight: "900" },
+  verifiedBadge: {
+    alignItems: "center",
+    backgroundColor: colors.gold,
+    borderColor: colors.background,
+    borderRadius: 999,
+    borderWidth: 2,
+    bottom: 2,
+    height: 28,
+    justifyContent: "center",
+    position: "absolute",
+    right: 2,
+    width: 28
+  },
+  identityRow: {
+    alignItems: "flex-start",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    gap: spacing.md
+  },
+  identityText: { flex: 1, gap: spacing.xs },
+  name: { color: colors.textPrimary, fontSize: 28, fontWeight: "800", lineHeight: 36 },
+  oab: { color: colors.gold, fontSize: 13, fontWeight: "900", letterSpacing: 1 },
+  verifiedStack: { alignItems: "flex-end", gap: 2 },
+  verifiedText: { color: colors.textMuted, fontSize: 12, fontWeight: "700" },
+  locationRow: { alignItems: "center", flexDirection: "row", gap: spacing.xs },
+  chipRow: { flexDirection: "row", flexWrap: "wrap", gap: spacing.sm },
+  specialtyChip: {
+    backgroundColor: "rgba(244,210,100,0.1)",
+    borderColor: "rgba(244,210,100,0.28)",
+    borderRadius: 999,
+    borderWidth: 1,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm
+  },
+  specialtyText: { color: colors.gold, fontSize: 12, fontWeight: "900" },
+  statsGrid: {
+    flexDirection: "row",
+    gap: spacing.md,
+    paddingHorizontal: 20
+  },
+  statCard: {
+    alignItems: "center",
+    backgroundColor: "rgba(11,22,40,0.78)",
+    borderColor: colors.borderSubtle,
+    borderRadius: 12,
+    borderWidth: 1,
+    flex: 1,
+    minHeight: 82,
+    justifyContent: "center",
+    padding: spacing.sm
+  },
+  statValue: { color: colors.gold, fontSize: 22, fontWeight: "900" },
+  statLabel: { color: colors.textMuted, fontSize: 12, fontWeight: "700", textAlign: "center" },
+  section: { gap: spacing.md, paddingHorizontal: 20 },
+  sectionTitle: { color: colors.textPrimary, fontSize: 22, fontWeight: "800" },
+  bioText: { color: colors.textPrimary, fontSize: 16, lineHeight: 26 },
   panelText: { color: colors.textMuted, fontSize: 14, lineHeight: 20 },
-  areaGrid: { flexDirection: "row", flexWrap: "wrap", gap: spacing.sm },
-  areaPill: { backgroundColor: colors.goldContainer, borderRadius: 999, paddingHorizontal: spacing.md, paddingVertical: spacing.sm },
-  areaText: { color: colors.surfaceDeep, fontSize: 12, fontWeight: "800" },
-  bioPanel: { borderTopColor: colors.borderSubtle, borderTopWidth: 1, gap: spacing.sm, paddingTop: spacing.md },
-  contactCard: { backgroundColor: colors.surface, borderColor: colors.borderSubtle, borderRadius: 8, borderWidth: 1, gap: spacing.md, padding: spacing.lg },
-  sectionTitle: { color: colors.textPrimary, fontSize: 18, fontWeight: "800" },
-  whatsButton: { alignItems: "center", backgroundColor: colors.whatsapp, borderRadius: 8, minHeight: 48, justifyContent: "center", paddingHorizontal: spacing.md },
-  whatsButtonText: { color: colors.surfaceDeep, fontWeight: "800" },
-  legalLinks: { flexDirection: "row", flexWrap: "wrap", gap: spacing.md, justifyContent: "center", paddingVertical: spacing.sm },
+  areaList: { gap: spacing.md },
+  areaCard: {
+    alignItems: "center",
+    backgroundColor: "rgba(11,22,40,0.78)",
+    borderColor: colors.borderSubtle,
+    borderRadius: 14,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: spacing.md,
+    padding: spacing.md
+  },
+  areaIcon: {
+    alignItems: "center",
+    backgroundColor: "rgba(244,210,100,0.1)",
+    borderRadius: 999,
+    height: 44,
+    justifyContent: "center",
+    width: 44
+  },
+  areaTextBlock: { flex: 1, gap: spacing.xs },
+  areaTitle: { color: colors.textPrimary, fontSize: 16, fontWeight: "800" },
+  footerBar: {
+    backgroundColor: "rgba(7,20,38,0.96)",
+    bottom: 0,
+    left: 0,
+    padding: spacing.md,
+    paddingBottom: spacing.lg,
+    position: "absolute",
+    right: 0
+  },
+  whatsButton: {
+    alignItems: "center",
+    backgroundColor: colors.success,
+    borderRadius: 14,
+    flexDirection: "row",
+    gap: spacing.sm,
+    minHeight: 58,
+    justifyContent: "center"
+  },
+  whatsButtonText: { color: colors.surfaceDeep, fontSize: 16, fontWeight: "900" },
+  unavailableContact: {
+    alignItems: "center",
+    backgroundColor: colors.surface,
+    borderColor: colors.borderSubtle,
+    borderRadius: 14,
+    borderWidth: 1,
+    minHeight: 58,
+    justifyContent: "center"
+  },
+  legalLinks: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: spacing.md,
+    justifyContent: "center",
+    paddingHorizontal: 20,
+    paddingVertical: spacing.sm
+  },
   legalText: { color: colors.textMuted, fontSize: 13, textDecorationLine: "underline" }
 });
