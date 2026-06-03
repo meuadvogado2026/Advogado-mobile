@@ -12,6 +12,8 @@ const requiredFiles = [
   "src/services/areasService.ts",
   "src/services/matchService.ts",
   "src/services/lawyerProfileService.ts",
+  "src/services/lawyerDashboardService.ts",
+  "src/services/prayerRequestService.ts",
   "src/services/meService.ts",
   "src/screens/LawyerProfileScreen.tsx",
   "src/services/locationService.ts",
@@ -33,6 +35,12 @@ if (apiContracts.me !== "/v1/me") {
 if (apiContracts.lawyerProfile !== "/v1/lawyers/:id") {
   throw new Error("Smoke mobile falhou. Contrato de perfil divergente.");
 }
+if (apiContracts.lawyerDashboard !== "/v1/lawyer/me/dashboard") {
+  throw new Error("Smoke mobile falhou. Contrato de dashboard do advogado divergente.");
+}
+if (apiContracts.prayerRequests !== "/v1/prayer-requests") {
+  throw new Error("Smoke mobile falhou. Contrato de pedido de oracao divergente.");
+}
 
 const appConfig = readFileSync("app.config.ts", "utf8");
 const appJson = readFileSync("app.json", "utf8");
@@ -40,6 +48,8 @@ const home = readFileSync("src/screens/HomeScreen.tsx", "utf8");
 const app = readFileSync("App.tsx", "utf8");
 const lawyerProfile = readFileSync("src/screens/LawyerProfileScreen.tsx", "utf8");
 const locationService = readFileSync("src/services/locationService.ts", "utf8");
+const lawyerDashboardService = readFileSync("src/services/lawyerDashboardService.ts", "utf8");
+const prayerRequestService = readFileSync("src/services/prayerRequestService.ts", "utf8");
 
 if (/SERVICE_ROLE|service_role/i.test(`${appConfig}\n${appJson}`)) {
   throw new Error("Smoke mobile falhou. Service role nao pode aparecer na configuracao mobile.");
@@ -96,6 +106,16 @@ if (/Mensagens|Agenda|Plant[aã]o|Favoritos|avalia[cç][oõ]es|24h/i.test(home))
   throw new Error("Smoke mobile falhou. Home nao deve criar navegacao funcional fora do MVP.");
 }
 
+if (
+  !lawyerDashboardService.includes("apiContracts.lawyerDashboard") ||
+  !prayerRequestService.includes("apiContracts.prayerRequests") ||
+  !home.includes("handleSubmitPrayer") ||
+  !home.includes("Enviar como anonimo") ||
+  !home.includes("handleLoadLawyerDashboard")
+) {
+  throw new Error("Smoke mobile falhou. Parte 3 nao esta conectada aos contratos backend.");
+}
+
 console.log(
-  "Smoke mobile OK: Expo entry, Auth, API backend, SecureStore, Location, Match, LawyerProfile, role shell cliente/advogado e links legais existem."
+  "Smoke mobile OK: Expo entry, Auth, API backend, SecureStore, Location, Match, LawyerProfile, Spec 008 Parte 3, role shell cliente/advogado e links legais existem."
 );

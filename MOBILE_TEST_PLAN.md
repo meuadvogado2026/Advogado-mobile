@@ -146,3 +146,74 @@ Evidencias: `harness-results/spec005-preview-build-visual-smoke.md`, `manual-dev
 Em 2026-06-01, o ciclo foi retomado sem codigo novo para fechar o gate fisico do APK preview da spec 005. O arquivo `harness-results/preview-5c9741f9-spec005-shell.apk` foi confirmado com `66185270` bytes e o SHA-256 local bateu com `61D2DF3D1D76D8AEB8397FCA9C5FBB2BE118CBD625BB6C048620EFCD59C249EC`.
 
 Resultado: `QUESTIONAR`. `adb` nao esta disponivel no PATH desta sessao, portanto nao foi possivel instalar/inspecionar device fisico de forma assistida. Sem confirmacao manual do usuario, o fluxo `Login -> Home com shell -> match -> Ver perfil -> LawyerProfile -> Voltar -> Falar no WhatsApp` ainda precisa ser validado em device Android fisico com GPS real e WhatsApp instalado. Nenhuma senha, token, telefone completo, coordenada exata ou payload sensivel foi registrado.
+
+## Resultado Da Rechecagem Do Gate Fisico Da Spec 005 Em 2026-06-02
+
+Sem codigo novo e sem gerar APK novo, `npm run harness` passou com exit code 0 em `Meu Advogado 2.0 - mobile`: typecheck, 10 testes e smoke estrutural passaram. O `npm run smoke:runtime`, carregando somente `EXPO_PUBLIC_*` da `.env` raiz sem imprimir valores e usando Railway, passou com exit code 0 (`OK_COM_RESSALVAS`): backend health OK, 6 areas, login real com token redigido, match `matched` e perfil seguro.
+
+O APK `harness-results/preview-5c9741f9-spec005-shell.apk` existe, tem `66185270` bytes e SHA-256 `61D2DF3D1D76D8AEB8397FCA9C5FBB2BE118CBD625BB6C048620EFCD59C249EC`, igual ao esperado. ADB foi localizado pelo SDK local, mas `adb devices -l` nao listou device fisico. Resultado: `SPEC005_DEVICE_FISICO_QUESTIONAR` ate validar GPS real e WhatsApp real em device Android fisico ou checklist manual assistido. Evidencia: `harness-results/spec005-device-gate-recheck-2026-06-02.md`.
+
+## Resultado Da Validacao Manual Assistida Da Spec 005 Em 2026-06-02
+
+O usuario confirmou textualmente a conclusao do checklist manual assistido no APK preview da Spec 005 em device Android fisico com GPS real e WhatsApp instalado. O aceite cobre o fluxo `Login -> Home com shell -> GPS real -> match Railway/PostGIS -> Ver perfil -> LawyerProfile -> Voltar -> Falar no WhatsApp`.
+
+Resultado: `SPEC005_DEVICE_FISICO_OK`. A evidencia e textual assistida, sem screenshot e sem registrar senha, token completo, telefone completo, coordenada exata ou payload sensivel. Nenhum codigo, APK novo, backend, admin, schema, migration ou Spec 008 Parte 3 foi alterado. Evidencia: `harness-results/spec005-device-physical-ok-2026-06-02.md`.
+
+## Resultado Da Spec 008 Parte 2 Visual Android
+
+Em 2026-06-02, o ciclo cirurgico fechou a ressalva visual da Parte 2 sem feature nova. `npm run harness` passou com exit code 0. A primeira execucao de `npm run smoke:runtime` falhou porque a allowlist local do script ainda nao aceitava os campos publicos opcionais da Parte 2; o script foi corrigido e a repeticao contra Railway passou com exit code 0 (`OK_COM_RESSALVAS`), Auth real redigido, 6 areas, match `matched`, perfil `verified=true`, duas areas e `hasForbiddenField=false`.
+
+Smoke visual no AVD `Pixel_9`: Expo Go abriu via Metro local, login cliente real foi executado sem registrar senha, e o fluxo `Login -> Home autenticada -> Buscar -> match -> Ver perfil -> LawyerProfile -> Voltar` passou. O `LawyerProfile` exibiu fallback seguro de capa/avatar, selo verificado, nome, OAB, cidade/UF, distancia efemera, areas e CTA WhatsApp. A fixture publicada nao trouxe imagem real, entao imagem real fica como lacuna nao bloqueante para revalidacao futura.
+
+Evidencias: `harness-results/spec008-part2-visual-android-2026-06-02.md`, `spec008-part2-android-client-home-clean.png`, `spec008-part2-android-client-actions-clean.png`, `spec008-part2-android-client-lawyer-profile-clean.png` e `spec008-part2-android-profile-back-to-match.png`. O CTA WhatsApp abriu handler externo no Chrome; as capturas do handler foram removidas porque a URL continha telefone completo.
+
+## Resultado Do Diagnostico Spec 003 Release Readiness
+
+Em 2026-06-02, a Spec 003 foi retomada apenas como diagnostico documental/operacional, sem codigo novo, sem build novo e sem gerar APK/AAB. Foram executadas checagens proporcionais de docs/configs e do APK preview da Spec 005. O APK `harness-results/preview-5c9741f9-spec005-shell.apk` existe com `66185270` bytes e SHA-256 `61D2DF3D1D76D8AEB8397FCA9C5FBB2BE118CBD625BB6C048620EFCD59C249EC`. `app.json` confirma package `com.advogado20.app`, `versionCode=2` e permissoes de localizacao; `eas.json` confirma preview APK/internal e production app-bundle/store.
+
+Resultado: `QUESTIONAR_COMPLIANCE_RELEASE`. O fluxo principal em device fisico e reaproveitavel como evidencia, mas internal testing segue bloqueado por Data Safety no Play Console, conta de teste, AAB assinado, crash reporting ou decisao explicita de adiamento, auditoria PII/logs/secrets, credenciais/keystore e rollback operacional. Evidencia: `harness-results/spec003-release-readiness-diagnostic-2026-06-02.md`.
+
+## Resultado Do Package Gate Spec 003 Play Console
+
+Em 2026-06-03, a Spec 003 avancou para package gate sem codigo novo, sem build novo, sem gerar APK/AAB e sem Play Store. Foram confirmados docs/configs, `eas.json` sem imprimir anon key, e o APK da Spec 005 com `66185270` bytes e SHA-256 `61D2DF3D1D76D8AEB8397FCA9C5FBB2BE118CBD625BB6C048620EFCD59C249EC`. A auditoria textual foi feita por categorias e sem imprimir linhas/valores: nao encontrou padrao direto de chave privada/OpenAI nem coordenada em `console.*`; encontrou publishable key em `.env`/`eas.json`, referencias de service role em backend/scripts e superficies esperadas de telefone/WhatsApp/tokens que exigem redacao continua.
+
+Resultado: `QUESTIONAR_CREDENCIAIS_PLAY_CONSOLE`. O pacote esta documentado, mas o ciclo de AAB depende de humano confirmar Play Console/EAS/keystore, conta de teste, Data Safety e decisao final de crash reporting. Evidencia: `harness-results/spec003-play-console-package-gate-2026-06-03.md`.
+
+## Resultado Do Gate Assistido Spec 003 Credenciais Play Console
+
+Em 2026-06-03, o gate assistido foi executado sem codigo novo, APK, AAB ou Play Store. Docs/configs foram reconfirmados; `app.json` manteve `com.advogado20.app`, `versionCode=2`, permissoes de localizacao e fallback dev desligado; `eas.json` manteve preview APK/internal e production app-bundle/store sem imprimir anon key; o APK da Spec 005 manteve `66185270` bytes e SHA-256 `61D2DF3D1D76D8AEB8397FCA9C5FBB2BE118CBD625BB6C048620EFCD59C249EC`. A auditoria redigida nao encontrou chave privada/OpenAI nem coordenada em `console.*`, preservando ressalvas para publishable key, service role e telefone/WhatsApp. Referencias oficiais Google Play Data Safety/User Data/Account Deletion foram revisadas.
+
+Resultado: `QUESTIONAR_CREDENCIAIS_PLAY_CONSOLE`. Sem confirmacao humana explicita de Play Console/app, EAS/keystore, conta de teste e Data Safety no console, o AAB continua bloqueado. Evidencia: `harness-results/spec003-credenciais-play-console-assistido-2026-06-03.md`.
+
+## Resultado Da Spec 008 Parte 3 Local
+
+Em 2026-06-03, com Play Console ainda bloqueado por confirmacao humana, a Parte 3 da
+Spec 008 foi adiantada localmente. O mobile passou a consumir `GET /v1/lawyer/me/dashboard`
+no shell do advogado e `POST /v1/prayer-requests` na aba cliente `Oracao`, com formulario,
+anonimato, validacao minima local e confirmacao sem ecoar o texto.
+
+Gates:
+
+- `npm run harness`; exit code 0; typecheck, 12 testes e smoke estrutural passaram.
+
+Ressalvas: sem smoke visual Android neste ciclo, sem build/APK/AAB e sem validacao contra
+Railway porque o backend da Parte 3 ainda depende de migration remota `0003_prayer_requests.sql`
+e deploy.
+
+## Resultado Do Gate De Publicacao Da Spec 008 Parte 3
+
+Em 2026-06-03, o gate de publicacao/validacao da Parte 3 foi executado sem Play Console,
+sem APK, sem AAB e sem deploy. O backend revalidou `0003_prayer_requests.sql` em dry-run
+e passou no harness; o mobile passou novamente no harness. A aplicacao remota da migration
+ficou bloqueada porque `psql`, `SUPABASE_DB_URL` e flags de apply nao estao disponiveis
+nesta sessao. Por regra, backend/mobile nao foram publicados.
+
+Gates:
+
+- Backend `npm run migration:check`; exit code 0; `OK_DRY_RUN_STATIC`.
+- Backend `npm run harness`; exit code 0; 45 testes, build e smoke local.
+- Mobile `npm run harness`; exit code 0; 12 testes e smoke estrutural.
+- Railway atual respondeu `404` sem credenciais para os endpoints novos.
+
+Resultado: `QUESTIONAR_MIGRATION_SUPABASE`. Evidencia:
+`harness-results/spec008-part3-published-validation-2026-06-03.md`.

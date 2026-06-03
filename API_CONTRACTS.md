@@ -84,9 +84,48 @@ dado do perfil.
 
 ## Advogado Logado
 
-- `GET /lawyer/dashboard`
+- `GET /v1/lawyer/me/dashboard`
 - `GET /lawyer/vip-card`
 - `GET /lawyer/benefits`
+
+Resposta do dashboard:
+
+```json
+{
+  "lawyer": {
+    "id": "uuid",
+    "name": "Dra. Nome",
+    "oabNumber": "123456",
+    "oabState": "SP",
+    "planLabel": "MVP interno",
+    "verified": true
+  },
+  "metrics": { "profileViews": 0, "whatsappClicks": 0, "contacts": 0 },
+  "benefits": [{ "id": "verified-profile", "title": "Perfil verificado", "description": "..." }]
+}
+```
+
+Metricas sao placeholder seguro no MVP. Beneficios sao estaticos; sem pagamento,
+parceiro externo, cupom real, chat ou agenda.
+
+## Oracao
+
+- `POST /v1/prayer-requests`
+
+Request:
+
+```json
+{ "message": "Texto entre 20 e 500 caracteres", "anonymous": true }
+```
+
+Response:
+
+```json
+{ "request": { "id": "uuid", "status": "received", "createdAt": "2026-06-03T00:00:00Z" } }
+```
+
+O app nao deve exibir nem registrar payload sensivel em logs/smokes. A resposta nao ecoa
+o texto enviado.
 
 ## Erros Padrao
 
@@ -99,4 +138,4 @@ dado do perfil.
 
 ## Estado Atual
 
-Os contratos vivem tambem em `src/config/contracts.ts`. O app possui chamadas HTTP para areas, match real e perfil profissional via backend. A distancia do match segue apenas como contexto efemero da navegacao.
+Os contratos vivem tambem em `src/config/contracts.ts`. O app possui chamadas HTTP para areas, match real, perfil profissional, dashboard do advogado e pedido de oracao via backend. A distancia do match segue apenas como contexto efemero da navegacao.

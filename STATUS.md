@@ -1,8 +1,8 @@
 # Mobile Status - Meu Advogado 2.0
 
-**Ultima atualizacao:** 2026-06-02
-**Fase:** PRODUTO MVP / SPEC 008 PARTE 2 PUBLICADA
-**Veredito:** PUBLICADA_OK_COM_RESSALVA_VISUAL
+**Ultima atualizacao:** 2026-06-03
+**Fase:** PRODUTO MVP / SPEC 008 PARTE 3 PUBLICATION GATE
+**Veredito:** QUESTIONAR_MIGRATION_SUPABASE / QUESTIONAR_CREDENCIAIS_PLAY_CONSOLE
 
 ## Concluido
 
@@ -58,6 +58,8 @@
 - [x] APK preview local da spec 005 confirmado com SHA-256 `61D2DF3D1D76D8AEB8397FCA9C5FBB2BE118CBD625BB6C048620EFCD59C249EC`.
 - [x] Rechecagem do gate fisico da spec 005 confirmou APK local com `66185270` bytes e o mesmo SHA-256; `adb` nao esta disponivel no PATH.
 - [x] Rechecagem pos-admin producao em 2026-06-02 confirmou novamente o mesmo APK local, tamanho `66185270` bytes, SHA-256 `61D2DF3D1D76D8AEB8397FCA9C5FBB2BE118CBD625BB6C048620EFCD59C249EC`; `adb` segue indisponivel no PATH.
+- [x] Rechecagem independente em 2026-06-02 do gate fisico da spec 005: `npm run harness` exit 0; `npm run smoke:runtime` contra Railway exit 0 (`OK_COM_RESSALVAS`); APK local confirmado com `66185270` bytes e SHA-256 esperado; ADB disponivel pelo SDK local, mas sem device conectado.
+- [x] Gate fisico/manual da spec 005 fechado por confirmacao textual assistida do usuario em 2026-06-02: APK preview passou em device Android fisico com GPS real e WhatsApp instalado no fluxo `Login -> Home com shell -> match -> Ver perfil -> LawyerProfile -> Voltar -> Falar no WhatsApp`.
 - [x] Home autenticada do APK preview renderizou header `ADVOGADO 2.0`, areas, card `ADVOGADO INDICADO` e bottom navigation `Inicio`, `Buscar`, `Conta`.
 - [x] Spec 008 Parte 1 implementada no mobile sem backend/schema novo: `GET /v1/me` passou a decidir role, shell cliente e shell advogado ficaram separados, menus usam icones e abrem views reais sem `scrollTo`, logo arredondada aparece no login e no topo autenticado.
 - [x] Menu cliente agora tem views reais `Inicio`, `Buscar`, `Oracao`, `Conta`; menu advogado tem `Inicio`, `Cartao`, `Perfil`, `Conta`. `Oracao`, `Cartao` e `Perfil` do advogado ficam como views seguras sem persistencia/contrato sensivel novo ate as Partes 2/3.
@@ -65,7 +67,11 @@
 - [x] Spec 008 Parte 2 implementada localmente: `LawyerProfile` renderiza capa, avatar, mini bio e bio completa quando o backend retorna campos opcionais seguros; sem imagem, usa fallback visual.
 - [x] Gates spec 008 Parte 2 mobile: `npm run harness` exit 0; `npm run smoke:runtime` contra Railway exit 0 (`OK_COM_RESSALVAS`) com env publica carregada da `.env` raiz sem imprimir valor, Auth real redigido, 6 areas, match `matched` e perfil seguro.
 - [x] Publicacao mobile destravada: commits `0aa8ed8` (spec 005 shell), `7b7a7c3` (spec 008 Parte 2 visual) e `8c6ec19` (gate documental) publicados no GitHub.
-- [ ] Fluxo visual completo do novo APK preview nao fechou no AVD: localizacao nativa ficou indisponivel com fallback dev desligado antes de `match -> LawyerProfile -> WhatsApp`.
+- [x] Ressalva visual da Spec 008 Parte 2 fechada no AVD `Pixel_9`: `Login -> Home autenticada -> Buscar -> match -> Ver perfil -> LawyerProfile -> Voltar`; perfil exibiu fallback seguro de capa/avatar, OAB, cidade/UF, distancia efemera, areas, selo verificado e CTA WhatsApp. `smoke:runtime` foi alinhado aos campos publicos opcionais da Parte 2 e passou contra Railway.
+- [x] Fluxo fisico/manual completo do novo APK preview fechado por confirmacao assistida do usuario: GPS real, match, `LawyerProfile`, `Voltar` e WhatsApp real.
+- [x] Spec 008 Parte 3 implementada localmente no mobile: shell do advogado consome `GET /v1/lawyer/me/dashboard`, cartao exibe beneficios estaticos/seguros e aba cliente `Oracao` envia `POST /v1/prayer-requests` com anonimato e resposta sem ecoar texto.
+- [x] Gates spec 008 Parte 3 mobile: `npm run harness` exit 0; typecheck, 12 testes e smoke estrutural passaram.
+- [x] Gate de publicacao da Parte 3 reexecutou mobile `npm run harness` com exit 0, mas runtime/smoke visual contra Railway foi bloqueado porque a migration 0003 nao foi aplicada e o backend publicado ainda nao contem os endpoints novos.
 
 ## Em Andamento
 
@@ -88,11 +94,16 @@
 - `npm install` reportou vulnerabilidades transitivas do ecossistema Expo; revisar antes de release.
 - Localizacao real do AVD/Expo Go segue instavel; fallback dev local fecha apenas smoke Android local e nao deve ser usado em producao/release.
 - Match real PostGIS implementado e validado e2e no backend contra Supabase com token de cliente real (`back/scripts/match-smoke.ts`: matched SP/civil 0km, empty, 401) e ponta-a-ponta no APK preview em device fisico com GPS real, sem fallback dev.
-- Novo APK preview da spec 005 precisa de validacao em device fisico com GPS real/WhatsApp ou checklist manual assistido; o AVD nao entregou coordenada nativa ao Expo Location.
-- Spec 008 Parte 1 ainda precisa de smoke visual mobile/Android conclusivo. Nesta tentativa, o AVD `Pixel_9` bootou, Expo Go existia, Metro respondeu `packager-status:running` e o deep link foi enviado, mas o ADB travou em `screencap`/consultas posteriores; processos Android foram encerrados. Evidencia em `harness-results/spec008-mobile-visual-attempt-2026-06-02.md`.
-- Nesta retomada, `adb` nao esta disponivel no PATH da sessao; sem device fisico acessivel ou confirmacao manual, o gate permanece `QUESTIONAR`.
+- Novo APK preview da spec 005 foi validado por checklist manual assistido em device fisico com GPS real/WhatsApp; ADB automatico continuou sem listar device na sessao local, entao a evidencia e textual assistida.
+- Spec 008 Parte 2 visual Android foi fechada no AVD `Pixel_9` com Expo Go/Metro local e fallback dev explicito apenas para smoke. Lacuna preservada: a fixture publicada nao tem imagem real cadastrada; foi validado fallback seguro.
+- CTA WhatsApp da Spec 008 Parte 2 abriu handler externo no Chrome; as capturas do handler foram removidas porque a URL do navegador continha telefone completo.
 - WhatsApp app nao esta instalado no AVD; no APK preview da spec 004 o CTA abriu Chrome como handler externo de URL.
 - Nenhum device Android fisico apareceu no ADB durante o gate de WhatsApp fisico; a validacao foi concluida pelo caminho manual sem depuracao USB.
+- Diagnostico de release readiness da Spec 003 em 2026-06-02 fechou como `QUESTIONAR_COMPLIANCE_RELEASE`: fluxo principal/APK preview e package Android estao evidenciados, mas Data Safety, conta de teste, AAB, crash reporting/decisao de adiamento, auditoria PII/logs/secrets, credenciais/keystore e rollback ainda bloqueiam internal testing executavel.
+- Package gate da Spec 003 em 2026-06-03 fechou como `QUESTIONAR_CREDENCIAIS_PLAY_CONSOLE`: checklist Data Safety, conta de teste, auditoria PII/logs/secrets, decisao recomendada de adiar crash reporting, runbook de rollback e criterios para AAB foram documentados, mas falta humano confirmar Play Console/EAS/keystore e conta de teste.
+- Gate assistido da Spec 003 em 2026-06-03 manteve `QUESTIONAR_CREDENCIAIS_PLAY_CONSOLE`: docs/configs/APK e referencias oficiais foram reconfirmados, mas nao houve confirmacao humana explicita de Play Console/app, EAS/keystore, conta de teste ou Data Safety no console.
+- Spec 008 Parte 3 esta localmente OK com ressalvas: backend/mobile passaram em harness, mas falta aplicar migration `0003_prayer_requests.sql`, publicar backend/mobile conforme estrategia e executar smoke visual Android/runtime contra ambiente publicado.
+- Gate de publicacao da Spec 008 Parte 3 esta `QUESTIONAR_MIGRATION_SUPABASE`: sem migration aplicada, nao houve deploy, runtime Railway ou smoke visual Android.
 - Proximos ciclos devem ser iniciados pela raiz do projeto para carregar a governanca central `.codex/` e specs em `.codex/specs/`.
 
 ## Validacao Em Device Fisico (APK EAS)
@@ -112,4 +123,4 @@
 
 ## Proximo Passo
 
-Spec 008 Parte 2 esta publicada com ressalva visual. Proximo gate mobile: repetir smoke visual Android do perfil com foto/capa e fallback sem imagem em device/emulador estavel. O gate independente da spec 005 segue pendente: validar o APK `harness-results/preview-5c9741f9-spec005-shell.apk` em device fisico com GPS real/WhatsApp, ou por checklist manual assistido, no fluxo `Login -> Home com shell -> match -> Ver perfil -> LawyerProfile -> Voltar -> Falar no WhatsApp`.
+Spec 008 Parte 3 esta `QUESTIONAR_MIGRATION_SUPABASE` para publicacao. Proximo gate mobile: apos aplicar/publicar backend da Parte 3, repetir runtime/smoke visual Android para cliente `Oracao` e advogado `Dashboard/Cartao`. Play Console continua bloqueado por confirmacao humana objetiva de app `com.advogado20.app`, EAS/keystore, conta de teste e Data Safety antes de qualquer `SPEC003_AAB_INTERNAL_TESTING_BUILD`.

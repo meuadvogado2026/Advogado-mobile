@@ -18,9 +18,11 @@ import { appCopy } from "../config/contracts";
 import { createApiClient } from "../services/apiClient";
 import { createAreasService, type LegalArea } from "../services/areasService";
 import { createAuthService } from "../services/authService";
+import { createLawyerDashboardService, type LawyerDashboardResponse } from "../services/lawyerDashboardService";
 import { requestDeviceLocation, type DeviceLocation } from "../services/locationService";
 import { createMatchService, type MatchResponse } from "../services/matchService";
 import { createMeService, type CurrentUser } from "../services/meService";
+import { createPrayerRequestService } from "../services/prayerRequestService";
 import { secureSessionStorage } from "../services/secureSessionStorage";
 import type { Session } from "../services/sessionStorage";
 import { colors, spacing } from "../theme/tokens";
@@ -261,6 +263,10 @@ export function HomeScreen({ navigation }: Props) {
   const [selectedAreaIds, setSelectedAreaIds] = useState<string[]>([]);
   const [location, setLocation] = useState<DeviceLocation | null>(null);
   const [match, setMatch] = useState<MatchResponse | null>(null);
+  const [lawyerDashboard, setLawyerDashboard] = useState<LawyerDashboardResponse | null>(null);
+  const [prayerMessage, setPrayerMessage] = useState("");
+  const [prayerAnonymous, setPrayerAnonymous] = useState(true);
+  const [prayerReceipt, setPrayerReceipt] = useState<string | null>(null);
   const [status, setStatus] = useState<ViewStatus>("loading");
   const [message, setMessage] = useState("Carregando sessao segura.");
 
@@ -269,6 +275,8 @@ export function HomeScreen({ navigation }: Props) {
   const legalAreas = useMemo(() => createAreasService(apiClient), [apiClient]);
   const matches = useMemo(() => createMatchService(apiClient), [apiClient]);
   const me = useMemo(() => createMeService(apiClient), [apiClient]);
+  const lawyerDashboards = useMemo(() => createLawyerDashboardService(apiClient), [apiClient]);
+  const prayerRequests = useMemo(() => createPrayerRequestService(apiClient), [apiClient]);
 
   async function hydrateUser(restoredSession: Session) {
     const response = await me.getCurrentUser();
@@ -325,6 +333,28 @@ export function HomeScreen({ navigation }: Props) {
       active = false;
     };
   }, [session, currentUser, legalAreas]);
+
+  useEffect(() => {
+    if (!session || currentUser?.role !== "lawyer") {
+      return;
+    }
+
+    let active = true;
+    lawyerDashboards
+      .getDashboard()
+      .then((response) => {
+        if (!active) return;
+        setLawyerDashboard(response);
+      })
+      .catch(() => {
+        if (!active) return;
+        setLawyerDashboard(null);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [session, currentUser, lawyerDashboards]);
 
   async function handleSignIn() {
     setStatus("loading");
@@ -412,6 +442,38 @@ export function HomeScreen({ navigation }: Props) {
     }
   }
 
+  async function handleLoadLawyerDashboard() {
+    setStatus("loading");
+    setMessage("Atualizando painel do advogado.");
+    try {
+      const response = await lawyerDashboards.getDashboard();
+      setLawyerDashboard(response);
+      setStatus("idle");
+      setMessage("Painel do advogado atualizado.");
+    } catch (error) {
+      setStatus("error");
+      setMessage(getFriendlyError(error));
+    }
+  }
+
+  async function handleSubmitPrayer() {
+    setStatus("loading");
+    setMessage("Enviando pedido de oracao com seguranca.");
+    try {
+      const response = await prayerRequests.create({
+        message: prayerMessage,
+        anonymous: prayerAnonymous
+      });
+      setPrayerReceipt(response.request.createdAt);
+      setPrayerMessage("");
+      setStatus("idle");
+      setMessage("Pedido de oracao recebido.");
+    } catch (error) {
+      setStatus("error");
+      setMessage(getFriendlyError(error));
+    }
+  }
+
   function toggleArea(areaId: string) {
     setSelectedAreaIds((current) =>
       current.includes(areaId) ? current.filter((id) => id !== areaId) : [...current, areaId]
@@ -484,32 +546,48 @@ export function HomeScreen({ navigation }: Props) {
                   <Text style={styles.panelText}>
                     Acompanhe sua presenca profissional no Meu Advogado 2.0 sem misturar com a jornada do cliente.
                   </Text>
+                  <TouchableOpacity
+                    style={styles.secondaryButton}
+                    accessibilityRole="button"
+                    onPress={handleLoadLawyerDashboard}
+                  >
+                    <Ionicons color={colors.gold} name="refresh-outline" size={18} />
+                    <Text style={styles.secondaryButtonText}>Atualizar painel</Text>
+                  </TouchableOpacity>
                 </View>
                 <View style={styles.metricsGrid}>
                   <View style={styles.metricCard}>
-                    <Text style={styles.cardLabel}>Perfil</Text>
-                    <Text style={styles.metricValue}>Ativo</Text>
+                    <Text style={styles.cardLabel}>Visualizacoes</Text>
+                    <Text style={styles.metricValue}>{lawyerDashboard?.metrics.profileViews ?? 0}</Text>
                   </View>
                   <View style={styles.metricCard}>
                     <Text style={styles.cardLabel}>WhatsApp</Text>
-                    <Text style={styles.metricValue}>Externo</Text>
+                    <Text style={styles.metricValue}>{lawyerDashboard?.metrics.whatsappClicks ?? 0}</Text>
                   </View>
                 </View>
+                <StatusBox status={status} message={message} />
               </>
             ) : null}
 
             {lawyerTab === "card" ? (
               <View style={styles.vipCard}>
                 <Text style={styles.cardLabel}>Cartao digital</Text>
-                <Text style={styles.cardTitle}>{currentUser.email ?? "Advogado 2.0"}</Text>
-                <Text style={styles.panelText}>
-                  O cartao de beneficios sera conectado ao backend na Parte 3. Esta view ja separa o ambiente do
-                  advogado.
+                <Text style={styles.cardTitle}>
+                  {lawyerDashboard?.lawyer.name ?? currentUser.email ?? "Advogado 2.0"}
                 </Text>
-                <View style={styles.benefitRow}>
-                  <Ionicons color={colors.gold} name="shield-checkmark-outline" size={22} />
-                  <Text style={styles.panelText}>Beneficios seguros e sem pagamento nesta etapa.</Text>
-                </View>
+                <Text style={styles.panelText}>
+                  {lawyerDashboard?.lawyer.planLabel ?? "MVP interno"} - beneficios estaticos e seguros, sem pagamento
+                  ou parceiro real.
+                </Text>
+                {(lawyerDashboard?.benefits ?? []).map((benefit) => (
+                  <View style={styles.benefitRow} key={benefit.id}>
+                    <Ionicons color={colors.gold} name="shield-checkmark-outline" size={22} />
+                    <View style={styles.benefitTextBlock}>
+                      <Text style={styles.benefitTitle}>{benefit.title}</Text>
+                      <Text style={styles.panelText}>{benefit.description}</Text>
+                    </View>
+                  </View>
+                ))}
               </View>
             ) : null}
 
@@ -517,7 +595,11 @@ export function HomeScreen({ navigation }: Props) {
               <View style={styles.panel}>
                 <Text style={styles.panelTitle}>Perfil publico</Text>
                 <Text style={styles.panelText}>
-                  Foto, capa e bio ficam bloqueadas ate a validacao de seguranca da Parte 2.
+                  {lawyerDashboard
+                    ? `OAB ${lawyerDashboard.lawyer.oabNumber}/${lawyerDashboard.lawyer.oabState}. Perfil ${
+                        lawyerDashboard.lawyer.verified ? "verificado" : "em revisao"
+                      }.`
+                    : "Atualize o painel para carregar os dados publicos seguros."}
                 </Text>
               </View>
             ) : null}
@@ -616,13 +698,48 @@ export function HomeScreen({ navigation }: Props) {
             <View style={styles.panel}>
               <Text style={styles.panelTitle}>Pedido de oracao</Text>
               <Text style={styles.panelText}>
-                Esta tela ja tem rota propria. O envio sera liberado na Parte 3, depois da validacao de seguranca para
-                texto livre e LGPD.
+                Envie um pedido breve. Nao inclua senha, documento, endereco completo, telefone ou detalhes juridicos
+                sensiveis.
               </Text>
-              <View style={styles.noticeRow}>
-                <Ionicons color={colors.gold} name="lock-closed-outline" size={20} />
-                <Text style={styles.panelText}>Sem envio, persistencia ou logs nesta etapa.</Text>
-              </View>
+              <TextInput
+                multiline
+                onChangeText={setPrayerMessage}
+                placeholder="Escreva entre 20 e 500 caracteres"
+                placeholderTextColor={colors.textMuted}
+                style={[styles.input, styles.prayerInput]}
+                value={prayerMessage}
+              />
+              <TouchableOpacity
+                accessibilityRole="checkbox"
+                accessibilityState={{ checked: prayerAnonymous }}
+                onPress={() => setPrayerAnonymous((current) => !current)}
+                style={styles.toggleRow}
+              >
+                <Ionicons
+                  color={colors.gold}
+                  name={prayerAnonymous ? "checkbox-outline" : "square-outline"}
+                  size={22}
+                />
+                <Text style={styles.panelText}>Enviar como anonimo</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                disabled={status === "loading" || prayerMessage.trim().length < 20}
+                style={[
+                  styles.primaryButton,
+                  (status === "loading" || prayerMessage.trim().length < 20) && styles.disabledButton
+                ]}
+                accessibilityRole="button"
+                onPress={handleSubmitPrayer}
+              >
+                <Text style={styles.primaryButtonText}>Enviar pedido</Text>
+              </TouchableOpacity>
+              {prayerReceipt ? (
+                <View style={styles.noticeRow}>
+                  <Ionicons color={colors.gold} name="checkmark-circle-outline" size={20} />
+                  <Text style={styles.panelText}>Pedido recebido em {prayerReceipt}.</Text>
+                </View>
+              ) : null}
+              <StatusBox status={status} message={message} />
             </View>
           ) : null}
 
@@ -1040,6 +1157,25 @@ const styles = StyleSheet.create({
     alignItems: "center",
     flexDirection: "row",
     gap: spacing.sm
+  },
+  benefitTextBlock: {
+    flex: 1
+  },
+  benefitTitle: {
+    color: colors.textPrimary,
+    fontSize: 14,
+    fontWeight: "800"
+  },
+  prayerInput: {
+    minHeight: 120,
+    paddingVertical: spacing.md,
+    textAlignVertical: "top"
+  },
+  toggleRow: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: spacing.sm,
+    minHeight: 44
   },
   metricsGrid: {
     flexDirection: "row",

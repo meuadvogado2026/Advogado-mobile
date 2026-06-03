@@ -54,7 +54,9 @@ Solicitar somente em contexto, apos tela explicar:
 
 ## Estado Atual
 
-O mobile possui services de Auth, API, areas, match, perfil profissional, localizacao e SecureStore. A anon key deve entrar por `EXPO_PUBLIC_SUPABASE_ANON_KEY`; ela e publica para Auth, mas nao deve ser confundida com service role. Logs/testes nao imprimem senha, JWT, WhatsApp completo nem localizacao precisa.
+O mobile possui services de Auth, API, areas, match, perfil profissional, dashboard do advogado, pedido de oracao, localizacao e SecureStore. A anon key deve entrar por `EXPO_PUBLIC_SUPABASE_ANON_KEY`; ela e publica para Auth, mas nao deve ser confundida com service role. Logs/testes nao imprimem senha, JWT, WhatsApp completo nem localizacao precisa.
+
+Spec 008 Parte 3: a aba `Oracao` envia texto livre para o backend com Bearer token e opcao de anonimato. Como o texto pode conter dado sensivel espontaneo, ele nao deve aparecer em logs, screenshots, harness ou docs. A tela orienta o usuario a nao incluir senha, documento, endereco completo, telefone ou detalhes juridicos sensiveis. O dashboard/cartao do advogado consome apenas dados seguros do backend e beneficios estaticos, sem pagamento, parceiro real, chat ou agenda.
 
 Politica, termos e canal de exclusao estao publicados em `https://meuadvogado2026.github.io/meu-advogado-legal/` e acessiveis dentro do app. O canal provisiorio para solicitacoes de dados e `meuadvogado2026@gmail.com`.
 

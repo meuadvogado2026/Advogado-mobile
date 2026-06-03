@@ -4,9 +4,11 @@ import { createApiClient } from "../src/services/apiClient";
 import { createAuthService } from "../src/services/authService";
 import { createAreasService } from "../src/services/areasService";
 import { requestDeviceLocation } from "../src/services/locationService";
+import { createLawyerDashboardService } from "../src/services/lawyerDashboardService";
 import { createLawyerProfileService } from "../src/services/lawyerProfileService";
 import { createMatchService } from "../src/services/matchService";
 import { createMeService } from "../src/services/meService";
+import { createPrayerRequestService } from "../src/services/prayerRequestService";
 import type { Session, SessionStorage } from "../src/services/sessionStorage";
 
 const locationMock = vi.hoisted(() => ({
@@ -57,6 +59,8 @@ describe("mobile foundation contracts", () => {
   it("uses backend API contracts instead of Supabase direct access", () => {
     expect(apiContracts.match).toBe("/v1/match");
     expect(apiContracts.me).toBe("/v1/me");
+    expect(apiContracts.lawyerDashboard).toBe("/v1/lawyer/me/dashboard");
+    expect(apiContracts.prayerRequests).toBe("/v1/prayer-requests");
     expect(Object.values(apiContracts).some((path) => path.includes("supabase"))).toBe(false);
   });
 
@@ -204,6 +208,75 @@ describe("mobile foundation contracts", () => {
         miniBio: "Atendimento civil preventivo.",
         fullBio: null
       }
+    });
+  });
+
+  it("loads lawyer dashboard through the authenticated backend API", async () => {
+    const api = createApiClient({
+      config: publicTestConfig,
+      getSession: async () => ({
+        accessToken: "jwt-redacted",
+        email: "advogado@advogado20.com"
+      }),
+      fetchImpl: (async (url, init) => {
+        const headers = new Headers(init?.headers);
+        expect(String(url)).toBe("http://127.0.0.1:3333/v1/lawyer/me/dashboard");
+        expect(headers.get("Authorization")).toBe("Bearer jwt-redacted");
+        return new Response(
+          JSON.stringify({
+            lawyer: {
+              id: "lawyer-123",
+              name: "Dra. Carla Lima",
+              oabNumber: "123456",
+              oabState: "DF",
+              planLabel: "MVP interno",
+              verified: true
+            },
+            metrics: { profileViews: 0, whatsappClicks: 0, contacts: 0 },
+            benefits: [{ id: "verified-profile", title: "Perfil verificado", description: "Seguro" }]
+          }),
+          { status: 200 }
+        );
+      }) as typeof fetch
+    });
+
+    await expect(createLawyerDashboardService(api).getDashboard()).resolves.toMatchObject({
+      lawyer: { id: "lawyer-123", verified: true },
+      metrics: { profileViews: 0, whatsappClicks: 0, contacts: 0 }
+    });
+  });
+
+  it("sends prayer request through the authenticated backend API without echoing secrets locally", async () => {
+    const api = createApiClient({
+      config: publicTestConfig,
+      getSession: async () => ({
+        accessToken: "jwt-redacted",
+        email: "usuario@advogado20.com"
+      }),
+      fetchImpl: (async (url, init) => {
+        const headers = new Headers(init?.headers);
+        const payload = JSON.parse(String(init?.body));
+        expect(String(url)).toBe("http://127.0.0.1:3333/v1/prayer-requests");
+        expect(init?.method).toBe("POST");
+        expect(headers.get("Authorization")).toBe("Bearer jwt-redacted");
+        expect(payload).toEqual({
+          message: "Pedido reservado com tamanho suficiente para teste.",
+          anonymous: true
+        });
+        return new Response(
+          JSON.stringify({ request: { id: "request-123", status: "received", createdAt: "2026-06-03T00:00:00Z" } }),
+          { status: 201 }
+        );
+      }) as typeof fetch
+    });
+
+    await expect(
+      createPrayerRequestService(api).create({
+        message: "Pedido reservado com tamanho suficiente para teste.",
+        anonymous: true
+      })
+    ).resolves.toEqual({
+      request: { id: "request-123", status: "received", createdAt: "2026-06-03T00:00:00Z" }
     });
   });
 
