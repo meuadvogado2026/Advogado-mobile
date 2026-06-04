@@ -2,7 +2,7 @@
 
 **Ultima atualizacao:** 2026-06-04
 **Fase:** PRODUTO MVP / UX LOGIN E CADASTRO CLIENTE
-**Veredito:** CLIENT_SIGNUP_PRODUCAO_OK / MOBILE_UX_LOGIN_CADASTRO_LOGO_LOCAL_OK / SPEC003_DEPENDENCIAS_RELEASE_OK / QUESTIONAR_CREDENCIAIS_PLAY_CONSOLE / SPEC008_CLIENTE_HOME_REPLICACAO_VISUAL_OK / SPEC008_PARTE1R_POLIMENTO_VISUAL_MOBILE_OK
+**Veredito:** QUESTIONAR_REBUILD_MOBILE_EAS_CREDENTIALS / CLIENT_SIGNUP_PRODUCAO_OK / MOBILE_UX_LOGIN_CADASTRO_LOGO_LOCAL_OK / SPEC003_DEPENDENCIAS_RELEASE_OK / QUESTIONAR_CREDENCIAIS_PLAY_CONSOLE / SPEC008_CLIENTE_HOME_REPLICACAO_VISUAL_OK / SPEC008_PARTE1R_POLIMENTO_VISUAL_MOBILE_OK
 
 ## Concluido
 
@@ -18,6 +18,8 @@
 - [x] Auth mobile inicial via Supabase Auth REST com anon key publica configuravel.
 - [x] Tela de login alterna entre `Entrar` e `Criar novo usuario`, usando `POST /v1/auth/signup-client` pelo backend antes do login Supabase Auth REST.
 - [x] Backend Railway publicou `POST /v1/auth/signup-client`; smoke real criou usuario descartavel client, validou login e `/v1/me`, e limpou Auth/profile. Smoke runtime mobile contra Railway passou com exit code 0.
+- [x] Fluxo mobile de cadastro cliente publicado no GitHub pelo commit `6b63678`; `npm run harness`, `npm run smoke:runtime` contra Railway e `git diff --check` passaram.
+- [x] AVD `Pixel_9` com Expo Go/Metro local exibiu a UI `Criar novo usuario` sem sessao, com evidencia segura em `harness-results/client-signup-login-screen-2026-06-04.png`.
 - [x] Sessao/JWT guardado em SecureStore.
 - [x] `GET /v1/areas` consumido via backend.
 - [x] Fluxo de explicacao + permissao de localizacao implementado.
@@ -119,7 +121,7 @@
 - Gate humano final da Spec 003 em 2026-06-03 manteve `QUESTIONAR_CREDENCIAIS_PLAY_CONSOLE`: checklist final AAB preparado para Play Console/app, EAS/keystore, conta de teste, Data Safety/Data deletion, crash reporting, versionCode e rollback; configs Android/EAS, audit de producao, harness, runtime Railway e `git diff --check` passaram, mas nenhuma confirmacao humana foi fornecida.
 - Spec 008 Parte 1R foi fechada como `SPEC008_CLIENTE_HOME_REPLICACAO_VISUAL_OK` no AVD `Pixel_9`; nao houve captura de senha, token completo, telefone completo, coordenada exata ou texto de oracao. XMLs temporarios da Home autenticada foram removidos e WhatsApp externo nao foi acionado para evitar handler com telefone completo.
 - Polimento visual local da Spec 008 Parte 1R ficou `SPEC008_PARTE1R_POLIMENTO_VISUAL_MOBILE_OK`; smoke visual Android nao foi executado neste ciclo porque nenhum device estava bootado/conectado, mas harness e runtime Railway passaram.
-- Cadastro cliente no backend Railway esta validado. Se o APK instalado/publicado nao tiver a UI nova de `Criar novo usuario`, precisa rebuild/publicacao mobile separada; nenhum APK/AAB foi gerado neste ciclo.
+- Cadastro cliente no backend Railway esta validado. APKs preview locais existentes nao contem a UI nova de `Criar novo usuario`; precisa rebuild/publicacao mobile separada. Tentativas EAS Build preview `08f581b1-f085-4628-9599-527609840b53` e `1770c5a0-fd4a-437a-93e2-11736c145be6` falharam na fase `Prepare credentials` das credenciais Android remotas. Build local EAS Android nao e suportado nesta sessao Windows. Nenhum APK/AAB novo foi gerado.
 - Play Console/AAB/APK novo continuaram fora do ciclo; Spec 003 segue com dependencias de producao `SPEC003_DEPENDENCIAS_RELEASE_OK` e bloqueio humano `QUESTIONAR_CREDENCIAIS_PLAY_CONSOLE`.
 - Proximos ciclos devem ser iniciados pela raiz do projeto para carregar a governanca central `.codex/` e specs em `.codex/specs/`.
 
