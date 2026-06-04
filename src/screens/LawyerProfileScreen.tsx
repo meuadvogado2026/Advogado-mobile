@@ -402,8 +402,8 @@ const styles = StyleSheet.create({
   locationRow: { alignItems: "center", flexDirection: "row", gap: spacing.xs },
   chipRow: { flexDirection: "row", flexWrap: "wrap", gap: spacing.sm },
   specialtyChip: {
-    backgroundColor: "rgba(255,120,0,0.1)",
-    borderColor: "rgba(255,120,0,0.28)",
+    backgroundColor: "rgba(214,106,1,0.1)",
+    borderColor: "rgba(214,106,1,0.28)",
     borderRadius: 999,
     borderWidth: 1,
     paddingHorizontal: spacing.md,
@@ -435,8 +435,8 @@ const styles = StyleSheet.create({
   socialRow: { flexDirection: "row", flexWrap: "wrap", gap: spacing.sm },
   socialButton: {
     alignItems: "center",
-    backgroundColor: "rgba(255,120,0,0.1)",
-    borderColor: "rgba(255,120,0,0.28)",
+    backgroundColor: "rgba(214,106,1,0.1)",
+    borderColor: "rgba(214,106,1,0.28)",
     borderRadius: 14,
     borderWidth: 1,
     flexDirection: "row",
@@ -458,7 +458,7 @@ const styles = StyleSheet.create({
   },
   areaIcon: {
     alignItems: "center",
-    backgroundColor: "rgba(255,120,0,0.1)",
+    backgroundColor: "rgba(214,106,1,0.1)",
     borderRadius: 999,
     height: 44,
     justifyContent: "center",

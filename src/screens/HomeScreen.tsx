@@ -1068,7 +1068,7 @@ const styles = StyleSheet.create({
     paddingTop: spacing.sm
   },
   pageLogo: {
-    borderColor: "rgba(255,142,10,0.34)",
+    borderColor: "rgba(214,106,1,0.34)",
     borderRadius: 24,
     borderWidth: 1,
     height: 112,
@@ -1197,7 +1197,7 @@ const styles = StyleSheet.create({
   areaTile: {
     alignItems: "center",
     backgroundColor: "#081b35",
-    borderColor: "rgba(255,142,10,0.22)",
+    borderColor: "rgba(214,106,1,0.22)",
     borderRadius: 18,
     borderWidth: 1,
     gap: 10,
@@ -1210,14 +1210,14 @@ const styles = StyleSheet.create({
     width: 118
   },
   areaTileSelected: {
-    backgroundColor: "rgba(255,142,10,0.08)",
+    backgroundColor: "rgba(214,106,1,0.08)",
     borderColor: colors.goldBright,
     shadowOpacity: 0.28
   },
   areaIconBadge: {
     alignItems: "center",
-    backgroundColor: "rgba(255,142,10,0.12)",
-    borderColor: "rgba(255,142,10,0.34)",
+    backgroundColor: "rgba(214,106,1,0.12)",
+    borderColor: "rgba(214,106,1,0.34)",
     borderRadius: 18,
     borderWidth: 1,
     height: 48,
@@ -1267,7 +1267,7 @@ const styles = StyleSheet.create({
   },
   lawyerCard: {
     backgroundColor: "#071931",
-    borderColor: "rgba(255,120,0,0.18)",
+    borderColor: "rgba(214,106,1,0.18)",
     borderRadius: 18,
     borderWidth: 1,
     gap: spacing.md,
@@ -1335,7 +1335,7 @@ const styles = StyleSheet.create({
   },
   oabBadge: {
     alignSelf: "flex-start",
-    backgroundColor: "rgba(255,120,0,0.12)",
+    backgroundColor: "rgba(214,106,1,0.12)",
     borderRadius: 6,
     paddingHorizontal: spacing.sm,
     paddingVertical: 3
@@ -1402,7 +1402,7 @@ const styles = StyleSheet.create({
   },
   lawyerActionButton: {
     alignItems: "center",
-    borderColor: "rgba(255,120,0,0.45)",
+    borderColor: "rgba(214,106,1,0.45)",
     borderRadius: 14,
     borderWidth: 1,
     flex: 1,
@@ -1525,7 +1525,7 @@ const styles = StyleSheet.create({
     gap: spacing.md
   },
   timelineLine: {
-    backgroundColor: "rgba(255,120,0,0.24)",
+    backgroundColor: "rgba(214,106,1,0.24)",
     height: 1,
     left: 36,
     position: "absolute",
@@ -1600,8 +1600,8 @@ const styles = StyleSheet.create({
   },
   bottomIconBadge: {
     alignItems: "center",
-    backgroundColor: "rgba(255,142,10,0.10)",
-    borderColor: "rgba(255,142,10,0.20)",
+    backgroundColor: "rgba(214,106,1,0.10)",
+    borderColor: "rgba(214,106,1,0.20)",
     borderRadius: 999,
     borderWidth: 1,
     height: 38,
@@ -1662,7 +1662,7 @@ const styles = StyleSheet.create({
   },
   prayerCard: {
     backgroundColor: colors.surface,
-    borderColor: "rgba(255,120,0,0.18)",
+    borderColor: "rgba(214,106,1,0.18)",
     borderRadius: 18,
     borderWidth: 1,
     overflow: "hidden"

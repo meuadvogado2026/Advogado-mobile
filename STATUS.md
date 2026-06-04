@@ -5,6 +5,7 @@
 **Veredito:** PERFIL_ADVOGADO_SOCIAIS_PRODUCAO_OK / MIGRATION_0006_APLICADA_OK / MIGRATION_0005_APLICADA_OK / CLIENT_SIGNUP_MOBILE_PREVIEW_BUILD_OK / CLIENT_SIGNUP_MOBILE_APK_VISUAL_OK / CLIENT_SIGNUP_PRODUCAO_OK / MOBILE_UX_LOGIN_CADASTRO_LOGO_LOCAL_OK / SPEC003_DEPENDENCIAS_RELEASE_OK / QUESTIONAR_CREDENCIAIS_PLAY_CONSOLE / SPEC008_CLIENTE_HOME_REPLICACAO_VISUAL_OK / SPEC008_PARTE1R_POLIMENTO_VISUAL_MOBILE_OK
 
 - [x] Ajustes do painel mobile publicados em 2026-06-04 no commit `e67df6d`: card de match na Home renderiza `avatarUrl`/`coverUrl` quando o backend retorna, CTA `Advogado urgente` ficou mais compacto, tokens amarelos foram trocados para dourado `#FF8E0A/#FF7800`, e rodape `Parceiros` consome `GET /v1/partner-logos`. Gates: `npm run harness` exit 0 e `npm run smoke:runtime` com backend local exit 0 (`OK_COM_RESSALVAS`, sem device Android bootado).
+- [x] Ajuste de cor publicado em 2026-06-04: botoes, icones, bordas e textos dourados do mobile foram padronizados para `#D66A01`; `npm run harness` exit 0.
 
 ## Concluido
 
