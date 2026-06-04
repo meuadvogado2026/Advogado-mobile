@@ -2,7 +2,7 @@
 
 **Ultima atualizacao:** 2026-06-04
 **Fase:** PRODUTO MVP / UX LOGIN E CADASTRO CLIENTE
-**Veredito:** QUESTIONAR_REBUILD_MOBILE_EAS_CREDENTIALS / CLIENT_SIGNUP_PRODUCAO_OK / MOBILE_UX_LOGIN_CADASTRO_LOGO_LOCAL_OK / SPEC003_DEPENDENCIAS_RELEASE_OK / QUESTIONAR_CREDENCIAIS_PLAY_CONSOLE / SPEC008_CLIENTE_HOME_REPLICACAO_VISUAL_OK / SPEC008_PARTE1R_POLIMENTO_VISUAL_MOBILE_OK
+**Veredito:** CLIENT_SIGNUP_MOBILE_PREVIEW_BUILD_OK / CLIENT_SIGNUP_MOBILE_APK_VISUAL_OK / CLIENT_SIGNUP_PRODUCAO_OK / MOBILE_UX_LOGIN_CADASTRO_LOGO_LOCAL_OK / SPEC003_DEPENDENCIAS_RELEASE_OK / QUESTIONAR_CREDENCIAIS_PLAY_CONSOLE / SPEC008_CLIENTE_HOME_REPLICACAO_VISUAL_OK / SPEC008_PARTE1R_POLIMENTO_VISUAL_MOBILE_OK
 
 ## Concluido
 
@@ -20,6 +20,11 @@
 - [x] Backend Railway publicou `POST /v1/auth/signup-client`; smoke real criou usuario descartavel client, validou login e `/v1/me`, e limpou Auth/profile. Smoke runtime mobile contra Railway passou com exit code 0.
 - [x] Fluxo mobile de cadastro cliente publicado no GitHub pelo commit `6b63678`; `npm run harness`, `npm run smoke:runtime` contra Railway e `git diff --check` passaram.
 - [x] AVD `Pixel_9` com Expo Go/Metro local exibiu a UI `Criar novo usuario` sem sessao, com evidencia segura em `harness-results/client-signup-login-screen-2026-06-04.png`.
+- [x] Rebuild preview EAS do cadastro cliente destravado: commits `ab9553d` (`Fix EAS Android prebuild tar interop`) e `eeb42c0` (`Avoid blank APK while icon font loads`) publicados em `meuadvogado2026/Advogado-mobile`.
+- [x] APK preview final gerado no EAS Build `baa5caed-27fd-4e2d-be06-39ff52678b85`, commit `eeb42c0a994ec34784096f025e69a6385a190d29`, perfil `preview`, APK/internal, sem AAB e sem Play Console.
+- [x] APK baixado em `harness-results/client-signup-preview-eeb42c0-baa5caed.apk`, tamanho `68163546` bytes, SHA-256 `B5A6EDFC29507652290360C29735EC0B6F489418EB4F945E172FF298E6459A30`.
+- [x] Conteudo do APK validado: bundle contem `Criar novo usuario`, `/v1/auth/signup-client`, Railway `https://advogado-back-production.up.railway.app` e fallback dev nao esta `true`.
+- [x] Smoke visual do APK instalado no AVD `Pixel_9` passou por `Login -> Criar novo usuario -> cadastro descartavel -> Home`; login Supabase e `GET /v1/me` retornaram `role=client`, com cleanup de Auth/profile concluido.
 - [x] Sessao/JWT guardado em SecureStore.
 - [x] `GET /v1/areas` consumido via backend.
 - [x] Fluxo de explicacao + permissao de localizacao implementado.
@@ -107,6 +112,7 @@
 - `npm run android` em modo nao interativo ainda para no prompt da Expo CLI porque o APK instalado a partir do release `Expo-Go-2.32.20` reporta `versionName=2.32.19`; o workaround validado foi `npx expo start --localhost --clear` + `adb reverse` + deep link `exp://127.0.0.1:8081`.
 - `npm audit --omit=dev` foi corrigido para producao em 2026-06-03 (`SPEC003_DEPENDENCIAS_RELEASE_OK`); audit total sem `--omit=dev` ainda aponta tooling de desenvolvimento fora do gate atual e deve ser reavaliado em ciclo proprio se virar criterio de release.
 - Localizacao real do AVD/Expo Go segue instavel; fallback dev local fecha apenas smoke Android local e nao deve ser usado em producao/release.
+- Bloqueio `QUESTIONAR_REBUILD_MOBILE_EAS_CREDENTIALS` fechado em 2026-06-04: a falha rotulada pelo EAS como `Prepare credentials` era efeito colateral do prebuild quebrado por interop `@expo/cli@0.22.28` + `tar@7.5.16`; foi corrigida por patch de postinstall preservando `npm audit --omit=dev` limpo.
 - Match real PostGIS implementado e validado e2e no backend contra Supabase com token de cliente real (`back/scripts/match-smoke.ts`: matched SP/civil 0km, empty, 401) e ponta-a-ponta no APK preview em device fisico com GPS real, sem fallback dev.
 - Novo APK preview da spec 005 foi validado por checklist manual assistido em device fisico com GPS real/WhatsApp; ADB automatico continuou sem listar device na sessao local, entao a evidencia e textual assistida.
 - Spec 008 Parte 2 visual Android foi fechada no AVD `Pixel_9` com Expo Go/Metro local e fallback dev explicito apenas para smoke. Lacuna preservada: a fixture publicada nao tem imagem real cadastrada; foi validado fallback seguro.
