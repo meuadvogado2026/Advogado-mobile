@@ -5,6 +5,7 @@ const requiredFiles = [
   "App.tsx",
   "app.json",
   "app.config.ts",
+  "assets/fonts/Ionicons.ttf",
   "src/screens/HomeScreen.tsx",
   "src/theme/tokens.ts",
   "src/services/authService.ts",
@@ -87,7 +88,10 @@ if (
 }
 
 if (
-  !app.includes("useFonts(Ionicons.font)") ||
+  !app.includes('Ionicons: require("./assets/fonts/Ionicons.ttf")') ||
+  !appJson.includes('"assetBundlePatterns"') ||
+  !appJson.includes('"assets/**/*"') ||
+  app.includes("fontFallbackReady") ||
   !app.includes("LawyerProfile") ||
   !home.includes("openMatchedProfile") ||
   !home.includes('navigate("LawyerProfile"') ||

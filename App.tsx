@@ -1,7 +1,5 @@
 import { StatusBar } from "expo-status-bar";
-import { useEffect, useState } from "react";
 import { View } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 import { useFonts } from "expo-font";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
@@ -19,15 +17,11 @@ export type RootStackParamList = {
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function App() {
-  const [fontFallbackReady, setFontFallbackReady] = useState(false);
-  const [fontsLoaded] = useFonts(Ionicons.font);
+  const [fontsLoaded] = useFonts({
+    Ionicons: require("./assets/fonts/Ionicons.ttf")
+  });
 
-  useEffect(() => {
-    const timer = setTimeout(() => setFontFallbackReady(true), 1500);
-    return () => clearTimeout(timer);
-  }, []);
-
-  if (!fontsLoaded && !fontFallbackReady) {
+  if (!fontsLoaded) {
     return (
       <View style={{ flex: 1, backgroundColor: "#071426" }}>
         <StatusBar style="light" />

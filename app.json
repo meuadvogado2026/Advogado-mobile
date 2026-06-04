@@ -7,6 +7,7 @@
     "platforms": ["android"],
     "scheme": "meuadvogado20",
     "icon": "./assets/logo-blue.png",
+    "assetBundlePatterns": ["assets/**/*"],
     "splash": {
       "image": "./assets/logo-blue.png",
       "resizeMode": "contain",
