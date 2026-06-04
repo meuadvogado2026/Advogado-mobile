@@ -9,6 +9,7 @@ import { createLawyerDashboardService } from "../src/services/lawyerDashboardSer
 import { createLawyerProfileService } from "../src/services/lawyerProfileService";
 import { createMatchService } from "../src/services/matchService";
 import { createMeService } from "../src/services/meService";
+import { createPartnerLogoService } from "../src/services/partnerLogoService";
 import { createPrayerRequestService } from "../src/services/prayerRequestService";
 import type { Session, SessionStorage } from "../src/services/sessionStorage";
 
@@ -63,6 +64,7 @@ describe("mobile foundation contracts", () => {
     expect(apiContracts.me).toBe("/v1/me");
     expect(apiContracts.lawyerDashboard).toBe("/v1/lawyer/me/dashboard");
     expect(apiContracts.prayerRequests).toBe("/v1/prayer-requests");
+    expect(apiContracts.partnerLogos).toBe("/v1/partner-logos");
     expect(Object.values(apiContracts).some((path) => path.includes("supabase"))).toBe(false);
   });
 
@@ -189,13 +191,63 @@ describe("mobile foundation contracts", () => {
           accuracyM: 50,
           areaIds: ["civil"]
         });
-        return new Response(JSON.stringify({ lawyer: null, status: "stub" }), { status: 200 });
+        return new Response(
+          JSON.stringify({
+            lawyer: {
+              id: "lawyer-123",
+              name: "Dra. Ana Geo",
+              whatsapp: "11988887777",
+              avatarUrl: "https://cdn.example.test/ana-avatar.jpg",
+              coverUrl: "https://cdn.example.test/ana-cover.jpg"
+            },
+            status: "matched"
+          }),
+          { status: 200 }
+        );
       }) as typeof fetch
     });
 
     await expect(
       createMatchService(api).requestMatch({ lat: -23.55, lng: -46.63, accuracyM: 50, areaIds: ["civil"] })
-    ).resolves.toEqual({ lawyer: null, status: "stub" });
+    ).resolves.toMatchObject({
+      lawyer: {
+        id: "lawyer-123",
+        avatarUrl: "https://cdn.example.test/ana-avatar.jpg",
+        coverUrl: "https://cdn.example.test/ana-cover.jpg"
+      },
+      status: "matched"
+    });
+  });
+
+  it("loads public partner logos through the backend API", async () => {
+    const api = createApiClient({
+      config: publicTestConfig,
+      fetchImpl: (async (url) => {
+        expect(String(url)).toBe("http://127.0.0.1:3333/v1/partner-logos");
+        return new Response(
+          JSON.stringify({
+            partners: [
+              {
+                id: "partner-123",
+                name: "Parceiro Teste",
+                logoUrl: "https://cdn.example.test/partner.png",
+                websiteUrl: "https://partner.example.test",
+                active: true,
+                createdAt: "2026-06-04T00:00:00Z",
+                updatedAt: "2026-06-04T00:00:00Z"
+              }
+            ],
+            persistence: "memory"
+          }),
+          { status: 200 }
+        );
+      }) as typeof fetch
+    });
+
+    await expect(createPartnerLogoService(api).listPublic()).resolves.toMatchObject({
+      partners: [{ name: "Parceiro Teste", logoUrl: "https://cdn.example.test/partner.png" }],
+      persistence: "memory"
+    });
   });
 
   it("loads a lawyer profile through the authenticated backend API", async () => {

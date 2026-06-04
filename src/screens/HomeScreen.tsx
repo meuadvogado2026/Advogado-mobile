@@ -23,6 +23,7 @@ import { createLawyerDashboardService, type LawyerDashboardResponse } from "../s
 import { requestDeviceLocation, type DeviceLocation } from "../services/locationService";
 import { createMatchService, type MatchResponse } from "../services/matchService";
 import { createMeService, type CurrentUser } from "../services/meService";
+import { createPartnerLogoService, type PartnerLogo } from "../services/partnerLogoService";
 import { createPrayerRequestService } from "../services/prayerRequestService";
 import { secureSessionStorage } from "../services/secureSessionStorage";
 import type { Session } from "../services/sessionStorage";
@@ -237,14 +238,24 @@ function MatchCard({
 }) {
   const hasLawyer = Boolean(match?.lawyer);
   const lawyerInitial = match?.lawyer?.name?.slice(0, 1).toUpperCase() ?? "A";
+  const coverUrl = match?.lawyer?.coverUrl ?? null;
+  const avatarUrl = match?.lawyer?.avatarUrl ?? null;
 
   return (
     <View style={styles.lawyerCard}>
-      <View style={styles.lawyerCover} />
+      <View style={styles.lawyerCover}>
+        {coverUrl ? (
+          <Image accessibilityIgnoresInvertColors source={{ uri: coverUrl }} style={styles.lawyerCoverImage} />
+        ) : null}
+      </View>
       <View style={styles.lawyerContent}>
         <View style={styles.lawyerIdentityRow}>
           <View style={styles.matchAvatar}>
-            <Text style={styles.matchAvatarText}>{lawyerInitial}</Text>
+            {avatarUrl ? (
+              <Image accessibilityIgnoresInvertColors source={{ uri: avatarUrl }} style={styles.matchAvatarImage} />
+            ) : (
+              <Text style={styles.matchAvatarText}>{lawyerInitial}</Text>
+            )}
             {hasLawyer ? (
               <View style={styles.verifiedDot}>
                 <Ionicons color={colors.textPrimary} name="checkmark" size={12} />
@@ -280,6 +291,7 @@ function MatchCard({
         accessibilityRole="button"
         onPress={onMatch}
       >
+        <View style={styles.goldGradientLayer} />
         <Ionicons color={colors.surfaceDeep} name="search-outline" size={18} />
         <Text style={styles.primaryButtonText}>Buscar match</Text>
       </TouchableOpacity>
@@ -314,13 +326,12 @@ function UrgentLawyerButton() {
       style={styles.urgentButton}
     >
       <View style={styles.urgentIconBadge}>
-        <Ionicons color={colors.textPrimary} name="warning-outline" size={24} />
+        <Ionicons color={colors.textPrimary} name="warning-outline" size={19} />
       </View>
       <View style={styles.urgentTextBlock}>
         <Text style={styles.urgentTitle}>Advogado urgente</Text>
-        <Text style={styles.urgentSubtitle}>Atendimento imediato pelo WhatsApp</Text>
       </View>
-      <Ionicons color={colors.textPrimary} name="logo-whatsapp" size={22} />
+      <Ionicons color={colors.textPrimary} name="logo-whatsapp" size={19} />
     </TouchableOpacity>
   );
 }
@@ -379,6 +390,7 @@ function PrayerHomeBlock({
           accessibilityRole="button"
           onPress={onSubmit}
         >
+          <View style={styles.goldGradientLayer} />
           <Ionicons color={colors.surfaceDeep} name="heart-outline" size={18} />
           <Text style={styles.primaryButtonText}>Enviar pedido</Text>
         </TouchableOpacity>
@@ -389,6 +401,36 @@ function PrayerHomeBlock({
           </View>
         ) : null}
       </View>
+    </View>
+  );
+}
+
+function PartnersFooter({ partners }: { partners: PartnerLogo[] }) {
+  if (partners.length === 0) {
+    return null;
+  }
+
+  return (
+    <View style={styles.partnersFooter}>
+      <Text style={styles.partnersTitle}>Parceiros</Text>
+      <ScrollView
+        contentContainerStyle={styles.partnerLogoRow}
+        horizontal
+        showsHorizontalScrollIndicator={false}
+      >
+        {partners.map((partner) => (
+          <TouchableOpacity
+            accessibilityLabel={`Abrir parceiro ${partner.name}`}
+            accessibilityRole="link"
+            disabled={!partner.websiteUrl}
+            key={partner.id}
+            onPress={() => partner.websiteUrl && Linking.openURL(partner.websiteUrl)}
+            style={styles.partnerLogoItem}
+          >
+            <Image accessibilityIgnoresInvertColors source={{ uri: partner.logoUrl }} style={styles.partnerLogoImage} />
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
     </View>
   );
 }
@@ -408,6 +450,7 @@ export function HomeScreen({ navigation }: Props) {
   const [location, setLocation] = useState<DeviceLocation | null>(null);
   const [match, setMatch] = useState<MatchResponse | null>(null);
   const [lawyerDashboard, setLawyerDashboard] = useState<LawyerDashboardResponse | null>(null);
+  const [partners, setPartners] = useState<PartnerLogo[]>([]);
   const [prayerMessage, setPrayerMessage] = useState("");
   const [prayerAnonymous, setPrayerAnonymous] = useState(true);
   const [prayerReceipt, setPrayerReceipt] = useState<string | null>(null);
@@ -422,6 +465,7 @@ export function HomeScreen({ navigation }: Props) {
   const me = useMemo(() => createMeService(apiClient), [apiClient]);
   const lawyerDashboards = useMemo(() => createLawyerDashboardService(apiClient), [apiClient]);
   const prayerRequests = useMemo(() => createPrayerRequestService(apiClient), [apiClient]);
+  const partnerLogos = useMemo(() => createPartnerLogoService(apiClient), [apiClient]);
   const visibleAreas = useMemo(() => {
     const query = areaSearch.trim().toLowerCase();
     if (!query) return areas;
@@ -483,6 +527,28 @@ export function HomeScreen({ navigation }: Props) {
       active = false;
     };
   }, [session, currentUser, legalAreas]);
+
+  useEffect(() => {
+    if (!session || currentUser?.role !== "client") {
+      return;
+    }
+
+    let active = true;
+    partnerLogos
+      .listPublic()
+      .then((response) => {
+        if (!active) return;
+        setPartners(response.partners);
+      })
+      .catch(() => {
+        if (!active) return;
+        setPartners([]);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [session, currentUser, partnerLogos]);
 
   useEffect(() => {
     if (!session || currentUser?.role !== "lawyer") {
@@ -902,6 +968,8 @@ export function HomeScreen({ navigation }: Props) {
               <Text style={styles.locationFootnote}>{appCopy.location}</Text>
 
               <StatusBox status={status} message={message} />
+
+              <PartnersFooter partners={partners} />
             </>
           ) : null}
 
@@ -1000,7 +1068,7 @@ const styles = StyleSheet.create({
     paddingTop: spacing.sm
   },
   pageLogo: {
-    borderColor: "rgba(255,224,138,0.34)",
+    borderColor: "rgba(255,142,10,0.34)",
     borderRadius: 24,
     borderWidth: 1,
     height: 112,
@@ -1038,7 +1106,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: spacing.sm,
     minHeight: 56,
-    paddingHorizontal: spacing.md
+    paddingHorizontal: spacing.md,
   },
   searchInput: {
     color: colors.background,
@@ -1076,7 +1144,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     color: colors.textPrimary,
     minHeight: 44,
-    paddingHorizontal: spacing.md
+    paddingHorizontal: spacing.md,
   },
   primaryButton: {
     alignItems: "center",
@@ -1088,11 +1156,23 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
     minHeight: 44,
     justifyContent: "center",
-    paddingHorizontal: spacing.md
+    overflow: "hidden",
+    paddingHorizontal: spacing.md,
+    position: "relative"
+  },
+  goldGradientLayer: {
+    backgroundColor: colors.goldDeep,
+    bottom: 0,
+    opacity: 0.72,
+    position: "absolute",
+    right: 0,
+    top: 0,
+    width: "46%"
   },
   primaryButtonText: {
     color: colors.surfaceDeep,
-    fontWeight: "900"
+    fontWeight: "900",
+    zIndex: 1
   },
   sectionTitle: {
     color: colors.textPrimary,
@@ -1117,7 +1197,7 @@ const styles = StyleSheet.create({
   areaTile: {
     alignItems: "center",
     backgroundColor: "#081b35",
-    borderColor: "rgba(255,224,138,0.22)",
+    borderColor: "rgba(255,142,10,0.22)",
     borderRadius: 18,
     borderWidth: 1,
     gap: 10,
@@ -1130,14 +1210,14 @@ const styles = StyleSheet.create({
     width: 118
   },
   areaTileSelected: {
-    backgroundColor: "rgba(255,224,138,0.08)",
+    backgroundColor: "rgba(255,142,10,0.08)",
     borderColor: colors.goldBright,
     shadowOpacity: 0.28
   },
   areaIconBadge: {
     alignItems: "center",
-    backgroundColor: "rgba(255,224,138,0.12)",
-    borderColor: "rgba(255,224,138,0.34)",
+    backgroundColor: "rgba(255,142,10,0.12)",
+    borderColor: "rgba(255,142,10,0.34)",
     borderRadius: 18,
     borderWidth: 1,
     height: 48,
@@ -1187,7 +1267,7 @@ const styles = StyleSheet.create({
   },
   lawyerCard: {
     backgroundColor: "#071931",
-    borderColor: "rgba(244,210,100,0.18)",
+    borderColor: "rgba(255,120,0,0.18)",
     borderRadius: 18,
     borderWidth: 1,
     gap: spacing.md,
@@ -1200,6 +1280,10 @@ const styles = StyleSheet.create({
     height: 112,
     marginHorizontal: -spacing.lg,
     opacity: 0.86
+  },
+  lawyerCoverImage: {
+    height: "100%",
+    width: "100%"
   },
   lawyerContent: {
     gap: spacing.md,
@@ -1220,6 +1304,11 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     position: "relative",
     width: 96
+  },
+  matchAvatarImage: {
+    borderRadius: 8,
+    height: "100%",
+    width: "100%"
   },
   matchAvatarText: {
     color: colors.gold,
@@ -1246,7 +1335,7 @@ const styles = StyleSheet.create({
   },
   oabBadge: {
     alignSelf: "flex-start",
-    backgroundColor: "rgba(244,210,100,0.12)",
+    backgroundColor: "rgba(255,120,0,0.12)",
     borderRadius: 6,
     paddingHorizontal: spacing.sm,
     paddingVertical: 3
@@ -1313,7 +1402,7 @@ const styles = StyleSheet.create({
   },
   lawyerActionButton: {
     alignItems: "center",
-    borderColor: "rgba(244,210,100,0.45)",
+    borderColor: "rgba(255,120,0,0.45)",
     borderRadius: 14,
     borderWidth: 1,
     flex: 1,
@@ -1353,13 +1442,13 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 1,
     flexDirection: "row",
-    gap: spacing.md,
-    minHeight: 72,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.md,
+    gap: spacing.sm,
+    minHeight: 52,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.sm,
     shadowColor: "#ff3b30",
-    shadowOpacity: 0.22,
-    shadowRadius: 16
+    shadowOpacity: 0.14,
+    shadowRadius: 10
   },
   urgentIconBadge: {
     alignItems: "center",
@@ -1367,9 +1456,9 @@ const styles = StyleSheet.create({
     borderColor: "rgba(255,255,255,0.26)",
     borderRadius: 999,
     borderWidth: 1,
-    height: 44,
+    height: 34,
     justifyContent: "center",
-    width: 44
+    width: 34
   },
   urgentTextBlock: {
     flex: 1,
@@ -1377,7 +1466,7 @@ const styles = StyleSheet.create({
   },
   urgentTitle: {
     color: colors.textPrimary,
-    fontSize: 17,
+    fontSize: 14,
     fontWeight: "900"
   },
   urgentSubtitle: {
@@ -1436,7 +1525,7 @@ const styles = StyleSheet.create({
     gap: spacing.md
   },
   timelineLine: {
-    backgroundColor: "rgba(244,210,100,0.24)",
+    backgroundColor: "rgba(255,120,0,0.24)",
     height: 1,
     left: 36,
     position: "absolute",
@@ -1511,8 +1600,8 @@ const styles = StyleSheet.create({
   },
   bottomIconBadge: {
     alignItems: "center",
-    backgroundColor: "rgba(255,224,138,0.10)",
-    borderColor: "rgba(255,224,138,0.20)",
+    backgroundColor: "rgba(255,142,10,0.10)",
+    borderColor: "rgba(255,142,10,0.20)",
     borderRadius: 999,
     borderWidth: 1,
     height: 38,
@@ -1573,7 +1662,7 @@ const styles = StyleSheet.create({
   },
   prayerCard: {
     backgroundColor: colors.surface,
-    borderColor: "rgba(244,210,100,0.18)",
+    borderColor: "rgba(255,120,0,0.18)",
     borderRadius: 18,
     borderWidth: 1,
     overflow: "hidden"
@@ -1615,5 +1704,35 @@ const styles = StyleSheet.create({
   metricsGrid: {
     flexDirection: "row",
     gap: spacing.md
+  },
+  partnersFooter: {
+    gap: spacing.md,
+    paddingBottom: spacing.md
+  },
+  partnersTitle: {
+    color: colors.textMuted,
+    fontSize: 13,
+    fontWeight: "900",
+    textTransform: "uppercase"
+  },
+  partnerLogoRow: {
+    gap: spacing.sm,
+    paddingRight: 20
+  },
+  partnerLogoItem: {
+    alignItems: "center",
+    backgroundColor: colors.surface,
+    borderColor: colors.borderSubtle,
+    borderRadius: 8,
+    borderWidth: 1,
+    height: 58,
+    justifyContent: "center",
+    padding: spacing.sm,
+    width: 112
+  },
+  partnerLogoImage: {
+    height: "100%",
+    resizeMode: "contain",
+    width: "100%"
   }
 });

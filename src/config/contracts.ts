@@ -7,6 +7,7 @@ export const apiContracts = {
   lawyerProfile: "/v1/lawyers/:id",
   lawyerDashboard: "/v1/lawyer/me/dashboard",
   prayerRequests: "/v1/prayer-requests",
+  partnerLogos: "/v1/partner-logos",
   lawyerEvents: "/v1/lawyers/:id/events",
   urgentCalls: "/v1/lawyers/:id/urgent-calls"
 } as const;

@@ -54,7 +54,16 @@ Response sucesso:
 ```json
 {
   "status": "matched",
-  "lawyer": { "id": "uuid", "name": "Dr. Nome", "whatsapp": "...", "city": "Brasilia", "state": "DF", "areaIds": ["uuid"] },
+  "lawyer": {
+    "id": "uuid",
+    "name": "Dr. Nome",
+    "whatsapp": "...",
+    "city": "Brasilia",
+    "state": "DF",
+    "areaIds": ["uuid"],
+    "avatarUrl": "https://cdn.example.com/avatar.jpg",
+    "coverUrl": "https://cdn.example.com/capa.jpg"
+  },
   "distanceKm": 1.2,
   "algorithmVersion": "geo-nearest-v1"
 }
@@ -64,6 +73,32 @@ Response sem advogado:
 
 ```json
 { "status": "empty", "lawyer": null, "algorithmVersion": "geo-nearest-v1" }
+```
+
+O card de match na Home renderiza `coverUrl` e `avatarUrl` imediatamente quando a
+resposta `matched` traz URLs HTTPS; sem imagem, permanece no fallback visual.
+
+## Parceiros
+
+- `GET /v1/partner-logos` - lista publica de parceiros ativos para o rodape da Home.
+
+Response:
+
+```json
+{
+  "partners": [
+    {
+      "id": "uuid",
+      "name": "Parceiro",
+      "logoUrl": "https://cdn.example.com/parceiro.png",
+      "websiteUrl": "https://parceiro.example.com",
+      "active": true,
+      "createdAt": "2026-06-04T00:00:00Z",
+      "updatedAt": "2026-06-04T00:00:00Z"
+    }
+  ],
+  "persistence": "supabase"
+}
 ```
 
 ## Advogado
@@ -157,4 +192,4 @@ o texto enviado.
 
 ## Estado Atual
 
-Os contratos vivem tambem em `src/config/contracts.ts`. O app possui chamadas HTTP para areas, match real, perfil profissional, dashboard do advogado e pedido de oracao via backend. A distancia do match segue apenas como contexto efemero da navegacao.
+Os contratos vivem tambem em `src/config/contracts.ts`. O app possui chamadas HTTP para areas, match real com foto/capa, perfil profissional, parceiros publicos, dashboard do advogado e pedido de oracao via backend. A distancia do match segue apenas como contexto efemero da navegacao.

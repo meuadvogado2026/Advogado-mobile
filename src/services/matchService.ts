@@ -16,6 +16,8 @@ export type MatchResponse = {
     city?: string | null;
     state?: string | null;
     areaIds?: string[];
+    avatarUrl?: string | null;
+    coverUrl?: string | null;
   };
   // distanceKm vem no nivel raiz da resposta do backend (irmao de lawyer).
   distanceKm?: number;

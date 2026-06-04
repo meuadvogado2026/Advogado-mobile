@@ -15,6 +15,7 @@ const requiredFiles = [
   "src/services/lawyerProfileService.ts",
   "src/services/lawyerDashboardService.ts",
   "src/services/prayerRequestService.ts",
+  "src/services/partnerLogoService.ts",
   "src/services/meService.ts",
   "src/screens/LawyerProfileScreen.tsx",
   "src/services/locationService.ts",
@@ -45,6 +46,9 @@ if (apiContracts.lawyerDashboard !== "/v1/lawyer/me/dashboard") {
 if (apiContracts.prayerRequests !== "/v1/prayer-requests") {
   throw new Error("Smoke mobile falhou. Contrato de pedido de oracao divergente.");
 }
+if (apiContracts.partnerLogos !== "/v1/partner-logos") {
+  throw new Error("Smoke mobile falhou. Contrato publico de parceiros divergente.");
+}
 
 const appConfig = readFileSync("app.config.ts", "utf8");
 const appJson = readFileSync("app.json", "utf8");
@@ -55,6 +59,7 @@ const locationService = readFileSync("src/services/locationService.ts", "utf8");
 const clientSignupService = readFileSync("src/services/clientSignupService.ts", "utf8");
 const lawyerDashboardService = readFileSync("src/services/lawyerDashboardService.ts", "utf8");
 const prayerRequestService = readFileSync("src/services/prayerRequestService.ts", "utf8");
+const partnerLogoService = readFileSync("src/services/partnerLogoService.ts", "utf8");
 
 if (/SERVICE_ROLE|service_role/i.test(`${appConfig}\n${appJson}`)) {
   throw new Error("Smoke mobile falhou. Service role nao pode aparecer na configuracao mobile.");
@@ -143,6 +148,19 @@ if (
   !home.includes("urgentButton")
 ) {
   throw new Error("Smoke mobile falhou. CTA de advogado urgente na Home cliente ausente.");
+}
+
+if (
+  !partnerLogoService.includes("apiContracts.partnerLogos") ||
+  !home.includes("createPartnerLogoService") ||
+  !home.includes("PartnersFooter") ||
+  !home.includes("partnerLogoImage") ||
+  !home.includes("avatarUrl") ||
+  !home.includes("coverUrl") ||
+  !home.includes("lawyerCoverImage") ||
+  !home.includes("matchAvatarImage")
+) {
+  throw new Error("Smoke mobile falhou. Match com foto/capa ou rodape publico de parceiros ausente.");
 }
 
 if (
