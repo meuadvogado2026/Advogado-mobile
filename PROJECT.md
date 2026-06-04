@@ -43,7 +43,7 @@ Todo ciclo de implementacao deve seguir SDD, Harness CLI e smoke final.
 
 - Expo + React Native + TypeScript.
 - `App.tsx` com React Navigation nativo e rotas `Home` e `LawyerProfile`.
-- `src/screens/HomeScreen.tsx` com login de cliente, areas via backend, contexto de localizacao e match inicial.
+- `src/screens/HomeScreen.tsx` com login/cadastro de cliente, areas via backend, contexto de localizacao e match inicial.
 - `src/screens/HomeScreen.tsx` com links publicos para politica, termos e exclusao de dados.
 - `src/theme/tokens.ts` com tokens do `DESIGN.md`.
 - `src/config/contracts.ts` com endpoints backend consumidos pelo app.
@@ -51,7 +51,7 @@ Todo ciclo de implementacao deve seguir SDD, Harness CLI e smoke final.
 - `src/services/` com Auth Supabase REST, SecureStore, API client, areas, match e location.
 - Harness CLI, smoke estrutural cobrindo Auth/API/Location/Match e smoke runtime proporcional contra backend local.
 - `src/screens/LawyerProfileScreen.tsx` e `src/services/lawyerProfileService.ts` fecham `Home -> Perfil -> WhatsApp` via backend.
-- `src/screens/HomeScreen.tsx` com shell autenticado, header e bottom navigation MVP `Inicio`, `Buscar` e `Conta`, sem Mensagens/Agenda.
+- `src/screens/HomeScreen.tsx` com shell autenticado, logo dentro do conteudo rolavel e bottom navigation MVP sem Mensagens/Agenda.
 - `expo-font` instalado/configurado para suportar a iconografia de `@expo/vector-icons` no runtime Android.
 
 ## Scripts

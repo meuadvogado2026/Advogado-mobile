@@ -15,9 +15,10 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { RootStackParamList } from "../../App";
 import { appCopy } from "../config/contracts";
-import { createApiClient } from "../services/apiClient";
+import { ApiClientError, createApiClient } from "../services/apiClient";
 import { createAreasService, type LegalArea } from "../services/areasService";
 import { createAuthService } from "../services/authService";
+import { createClientSignupService } from "../services/clientSignupService";
 import { createLawyerDashboardService, type LawyerDashboardResponse } from "../services/lawyerDashboardService";
 import { requestDeviceLocation, type DeviceLocation } from "../services/locationService";
 import { createMatchService, type MatchResponse } from "../services/matchService";
@@ -28,6 +29,7 @@ import type { Session } from "../services/sessionStorage";
 import { colors, spacing } from "../theme/tokens";
 
 type ViewStatus = "idle" | "loading" | "error";
+type AuthMode = "signIn" | "signUp";
 type ClientTab = "home" | "profile";
 type LawyerTab = "dashboard" | "card" | "profile" | "account";
 type Props = NativeStackScreenProps<RootStackParamList, "Home">;
@@ -39,6 +41,7 @@ const legalUrls = {
   terms: "https://meuadvogado2026.github.io/meu-advogado-legal/termos.html",
   deletion: "https://meuadvogado2026.github.io/meu-advogado-legal/exclusao-de-dados.html"
 };
+const URGENT_LAWYER_WHATSAPP = "5561993574056";
 
 function describeMatch(match: MatchResponse | null): string {
   if (!match) {
@@ -61,6 +64,14 @@ function openWhatsApp(rawNumber: string) {
 }
 
 function getFriendlyError(error: unknown) {
+  if (error instanceof ApiClientError) {
+    if (error.status === 404) {
+      return "Cadastro ainda indisponivel nesta versao do backend.";
+    }
+    if (error.status === 422) {
+      return "Revise os dados enviados e tente novamente.";
+    }
+  }
   if (error instanceof Error) {
     if (error.message === "SUPABASE_AUTH_PUBLICO_AUSENTE") {
       return "Configure a anon key publica do Supabase para entrar.";
@@ -86,10 +97,10 @@ function LegalLinks() {
   );
 }
 
-function ShellHeader() {
+function PageLogo() {
   return (
-    <View style={styles.shellHeader}>
-      <Image accessibilityIgnoresInvertColors source={logo} style={styles.headerLogo} />
+    <View style={styles.pageLogoWrap}>
+      <Image accessibilityIgnoresInvertColors source={logo} style={styles.pageLogo} />
     </View>
   );
 }
@@ -294,6 +305,26 @@ function MatchCard({
   );
 }
 
+function UrgentLawyerButton() {
+  return (
+    <TouchableOpacity
+      accessibilityLabel="Advogado urgente pelo WhatsApp"
+      accessibilityRole="button"
+      onPress={() => openWhatsApp(URGENT_LAWYER_WHATSAPP)}
+      style={styles.urgentButton}
+    >
+      <View style={styles.urgentIconBadge}>
+        <Ionicons color={colors.textPrimary} name="warning-outline" size={24} />
+      </View>
+      <View style={styles.urgentTextBlock}>
+        <Text style={styles.urgentTitle}>Advogado urgente</Text>
+        <Text style={styles.urgentSubtitle}>Atendimento imediato pelo WhatsApp</Text>
+      </View>
+      <Ionicons color={colors.textPrimary} name="logo-whatsapp" size={22} />
+    </TouchableOpacity>
+  );
+}
+
 function PrayerHomeBlock({
   anonymous,
   message,
@@ -367,6 +398,8 @@ export function HomeScreen({ navigation }: Props) {
   const [lawyerTab, setLawyerTab] = useState<LawyerTab>("dashboard");
   const [session, setSession] = useState<Session | null>(null);
   const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);
+  const [authMode, setAuthMode] = useState<AuthMode>("signIn");
+  const [signupName, setSignupName] = useState("");
   const [email, setEmail] = useState("usuario@advogado20.com");
   const [password, setPassword] = useState("");
   const [areas, setAreas] = useState<LegalArea[]>([]);
@@ -383,6 +416,7 @@ export function HomeScreen({ navigation }: Props) {
 
   const authService = useMemo(() => createAuthService({ storage: secureSessionStorage }), []);
   const apiClient = useMemo(() => createApiClient({ getSession: authService.getSession }), [authService]);
+  const clientSignups = useMemo(() => createClientSignupService(apiClient), [apiClient]);
   const legalAreas = useMemo(() => createAreasService(apiClient), [apiClient]);
   const matches = useMemo(() => createMatchService(apiClient), [apiClient]);
   const me = useMemo(() => createMeService(apiClient), [apiClient]);
@@ -480,6 +514,28 @@ export function HomeScreen({ navigation }: Props) {
       await hydrateUser(signedSession);
       setPassword("");
       setStatus("idle");
+    } catch (error) {
+      setStatus("error");
+      setMessage(getFriendlyError(error));
+    }
+  }
+
+  async function handleSignUp() {
+    setStatus("loading");
+    setMessage("Criando usuario cliente com seguranca.");
+    try {
+      await clientSignups.create({
+        name: signupName,
+        email,
+        password
+      });
+      const signedSession = await authService.signIn(email, password);
+      await hydrateUser(signedSession);
+      setSignupName("");
+      setPassword("");
+      setAuthMode("signIn");
+      setStatus("idle");
+      setMessage("Usuario criado e sessao iniciada.");
     } catch (error) {
       setStatus("error");
       setMessage(getFriendlyError(error));
@@ -615,7 +671,17 @@ export function HomeScreen({ navigation }: Props) {
           </View>
 
           <View style={styles.loginPanel}>
-            <Text style={styles.loginTitle}>Entrar</Text>
+            <Text style={styles.loginTitle}>{authMode === "signIn" ? "Entrar" : "Criar novo usuario"}</Text>
+            {authMode === "signUp" ? (
+              <TextInput
+                autoCapitalize="words"
+                onChangeText={setSignupName}
+                placeholder="nome completo"
+                placeholderTextColor={colors.textMuted}
+                style={styles.input}
+                value={signupName}
+              />
+            ) : null}
             <TextInput
               autoCapitalize="none"
               keyboardType="email-address"
@@ -627,7 +693,7 @@ export function HomeScreen({ navigation }: Props) {
             />
             <TextInput
               onChangeText={setPassword}
-              placeholder="senha"
+              placeholder={authMode === "signIn" ? "senha" : "senha (minimo 8 caracteres)"}
               placeholderTextColor={colors.textMuted}
               secureTextEntry
               style={styles.input}
@@ -637,9 +703,28 @@ export function HomeScreen({ navigation }: Props) {
               disabled={status === "loading"}
               style={[styles.primaryButton, status === "loading" && styles.disabledButton]}
               accessibilityRole="button"
-              onPress={handleSignIn}
+              onPress={authMode === "signIn" ? handleSignIn : handleSignUp}
             >
-              <Text style={styles.primaryButtonText}>Entrar</Text>
+              <Ionicons
+                color={colors.surfaceDeep}
+                name={authMode === "signIn" ? "log-in-outline" : "person-add-outline"}
+                size={18}
+              />
+              <Text style={styles.primaryButtonText}>{authMode === "signIn" ? "Entrar" : "Criar usuario"}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              disabled={status === "loading"}
+              style={styles.authModeButton}
+              accessibilityRole="button"
+              onPress={() => {
+                setAuthMode((current) => (current === "signIn" ? "signUp" : "signIn"));
+                setStatus("idle");
+                setMessage(authMode === "signIn" ? "Informe seus dados para criar usuario cliente." : "Entre com seu usuario.");
+              }}
+            >
+              <Text style={styles.authModeButtonText}>
+                {authMode === "signIn" ? "Criar novo usuario" : "Ja tenho usuario"}
+              </Text>
             </TouchableOpacity>
           </View>
 
@@ -654,8 +739,8 @@ export function HomeScreen({ navigation }: Props) {
     return (
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.authenticatedShell}>
-          <ShellHeader />
           <ScrollView contentContainerStyle={styles.container}>
+            <PageLogo />
             {lawyerTab === "dashboard" ? (
               <>
                 <View style={styles.heroPanel}>
@@ -741,8 +826,8 @@ export function HomeScreen({ navigation }: Props) {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.authenticatedShell}>
-        <ShellHeader />
         <ScrollView contentContainerStyle={styles.container}>
+          <PageLogo />
           {clientTab === "home" ? (
             <>
               <View style={styles.clientHero}>
@@ -770,6 +855,8 @@ export function HomeScreen({ navigation }: Props) {
                 onMatch={handleMatch}
                 onOpenProfile={openMatchedProfile}
               />
+
+              <UrgentLawyerButton />
 
               <PrayerHomeBlock
                 anonymous={prayerAnonymous}
@@ -863,9 +950,11 @@ const styles = StyleSheet.create({
   },
   loginLogo: {
     aspectRatio: 1,
+    borderColor: colors.goldBright,
     borderRadius: 16,
-    height: 180,
-    width: 180
+    borderWidth: 2,
+    height: 168,
+    width: 168
   },
   subtitle: {
     color: colors.textMuted,
@@ -892,33 +981,39 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "800"
   },
+  authModeButton: {
+    alignItems: "center",
+    minHeight: 44,
+    justifyContent: "center"
+  },
+  authModeButtonText: {
+    color: colors.goldBright,
+    fontSize: 14,
+    fontWeight: "800",
+    textDecorationLine: "underline"
+  },
   authenticatedShell: {
     flex: 1
   },
-  shellHeader: {
+  pageLogoWrap: {
     alignItems: "center",
-    backgroundColor: colors.background,
-    borderBottomColor: colors.borderSubtle,
-    borderBottomWidth: 1,
-    paddingHorizontal: 20,
-    paddingTop: spacing.sm,
-    paddingBottom: spacing.sm
+    paddingTop: spacing.sm
   },
-  headerLogo: {
+  pageLogo: {
     borderColor: "rgba(255,224,138,0.34)",
-    borderRadius: 20,
+    borderRadius: 24,
     borderWidth: 1,
-    height: 76,
-    width: 76
+    height: 112,
+    width: 112
   },
   clientHero: {
     gap: spacing.sm
   },
   heroKicker: {
     color: colors.textMuted,
-    fontSize: 20,
-    fontWeight: "500",
-    lineHeight: 28
+    fontSize: 16,
+    fontWeight: "400",
+    lineHeight: 22
   },
   heroPanel: {
     gap: spacing.md
@@ -1250,6 +1345,47 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "800",
     textTransform: "uppercase"
+  },
+  urgentButton: {
+    alignItems: "center",
+    backgroundColor: "#c1121f",
+    borderColor: "#ff6b6b",
+    borderRadius: 8,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: spacing.md,
+    minHeight: 72,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.md,
+    shadowColor: "#ff3b30",
+    shadowOpacity: 0.22,
+    shadowRadius: 16
+  },
+  urgentIconBadge: {
+    alignItems: "center",
+    backgroundColor: "rgba(255,255,255,0.14)",
+    borderColor: "rgba(255,255,255,0.26)",
+    borderRadius: 999,
+    borderWidth: 1,
+    height: 44,
+    justifyContent: "center",
+    width: 44
+  },
+  urgentTextBlock: {
+    flex: 1,
+    gap: 2
+  },
+  urgentTitle: {
+    color: colors.textPrimary,
+    fontSize: 17,
+    fontWeight: "900"
+  },
+  urgentSubtitle: {
+    color: colors.textPrimary,
+    fontSize: 12,
+    fontWeight: "700",
+    lineHeight: 16,
+    opacity: 0.9
   },
   secondaryButton: {
     alignItems: "center",

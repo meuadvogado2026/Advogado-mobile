@@ -5,11 +5,30 @@
 
 ## Auth
 
-O mobile usa Supabase Auth REST apenas para login/sessao:
+O mobile usa o backend para cadastro de cliente e Supabase Auth REST apenas para
+login/sessao:
 
+- `POST /v1/auth/signup-client`
 - `POST {SUPABASE_URL}/auth/v1/token?grant_type=password`
 
 Dados de dominio nao acessam Supabase diretamente.
+
+### `POST /v1/auth/signup-client`
+
+Request:
+
+```json
+{ "name": "Cliente Nome", "email": "cliente@example.com", "password": "senha-segura" }
+```
+
+Response:
+
+```json
+{ "user": { "id": "uuid", "email": "cliente@example.com", "role": "client" }, "persistence": "supabase" }
+```
+
+O app nao recebe senha/token nessa resposta; apos criar, usa o login Supabase Auth REST
+existente para iniciar sessao.
 
 ## Catalogo
 

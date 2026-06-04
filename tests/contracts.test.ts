@@ -3,6 +3,7 @@ import { apiContracts, appCopy } from "../src/config/contracts";
 import { createApiClient } from "../src/services/apiClient";
 import { createAuthService } from "../src/services/authService";
 import { createAreasService } from "../src/services/areasService";
+import { createClientSignupService } from "../src/services/clientSignupService";
 import { requestDeviceLocation } from "../src/services/locationService";
 import { createLawyerDashboardService } from "../src/services/lawyerDashboardService";
 import { createLawyerProfileService } from "../src/services/lawyerProfileService";
@@ -58,6 +59,7 @@ describe("mobile foundation contracts", () => {
 
   it("uses backend API contracts instead of Supabase direct access", () => {
     expect(apiContracts.match).toBe("/v1/match");
+    expect(apiContracts.clientSignup).toBe("/v1/auth/signup-client");
     expect(apiContracts.me).toBe("/v1/me");
     expect(apiContracts.lawyerDashboard).toBe("/v1/lawyer/me/dashboard");
     expect(apiContracts.prayerRequests).toBe("/v1/prayer-requests");
@@ -95,6 +97,40 @@ describe("mobile foundation contracts", () => {
     expect(calls[0]).toBe("https://example.supabase.co/auth/v1/token?grant_type=password");
     expect(session.accessToken).toBe("jwt-redacted");
     expect(await storage.get()).toMatchObject({ email: "usuario@advogado20.com" });
+  });
+
+  it("creates a client user through the backend signup boundary", async () => {
+    const api = createApiClient({
+      config: publicTestConfig,
+      fetchImpl: (async (url, init) => {
+        expect(String(url)).toBe("http://127.0.0.1:3333/v1/auth/signup-client");
+        expect(init?.method).toBe("POST");
+        expect(String(init?.body)).not.toContain("service_role");
+        expect(JSON.parse(String(init?.body))).toEqual({
+          name: "Cliente Novo",
+          email: "cliente-novo@example.test",
+          password: "senha-segura-123"
+        });
+        return new Response(
+          JSON.stringify({
+            user: { id: "client-new", email: "cliente-novo@example.test", role: "client" },
+            persistence: "memory"
+          }),
+          { status: 201 }
+        );
+      }) as typeof fetch
+    });
+
+    await expect(
+      createClientSignupService(api).create({
+        name: "Cliente Novo",
+        email: "cliente-novo@example.test",
+        password: "senha-segura-123"
+      })
+    ).resolves.toEqual({
+      user: { id: "client-new", email: "cliente-novo@example.test", role: "client" },
+      persistence: "memory"
+    });
   });
 
   it("loads legal areas through the backend API", async () => {

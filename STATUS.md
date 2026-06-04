@@ -1,8 +1,8 @@
 # Mobile Status - Meu Advogado 2.0
 
-**Ultima atualizacao:** 2026-06-03
-**Fase:** PRODUTO MVP / SPEC 003 RELEASE INTERNO ANDROID
-**Veredito:** SPEC003_DEPENDENCIAS_RELEASE_OK / QUESTIONAR_CREDENCIAIS_PLAY_CONSOLE / SPEC008_CLIENTE_HOME_REPLICACAO_VISUAL_OK / SPEC008_PARTE1R_POLIMENTO_VISUAL_MOBILE_OK
+**Ultima atualizacao:** 2026-06-04
+**Fase:** PRODUTO MVP / UX LOGIN E CADASTRO CLIENTE
+**Veredito:** CLIENT_SIGNUP_PRODUCAO_OK / MOBILE_UX_LOGIN_CADASTRO_LOGO_LOCAL_OK / SPEC003_DEPENDENCIAS_RELEASE_OK / QUESTIONAR_CREDENCIAIS_PLAY_CONSOLE / SPEC008_CLIENTE_HOME_REPLICACAO_VISUAL_OK / SPEC008_PARTE1R_POLIMENTO_VISUAL_MOBILE_OK
 
 ## Concluido
 
@@ -16,6 +16,8 @@
 - [x] Contratos backend em codigo criados.
 - [x] Harness CLI e smoke estrutural criados.
 - [x] Auth mobile inicial via Supabase Auth REST com anon key publica configuravel.
+- [x] Tela de login alterna entre `Entrar` e `Criar novo usuario`, usando `POST /v1/auth/signup-client` pelo backend antes do login Supabase Auth REST.
+- [x] Backend Railway publicou `POST /v1/auth/signup-client`; smoke real criou usuario descartavel client, validou login e `/v1/me`, e limpou Auth/profile. Smoke runtime mobile contra Railway passou com exit code 0.
 - [x] Sessao/JWT guardado em SecureStore.
 - [x] `GET /v1/areas` consumido via backend.
 - [x] Fluxo de explicacao + permissao de localizacao implementado.
@@ -32,6 +34,7 @@
 - [x] App Android restaurou sessao visualmente e exibiu `Sessao do cliente`.
 - [x] Areas juridicas carregaram pela UI Android com 6 opcoes.
 - [x] Logos oficiais em `Telas/` incorporadas como assets mobile (`assets/logo-blue.png` e `assets/logo-white.png`).
+- [x] Login ajustado com logo levemente menor e borda dourada; Home autenticada usa logo maior dentro do conteudo rolavel, sem header fixo.
 - [x] `app.json` configurado com icon, adaptive icon e splash usando a identidade oficial.
 - [x] Fluxo visual corrigido: sem sessao, app mostra somente tela de login; Home/Match aparece apenas apos login/sessao.
 - [x] Fallback local dev de localizacao criado com `EXPO_PUBLIC_ENABLE_DEV_LOCATION_FALLBACK=true`, acionado somente apos permissao concedida e falha do provider.
@@ -78,6 +81,8 @@
 - [x] Gates Spec 008 Parte 1R: `npm run harness` exit 0; `npm run smoke:runtime` contra Railway exit 0 com envs publicas carregadas sem imprimir valores, 6 areas, Auth real com token redigido, match `matched` e perfil seguro.
 - [x] Gate visual Android da Spec 008 Parte 1R fechado no AVD `Pixel_9`: Home cliente, bottom nav somente `Home`/`Perfil`, areas quadradas horizontais, bloco de oracao com Biblia/cruz, `Buscar match`, card de advogado indicado, perfil completo premium e retorno para Home.
 - [x] Polimento visual mobile da Spec 008 Parte 1R implementado localmente em 2026-06-03: `Ionicons.font` passou a ser carregada no App, topo autenticado virou logo centralizada sem textos de marca/sessao, bottom nav/areas/`Como funciona?` ganharam icones visiveis com badges dourados, cards de areas ficaram maiores e legiveis, aviso de localizacao saiu do topo e virou nota discreta no fim da Home. Gates: `npm run harness` exit 0, `npm run smoke:runtime` contra Railway exit 0 (`OK_COM_RESSALVAS`) e `git diff --check` exit 0. Resultado: `SPEC008_PARTE1R_POLIMENTO_VISUAL_MOBILE_OK`.
+- [x] Home cliente recebeu CTA vermelho `Advogado urgente` com icone de alerta e abertura externa para WhatsApp `5561993574056`, sem backend/schema novo.
+- [x] UX solicitada em 2026-06-03 implementada localmente: copy `A justica ao alcance de um toque` menor e sem negrito; cadastro cliente na tela de login; logo autenticada maior e rolavel. Gates: mobile `npm run harness` exit 0; backend `npm run harness` exit 0; `npm run smoke:runtime` mobile contra Railway exit 0 (`OK_COM_RESSALVAS`) com login real redigido, 6 areas, match `matched` e perfil seguro.
 - [x] Bloqueio de dependencias de producao da Spec 003 tratado: `npm audit --omit=dev` zerou apos overrides transitivos documentados para `@expo/plist/@xmldom`, `postcss`, `tar` e `uuid`, preservando Expo SDK 52 e sem `npm audit fix --force`.
 
 ## Em Andamento
@@ -114,6 +119,7 @@
 - Gate humano final da Spec 003 em 2026-06-03 manteve `QUESTIONAR_CREDENCIAIS_PLAY_CONSOLE`: checklist final AAB preparado para Play Console/app, EAS/keystore, conta de teste, Data Safety/Data deletion, crash reporting, versionCode e rollback; configs Android/EAS, audit de producao, harness, runtime Railway e `git diff --check` passaram, mas nenhuma confirmacao humana foi fornecida.
 - Spec 008 Parte 1R foi fechada como `SPEC008_CLIENTE_HOME_REPLICACAO_VISUAL_OK` no AVD `Pixel_9`; nao houve captura de senha, token completo, telefone completo, coordenada exata ou texto de oracao. XMLs temporarios da Home autenticada foram removidos e WhatsApp externo nao foi acionado para evitar handler com telefone completo.
 - Polimento visual local da Spec 008 Parte 1R ficou `SPEC008_PARTE1R_POLIMENTO_VISUAL_MOBILE_OK`; smoke visual Android nao foi executado neste ciclo porque nenhum device estava bootado/conectado, mas harness e runtime Railway passaram.
+- Cadastro cliente no backend Railway esta validado. Se o APK instalado/publicado nao tiver a UI nova de `Criar novo usuario`, precisa rebuild/publicacao mobile separada; nenhum APK/AAB foi gerado neste ciclo.
 - Play Console/AAB/APK novo continuaram fora do ciclo; Spec 003 segue com dependencias de producao `SPEC003_DEPENDENCIAS_RELEASE_OK` e bloqueio humano `QUESTIONAR_CREDENCIAIS_PLAY_CONSOLE`.
 - Proximos ciclos devem ser iniciados pela raiz do projeto para carregar a governanca central `.codex/` e specs em `.codex/specs/`.
 

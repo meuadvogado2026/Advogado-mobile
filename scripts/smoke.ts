@@ -8,6 +8,7 @@ const requiredFiles = [
   "src/screens/HomeScreen.tsx",
   "src/theme/tokens.ts",
   "src/services/authService.ts",
+  "src/services/clientSignupService.ts",
   "src/services/apiClient.ts",
   "src/services/areasService.ts",
   "src/services/matchService.ts",
@@ -32,6 +33,9 @@ if (apiContracts.match !== "/v1/match") {
 if (apiContracts.me !== "/v1/me") {
   throw new Error("Smoke mobile falhou. Contrato de sessao/role divergente.");
 }
+if (apiContracts.clientSignup !== "/v1/auth/signup-client") {
+  throw new Error("Smoke mobile falhou. Contrato de cadastro cliente divergente.");
+}
 if (apiContracts.lawyerProfile !== "/v1/lawyers/:id") {
   throw new Error("Smoke mobile falhou. Contrato de perfil divergente.");
 }
@@ -48,6 +52,7 @@ const home = readFileSync("src/screens/HomeScreen.tsx", "utf8");
 const app = readFileSync("App.tsx", "utf8");
 const lawyerProfile = readFileSync("src/screens/LawyerProfileScreen.tsx", "utf8");
 const locationService = readFileSync("src/services/locationService.ts", "utf8");
+const clientSignupService = readFileSync("src/services/clientSignupService.ts", "utf8");
 const lawyerDashboardService = readFileSync("src/services/lawyerDashboardService.ts", "utf8");
 const prayerRequestService = readFileSync("src/services/prayerRequestService.ts", "utf8");
 
@@ -57,6 +62,15 @@ if (/SERVICE_ROLE|service_role/i.test(`${appConfig}\n${appJson}`)) {
 
 if (!home.includes("authService.signIn") || !home.includes("requestDeviceLocation") || !home.includes("requestMatch")) {
   throw new Error("Smoke mobile falhou. Fluxo de login, localizacao e match nao esta conectado na Home.");
+}
+
+if (
+  !clientSignupService.includes("apiContracts.clientSignup") ||
+  !home.includes("handleSignUp") ||
+  !home.includes("Criar novo usuario") ||
+  !home.includes("clientSignups.create")
+) {
+  throw new Error("Smoke mobile falhou. Opcao de cadastro cliente nao esta conectada ao backend.");
 }
 
 if (
@@ -89,7 +103,10 @@ if (
 }
 
 if (
-  !home.includes("ShellHeader") ||
+  !home.includes("PageLogo") ||
+  !home.includes("pageLogo") ||
+  home.includes("<ShellHeader") ||
+  home.includes("shellHeader") ||
   home.includes("brandTitle") ||
   home.includes("Atendimento juridico proximo") ||
   !home.includes("locationFootnote") ||
@@ -115,6 +132,17 @@ if (
 
 if (/Mensagens|Agenda|Plant[aã]o|Favoritos|avalia[cç][oõ]es|24h/i.test(home)) {
   throw new Error("Smoke mobile falhou. Home nao deve criar navegacao funcional fora do MVP.");
+}
+
+if (
+  !home.includes("URGENT_LAWYER_WHATSAPP") ||
+  !home.includes('"5561993574056"') ||
+  !home.includes("UrgentLawyerButton") ||
+  !home.includes("Advogado urgente") ||
+  !home.includes("warning-outline") ||
+  !home.includes("urgentButton")
+) {
+  throw new Error("Smoke mobile falhou. CTA de advogado urgente na Home cliente ausente.");
 }
 
 if (
