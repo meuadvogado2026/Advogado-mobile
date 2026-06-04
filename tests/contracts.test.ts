@@ -226,6 +226,10 @@ describe("mobile foundation contracts", () => {
               coverUrl: null,
               miniBio: "Atendimento civil preventivo.",
               fullBio: null,
+              instagramUrl: "https://instagram.com/dracarla",
+              linkedinUrl: "https://www.linkedin.com/in/dracarla",
+              facebookUrl: null,
+              websiteUrl: "https://carla.example.test",
               emergencyAvailable: false
             }
           }),
@@ -242,7 +246,11 @@ describe("mobile foundation contracts", () => {
         avatarUrl: "https://cdn.example.test/avatar.jpg",
         coverUrl: null,
         miniBio: "Atendimento civil preventivo.",
-        fullBio: null
+        fullBio: null,
+        instagramUrl: "https://instagram.com/dracarla",
+        linkedinUrl: "https://www.linkedin.com/in/dracarla",
+        facebookUrl: null,
+        websiteUrl: "https://carla.example.test"
       }
     });
   });

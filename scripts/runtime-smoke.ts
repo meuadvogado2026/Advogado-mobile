@@ -43,6 +43,10 @@ const publicProfileKeys = new Set([
   "coverUrl",
   "miniBio",
   "fullBio",
+  "instagramUrl",
+  "linkedinUrl",
+  "facebookUrl",
+  "websiteUrl",
   "yearsExperience",
   "planLabel",
   "emergencyAvailable"

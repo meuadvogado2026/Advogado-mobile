@@ -12,6 +12,7 @@ import { colors, spacing } from "../theme/tokens";
 
 type Props = NativeStackScreenProps<RootStackParamList, "LawyerProfile">;
 type ProfileStatus = "loading" | "ready" | "error" | "unavailable";
+type SocialLink = { key: string; label: string; icon: keyof typeof Ionicons.glyphMap; url: string };
 
 const legalUrls = {
   privacy: "https://meuadvogado2026.github.io/meu-advogado-legal/privacidade.html",
@@ -31,6 +32,10 @@ function safeImageUrl(url?: string | null) {
   return typeof url === "string" && url.startsWith("https://") ? url : null;
 }
 
+function safeExternalUrl(url?: string | null) {
+  return typeof url === "string" && url.startsWith("https://") ? url : null;
+}
+
 function getAreaIcon(areaName: string): keyof typeof Ionicons.glyphMap {
   const normalized = areaName.toLowerCase();
   if (normalized.includes("criminal")) return "shield-outline";
@@ -38,6 +43,16 @@ function getAreaIcon(areaName: string): keyof typeof Ionicons.glyphMap {
   if (normalized.includes("imob")) return "business-outline";
   if (normalized.includes("famil")) return "people-outline";
   return "hammer-outline";
+}
+
+function getSocialLinks(profile: PublicLawyerProfile) {
+  const candidates: Array<SocialLink | null> = [
+    { key: "instagram", label: "Instagram", icon: "logo-instagram" as const, url: safeExternalUrl(profile.instagramUrl) },
+    { key: "linkedin", label: "LinkedIn", icon: "logo-linkedin" as const, url: safeExternalUrl(profile.linkedinUrl) },
+    { key: "facebook", label: "Facebook", icon: "logo-facebook" as const, url: safeExternalUrl(profile.facebookUrl) },
+    { key: "website", label: "Site", icon: "globe-outline" as const, url: safeExternalUrl(profile.websiteUrl) }
+  ].map((link) => (link.url ? { ...link, url: link.url } : null));
+  return candidates.filter((link): link is SocialLink => Boolean(link));
 }
 
 function LegalLinks() {
@@ -84,6 +99,7 @@ export function LawyerProfileScreen({ navigation, route }: Props) {
   const whatsapp = normalizeWhatsApp(profile?.whatsapp);
   const avatarUrl = safeImageUrl(profile?.avatarUrl);
   const coverUrl = safeImageUrl(profile?.coverUrl);
+  const socialLinks = profile ? getSocialLinks(profile) : [];
   const place = [profile?.city, profile?.state].filter(Boolean).join(", ");
   const distance =
     typeof route.params.distanceKm === "number" ? `A ${route.params.distanceKm.toFixed(1)} km de voce` : null;
@@ -135,14 +151,20 @@ export function LawyerProfileScreen({ navigation, route }: Props) {
             </View>
 
             <View style={styles.identitySection}>
-              <View style={styles.avatarFrame}>
-                {avatarUrl ? (
-                  <Image accessibilityIgnoresInvertColors source={{ uri: avatarUrl }} style={styles.avatarImage} />
-                ) : (
-                  <Text style={styles.avatarInitial}>{profile.name.slice(0, 1).toUpperCase()}</Text>
-                )}
-                <View style={styles.verifiedBadge}>
-                  <Ionicons color={colors.surfaceDeep} name="checkmark" size={14} />
+              <View style={styles.identityHeader}>
+                <View style={styles.avatarFrame}>
+                  {avatarUrl ? (
+                    <Image accessibilityIgnoresInvertColors source={{ uri: avatarUrl }} style={styles.avatarImage} />
+                  ) : (
+                    <Text style={styles.avatarInitial}>{profile.name.slice(0, 1).toUpperCase()}</Text>
+                  )}
+                  <View style={styles.verifiedBadge}>
+                    <Ionicons color={colors.surfaceDeep} name="checkmark" size={14} />
+                  </View>
+                </View>
+                <View style={styles.verifiedStack}>
+                  <Ionicons color={colors.gold} name="star" size={18} />
+                  <Text style={styles.verifiedText}>Verificado</Text>
                 </View>
               </View>
 
@@ -152,10 +174,6 @@ export function LawyerProfileScreen({ navigation, route }: Props) {
                   <Text style={styles.oab}>
                     OAB/{profile.oabState} {profile.oabNumber}
                   </Text>
-                </View>
-                <View style={styles.verifiedStack}>
-                  <Ionicons color={colors.gold} name="star" size={18} />
-                  <Text style={styles.verifiedText}>Verificado</Text>
                 </View>
               </View>
 
@@ -196,6 +214,26 @@ export function LawyerProfileScreen({ navigation, route }: Props) {
                 {profile.fullBio ?? profile.miniBio ?? "Este profissional ainda nao publicou uma bio completa."}
               </Text>
             </View>
+
+            {socialLinks.length > 0 ? (
+              <View style={styles.section}>
+                <Text style={styles.sectionTitle}>Redes sociais</Text>
+                <View style={styles.socialRow}>
+                  {socialLinks.map((link) => (
+                    <TouchableOpacity
+                      accessibilityLabel={`Abrir ${link.label}`}
+                      accessibilityRole="link"
+                      key={link.key}
+                      onPress={() => Linking.openURL(link.url)}
+                      style={styles.socialButton}
+                    >
+                      <Ionicons color={colors.gold} name={link.icon} size={22} />
+                      <Text style={styles.socialLabel}>{link.label}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </View>
+            ) : null}
 
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Areas de Atuacao</Text>
@@ -277,7 +315,7 @@ const styles = StyleSheet.create({
   },
   hero: {
     backgroundColor: colors.surfaceDeep,
-    height: 320,
+    height: 230,
     overflow: "hidden",
     position: "relative"
   },
@@ -308,22 +346,34 @@ const styles = StyleSheet.create({
     padding: spacing.lg
   },
   identitySection: {
+    backgroundColor: "rgba(11,22,40,0.96)",
+    borderColor: colors.borderSubtle,
+    borderRadius: 18,
+    borderWidth: 1,
     gap: spacing.md,
-    marginTop: -72,
-    paddingHorizontal: 20
+    marginHorizontal: 20,
+    marginTop: -32,
+    padding: spacing.md
+  },
+  identityHeader: {
+    alignItems: "flex-start",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    gap: spacing.md
   },
   avatarFrame: {
     alignItems: "center",
     backgroundColor: colors.surfaceDeep,
     borderColor: colors.gold,
-    borderRadius: 999,
+    borderRadius: 18,
     borderWidth: 4,
-    height: 112,
+    height: 104,
     justifyContent: "center",
+    overflow: "hidden",
     position: "relative",
-    width: 112
+    width: 104
   },
-  avatarImage: { height: "100%", width: "100%" },
+  avatarImage: { borderRadius: 12, height: "100%", width: "100%" },
   avatarInitial: { color: colors.gold, fontSize: 42, fontWeight: "900" },
   verifiedBadge: {
     alignItems: "center",
@@ -382,6 +432,19 @@ const styles = StyleSheet.create({
   sectionTitle: { color: colors.textPrimary, fontSize: 22, fontWeight: "800" },
   bioText: { color: colors.textPrimary, fontSize: 16, lineHeight: 26 },
   panelText: { color: colors.textMuted, fontSize: 14, lineHeight: 20 },
+  socialRow: { flexDirection: "row", flexWrap: "wrap", gap: spacing.sm },
+  socialButton: {
+    alignItems: "center",
+    backgroundColor: "rgba(244,210,100,0.1)",
+    borderColor: "rgba(244,210,100,0.28)",
+    borderRadius: 14,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: spacing.xs,
+    minHeight: 46,
+    paddingHorizontal: spacing.md
+  },
+  socialLabel: { color: colors.textPrimary, fontSize: 13, fontWeight: "800" },
   areaList: { gap: spacing.md },
   areaCard: {
     alignItems: "center",
