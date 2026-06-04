@@ -20,6 +20,7 @@ import { createAreasService, type LegalArea } from "../services/areasService";
 import { createAuthService } from "../services/authService";
 import { createClientSignupService } from "../services/clientSignupService";
 import { createLawyerDashboardService, type LawyerDashboardResponse } from "../services/lawyerDashboardService";
+import { createLawyerProfileService, type PublicLawyerProfile } from "../services/lawyerProfileService";
 import { requestDeviceLocation, type DeviceLocation } from "../services/locationService";
 import { createMatchService, type MatchResponse } from "../services/matchService";
 import { createMeService, type CurrentUser } from "../services/meService";
@@ -32,7 +33,7 @@ import { colors, spacing } from "../theme/tokens";
 type ViewStatus = "idle" | "loading" | "error";
 type AuthMode = "signIn" | "signUp";
 type ClientTab = "home" | "profile";
-type LawyerTab = "dashboard" | "card" | "profile" | "account";
+type LawyerTab = "home" | "benefits" | "profile";
 type Props = NativeStackScreenProps<RootStackParamList, "Home">;
 
 const logo = require("../../assets/logo-blue.png");
@@ -144,10 +145,9 @@ const clientNavItems: Array<{ label: string; tab: ClientTab; icon: keyof typeof 
 ];
 
 const lawyerNavItems: Array<{ label: string; tab: LawyerTab; icon: keyof typeof Ionicons.glyphMap }> = [
-  { label: "Inicio", tab: "dashboard", icon: "grid-outline" },
-  { label: "Cartao", tab: "card", icon: "card-outline" },
-  { label: "Perfil", tab: "profile", icon: "ribbon-outline" },
-  { label: "Conta", tab: "account", icon: "settings-outline" }
+  { label: "Home", tab: "home", icon: "home-outline" },
+  { label: "Beneficios", tab: "benefits", icon: "card-outline" },
+  { label: "Perfil", tab: "profile", icon: "person-outline" }
 ];
 
 function StatusBox({ status, message }: { status: ViewStatus; message: string }) {
@@ -221,6 +221,10 @@ function getAreaIcon(areaName: string): keyof typeof Ionicons.glyphMap {
 
 function getAreaLabel(areaName: string): string {
   return areaName.replace(/^direito\s+(de|da|do|das|dos)?\s*/i, "").trim();
+}
+
+function safeImageUrl(url?: string | null) {
+  return typeof url === "string" && url.startsWith("https://") ? url : null;
 }
 
 function MatchCard({
@@ -435,9 +439,163 @@ function PartnersFooter({ partners }: { partners: PartnerLogo[] }) {
   );
 }
 
+function LawyerInsightCard({
+  icon,
+  label,
+  value
+}: {
+  icon: keyof typeof Ionicons.glyphMap;
+  label: string;
+  value: number;
+}) {
+  return (
+    <View style={styles.metricCard}>
+      <View style={styles.metricHeader}>
+        <View style={styles.metricIconBadge}>
+          <Ionicons color={colors.gold} name={icon} size={20} />
+        </View>
+        <Text style={styles.cardLabel}>{label}</Text>
+      </View>
+      <Text style={styles.metricValue}>{value}</Text>
+    </View>
+  );
+}
+
+function LawyerVipCard({ dashboard }: { dashboard: LawyerDashboardResponse | null }) {
+  const name = dashboard?.lawyer.name ?? "Membro Exclusivo";
+  const oab = dashboard?.lawyer.oabNumber
+    ? `${dashboard.lawyer.oabNumber}/${dashboard.lawyer.oabState}`
+    : "Verificado";
+
+  return (
+    <View style={styles.benefitsPanel}>
+      <View style={styles.vipPhysicalCard}>
+        <View style={styles.vipTopRow}>
+          <View>
+            <Text style={styles.vipKicker}>ADVOGADO 2.0 VIP</Text>
+            <Text style={styles.vipSubKicker}>BENEFITS CLUB MEMBER</Text>
+          </View>
+          <Ionicons color={colors.gold} name="ribbon-outline" size={28} />
+        </View>
+        <View style={styles.vipMiddleRow}>
+          <View style={styles.vipChip}>
+            <View style={styles.vipChipLineHorizontal} />
+            <View style={styles.vipChipLineVertical} />
+          </View>
+          <View style={styles.vipSeal}>
+            <Text style={styles.vipSealText}>V</Text>
+          </View>
+        </View>
+        <View style={styles.vipBottomRow}>
+          <View style={styles.vipIdentity}>
+            <Text numberOfLines={1} style={styles.vipName}>{name}</Text>
+            <View style={styles.vipMetaRow}>
+              <View style={styles.vipMetaBlock}>
+                <Text style={styles.vipMetaLabel}>MEMBRO DESDE</Text>
+                <Text style={styles.vipMetaValue}>2026</Text>
+              </View>
+              <View style={styles.vipMetaBlock}>
+                <Text style={styles.vipMetaLabel}>OAB</Text>
+                <Text numberOfLines={1} style={styles.vipMetaValue}>{oab}</Text>
+              </View>
+            </View>
+          </View>
+        </View>
+      </View>
+      <View style={styles.panel}>
+        <Text style={styles.panelTitle}>Beneficios</Text>
+        <Text style={styles.panelText}>
+          Seu cartao especial ja identifica voce como advogado participante. A lista de beneficios reais entrara em
+          um ciclo futuro com admin e backend dedicados.
+        </Text>
+      </View>
+    </View>
+  );
+}
+
+function LawyerReadonlyProfile({
+  dashboard,
+  profile,
+  onRefresh,
+  onSignOut
+}: {
+  dashboard: LawyerDashboardResponse | null;
+  profile: PublicLawyerProfile | null;
+  onRefresh: () => void;
+  onSignOut: () => void;
+}) {
+  const name = profile?.name ?? dashboard?.lawyer.name ?? "Advogado 2.0";
+  const avatarUrl = safeImageUrl(profile?.avatarUrl ?? dashboard?.lawyer.avatarUrl);
+  const coverUrl = safeImageUrl(profile?.coverUrl ?? dashboard?.lawyer.coverUrl);
+  const initial = name.slice(0, 1).toUpperCase();
+  const areas = profile?.areas ?? [];
+  const place = [profile?.city, profile?.state].filter(Boolean).join(", ");
+
+  return (
+    <>
+      <View style={styles.readonlyProfile}>
+        <View style={styles.readonlyCover}>
+          {coverUrl ? (
+            <Image accessibilityIgnoresInvertColors source={{ uri: coverUrl }} style={styles.readonlyCoverImage} />
+          ) : (
+            <Ionicons color={colors.gold} name="business-outline" size={46} />
+          )}
+        </View>
+        <View style={styles.readonlyIdentity}>
+          <View style={styles.readonlyAvatar}>
+            {avatarUrl ? (
+              <Image accessibilityIgnoresInvertColors source={{ uri: avatarUrl }} style={styles.readonlyAvatarImage} />
+            ) : (
+              <Text style={styles.avatarInitial}>{initial}</Text>
+            )}
+          </View>
+          <View style={styles.readonlyNameBlock}>
+            <Text style={styles.cardTitle}>{name}</Text>
+            <Text style={styles.oabBadgeText}>
+              OAB {profile?.oabNumber ?? dashboard?.lawyer.oabNumber ?? "--"}/
+              {profile?.oabState ?? dashboard?.lawyer.oabState ?? "--"}
+            </Text>
+          </View>
+        </View>
+        {place ? (
+          <View style={styles.matchMetaRow}>
+            <Ionicons color={colors.textMuted} name="location-outline" size={17} />
+            <Text style={styles.matchMeta}>{place}</Text>
+          </View>
+        ) : null}
+        <Text style={styles.panelText}>
+          {profile?.fullBio ?? profile?.miniBio ?? "Bio profissional ainda nao disponivel para visualizacao."}
+        </Text>
+        {areas.length > 0 ? (
+          <View style={styles.chipRow}>
+            {areas.map((area) => (
+              <View key={area.id} style={styles.specialtyChip}>
+                <Text style={styles.specialtyText}>{area.name.toUpperCase()}</Text>
+              </View>
+            ))}
+          </View>
+        ) : null}
+        <TouchableOpacity style={styles.secondaryButton} accessibilityRole="button" onPress={onRefresh}>
+          <Ionicons color={colors.gold} name="refresh-outline" size={18} />
+          <Text style={styles.secondaryButtonText}>Atualizar perfil</Text>
+        </TouchableOpacity>
+      </View>
+      <View style={styles.accountPanel}>
+        <Text style={styles.panelTitle}>Conta</Text>
+        <Text style={styles.panelText}>Perfil somente leitura. Edicoes sao feitas pelo administrador.</Text>
+        <LegalLinks />
+        <TouchableOpacity style={styles.signOutButton} accessibilityRole="button" onPress={onSignOut}>
+          <Ionicons color={colors.gold} name="log-out-outline" size={18} />
+          <Text style={styles.secondaryButtonText}>Sair</Text>
+        </TouchableOpacity>
+      </View>
+    </>
+  );
+}
+
 export function HomeScreen({ navigation }: Props) {
   const [clientTab, setClientTab] = useState<ClientTab>("home");
-  const [lawyerTab, setLawyerTab] = useState<LawyerTab>("dashboard");
+  const [lawyerTab, setLawyerTab] = useState<LawyerTab>("home");
   const [session, setSession] = useState<Session | null>(null);
   const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);
   const [authMode, setAuthMode] = useState<AuthMode>("signIn");
@@ -450,6 +608,7 @@ export function HomeScreen({ navigation }: Props) {
   const [location, setLocation] = useState<DeviceLocation | null>(null);
   const [match, setMatch] = useState<MatchResponse | null>(null);
   const [lawyerDashboard, setLawyerDashboard] = useState<LawyerDashboardResponse | null>(null);
+  const [lawyerProfile, setLawyerProfile] = useState<PublicLawyerProfile | null>(null);
   const [partners, setPartners] = useState<PartnerLogo[]>([]);
   const [prayerMessage, setPrayerMessage] = useState("");
   const [prayerAnonymous, setPrayerAnonymous] = useState(true);
@@ -464,6 +623,7 @@ export function HomeScreen({ navigation }: Props) {
   const matches = useMemo(() => createMatchService(apiClient), [apiClient]);
   const me = useMemo(() => createMeService(apiClient), [apiClient]);
   const lawyerDashboards = useMemo(() => createLawyerDashboardService(apiClient), [apiClient]);
+  const lawyerProfiles = useMemo(() => createLawyerProfileService(apiClient), [apiClient]);
   const prayerRequests = useMemo(() => createPrayerRequestService(apiClient), [apiClient]);
   const partnerLogos = useMemo(() => createPartnerLogoService(apiClient), [apiClient]);
   const visibleAreas = useMemo(() => {
@@ -505,7 +665,7 @@ export function HomeScreen({ navigation }: Props) {
   }, []);
 
   useEffect(() => {
-    if (!session || currentUser?.role !== "client") {
+    if (!session || (currentUser?.role !== "client" && currentUser?.role !== "lawyer")) {
       return;
     }
 
@@ -558,19 +718,26 @@ export function HomeScreen({ navigation }: Props) {
     let active = true;
     lawyerDashboards
       .getDashboard()
-      .then((response) => {
+      .then(async (response) => {
         if (!active) return;
         setLawyerDashboard(response);
+        try {
+          const profileResponse = await lawyerProfiles.getById(response.lawyer.id);
+          if (active) setLawyerProfile(profileResponse.lawyer);
+        } catch {
+          if (active) setLawyerProfile(null);
+        }
       })
       .catch(() => {
         if (!active) return;
         setLawyerDashboard(null);
+        setLawyerProfile(null);
       });
 
     return () => {
       active = false;
     };
-  }, [session, currentUser, lawyerDashboards]);
+  }, [session, currentUser, lawyerDashboards, lawyerProfiles]);
 
   async function handleSignIn() {
     setStatus("loading");
@@ -617,8 +784,10 @@ export function HomeScreen({ navigation }: Props) {
     setAreaSearch("");
     setLocation(null);
     setMatch(null);
+    setLawyerDashboard(null);
+    setLawyerProfile(null);
     setClientTab("home");
-    setLawyerTab("dashboard");
+    setLawyerTab("home");
     setMessage("Sessao encerrada.");
   }
 
@@ -687,6 +856,12 @@ export function HomeScreen({ navigation }: Props) {
     try {
       const response = await lawyerDashboards.getDashboard();
       setLawyerDashboard(response);
+      try {
+        const profileResponse = await lawyerProfiles.getById(response.lawyer.id);
+        setLawyerProfile(profileResponse.lawyer);
+      } catch {
+        setLawyerProfile(null);
+      }
       setStatus("idle");
       setMessage("Painel do advogado atualizado.");
     } catch (error) {
@@ -807,12 +982,14 @@ export function HomeScreen({ navigation }: Props) {
         <View style={styles.authenticatedShell}>
           <ScrollView contentContainerStyle={styles.container}>
             <PageLogo />
-            {lawyerTab === "dashboard" ? (
+            {lawyerTab === "home" ? (
               <>
                 <View style={styles.heroPanel}>
-                  <Text style={styles.heroTitle}>Painel do advogado</Text>
+                  <Text style={styles.heroTitle}>
+                    Boas vindas, {lawyerDashboard?.lawyer.name ?? "advogado"}
+                  </Text>
                   <Text style={styles.panelText}>
-                    Acompanhe sua presenca profissional no Meu Advogado 2.0 sem misturar com a jornada do cliente.
+                    Acompanhe a presenca do seu perfil e mantenha seu espaco espiritual reservado.
                   </Text>
                   <TouchableOpacity
                     style={styles.secondaryButton}
@@ -824,63 +1001,42 @@ export function HomeScreen({ navigation }: Props) {
                   </TouchableOpacity>
                 </View>
                 <View style={styles.metricsGrid}>
-                  <View style={styles.metricCard}>
-                    <Text style={styles.cardLabel}>Visualizacoes</Text>
-                    <Text style={styles.metricValue}>{lawyerDashboard?.metrics.profileViews ?? 0}</Text>
-                  </View>
-                  <View style={styles.metricCard}>
-                    <Text style={styles.cardLabel}>WhatsApp</Text>
-                    <Text style={styles.metricValue}>{lawyerDashboard?.metrics.whatsappClicks ?? 0}</Text>
-                  </View>
+                  <LawyerInsightCard
+                    icon="eye-outline"
+                    label="Visitas"
+                    value={lawyerDashboard?.metrics.profileViews ?? 0}
+                  />
+                  <LawyerInsightCard
+                    icon="logo-whatsapp"
+                    label="Cliques no WhatsApp"
+                    value={lawyerDashboard?.metrics.whatsappClicks ?? 0}
+                  />
                 </View>
+                <PrayerHomeBlock
+                  anonymous={prayerAnonymous}
+                  message={prayerMessage}
+                  receipt={prayerReceipt}
+                  status={status}
+                  onAnonymousChange={() => setPrayerAnonymous((current) => !current)}
+                  onMessageChange={setPrayerMessage}
+                  onSubmit={handleSubmitPrayer}
+                />
                 <StatusBox status={status} message={message} />
+                <PartnersFooter partners={partners} />
               </>
             ) : null}
 
-            {lawyerTab === "card" ? (
-              <View style={styles.vipCard}>
-                <Text style={styles.cardLabel}>Cartao digital</Text>
-                <Text style={styles.cardTitle}>
-                  {lawyerDashboard?.lawyer.name ?? currentUser.email ?? "Advogado 2.0"}
-                </Text>
-                <Text style={styles.panelText}>
-                  {lawyerDashboard?.lawyer.planLabel ?? "MVP interno"} - beneficios estaticos e seguros, sem pagamento
-                  ou parceiro real.
-                </Text>
-                {(lawyerDashboard?.benefits ?? []).map((benefit) => (
-                  <View style={styles.benefitRow} key={benefit.id}>
-                    <Ionicons color={colors.gold} name="shield-checkmark-outline" size={22} />
-                    <View style={styles.benefitTextBlock}>
-                      <Text style={styles.benefitTitle}>{benefit.title}</Text>
-                      <Text style={styles.panelText}>{benefit.description}</Text>
-                    </View>
-                  </View>
-                ))}
-              </View>
+            {lawyerTab === "benefits" ? (
+              <LawyerVipCard dashboard={lawyerDashboard} />
             ) : null}
 
             {lawyerTab === "profile" ? (
-              <View style={styles.panel}>
-                <Text style={styles.panelTitle}>Perfil publico</Text>
-                <Text style={styles.panelText}>
-                  {lawyerDashboard
-                    ? `OAB ${lawyerDashboard.lawyer.oabNumber}/${lawyerDashboard.lawyer.oabState}. Perfil ${
-                        lawyerDashboard.lawyer.verified ? "verificado" : "em revisao"
-                      }.`
-                    : "Atualize o painel para carregar os dados publicos seguros."}
-                </Text>
-              </View>
-            ) : null}
-
-            {lawyerTab === "account" ? (
-              <View style={styles.accountPanel}>
-                <Text style={styles.panelTitle}>Conta do advogado</Text>
-                <Text style={styles.panelText}>Sessao autenticada com seguranca.</Text>
-                <TouchableOpacity style={styles.signOutButton} accessibilityRole="button" onPress={handleSignOut}>
-                  <Ionicons color={colors.gold} name="log-out-outline" size={18} />
-                  <Text style={styles.secondaryButtonText}>Sair</Text>
-                </TouchableOpacity>
-              </View>
+              <LawyerReadonlyProfile
+                dashboard={lawyerDashboard}
+                profile={lawyerProfile}
+                onRefresh={handleLoadLawyerDashboard}
+                onSignOut={handleSignOut}
+              />
             ) : null}
           </ScrollView>
           <BottomNavigation activeTab={lawyerTab} items={lawyerNavItems} onSelect={setLawyerTab} />
@@ -1361,6 +1517,122 @@ const styles = StyleSheet.create({
     gap: spacing.md,
     padding: spacing.lg
   },
+  benefitsPanel: {
+    gap: spacing.lg
+  },
+  vipPhysicalCard: {
+    backgroundColor: "#000B21",
+    borderColor: "rgba(2,102,255,0.32)",
+    borderRadius: 18,
+    borderWidth: 1,
+    gap: spacing.lg,
+    minHeight: 220,
+    overflow: "hidden",
+    padding: spacing.lg,
+    shadowColor: colors.blue,
+    shadowOpacity: 0.2,
+    shadowRadius: 22
+  },
+  vipTopRow: {
+    alignItems: "flex-start",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    gap: spacing.md
+  },
+  vipKicker: {
+    color: colors.gold,
+    fontSize: 12,
+    fontWeight: "900",
+    letterSpacing: 1,
+    textTransform: "uppercase"
+  },
+  vipSubKicker: {
+    color: "rgba(226,226,226,0.48)",
+    fontSize: 9,
+    fontWeight: "800",
+    marginTop: 4,
+    textTransform: "uppercase"
+  },
+  vipMiddleRow: {
+    alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    minHeight: 72
+  },
+  vipChip: {
+    alignItems: "center",
+    backgroundColor: colors.gold,
+    borderRadius: 8,
+    height: 38,
+    justifyContent: "center",
+    overflow: "hidden",
+    position: "relative",
+    width: 52
+  },
+  vipChipLineHorizontal: {
+    backgroundColor: "rgba(18,20,20,0.36)",
+    height: 1,
+    left: 0,
+    position: "absolute",
+    right: 0,
+    top: 18
+  },
+  vipChipLineVertical: {
+    backgroundColor: "rgba(18,20,20,0.36)",
+    bottom: 0,
+    position: "absolute",
+    top: 0,
+    width: 1
+  },
+  vipSeal: {
+    alignItems: "center",
+    backgroundColor: "rgba(0,8,20,0.86)",
+    borderColor: "rgba(2,102,255,0.45)",
+    borderRadius: 999,
+    borderWidth: 1,
+    height: 54,
+    justifyContent: "center",
+    width: 54
+  },
+  vipSealText: {
+    color: colors.gold,
+    fontSize: 25,
+    fontStyle: "italic",
+    fontWeight: "900"
+  },
+  vipBottomRow: {
+    flexDirection: "row"
+  },
+  vipIdentity: {
+    flex: 1,
+    gap: spacing.sm
+  },
+  vipName: {
+    color: colors.gold,
+    fontSize: 18,
+    fontWeight: "900",
+    letterSpacing: 1,
+    textTransform: "uppercase"
+  },
+  vipMetaRow: {
+    flexDirection: "row",
+    gap: spacing.lg
+  },
+  vipMetaBlock: {
+    flex: 1,
+    gap: 2
+  },
+  vipMetaLabel: {
+    color: "rgba(217,154,45,0.64)",
+    fontSize: 9,
+    fontWeight: "900",
+    textTransform: "uppercase"
+  },
+  vipMetaValue: {
+    color: colors.gold,
+    fontSize: 13,
+    fontWeight: "900"
+  },
   metricCard: {
     backgroundColor: colors.surface,
     borderColor: colors.borderSubtle,
@@ -1368,6 +1640,19 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     gap: spacing.md,
     padding: spacing.lg
+  },
+  metricHeader: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: spacing.sm
+  },
+  metricIconBadge: {
+    alignItems: "center",
+    backgroundColor: "rgba(217,154,45,0.12)",
+    borderRadius: 999,
+    height: 34,
+    justifyContent: "center",
+    width: 34
   },
   cardLabel: {
     color: colors.gold,
@@ -1654,6 +1939,76 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
     fontSize: 14,
     fontWeight: "800"
+  },
+  readonlyProfile: {
+    backgroundColor: colors.surface,
+    borderColor: colors.borderSubtle,
+    borderRadius: 18,
+    borderWidth: 1,
+    gap: spacing.md,
+    overflow: "hidden",
+    padding: spacing.lg,
+    paddingTop: 0
+  },
+  readonlyCover: {
+    alignItems: "center",
+    backgroundColor: colors.surfaceDeep,
+    height: 138,
+    justifyContent: "center",
+    marginHorizontal: -spacing.lg
+  },
+  readonlyCoverImage: {
+    height: "100%",
+    width: "100%"
+  },
+  readonlyIdentity: {
+    alignItems: "flex-end",
+    flexDirection: "row",
+    gap: spacing.md,
+    marginTop: -42
+  },
+  readonlyAvatar: {
+    alignItems: "center",
+    backgroundColor: colors.surfaceDeep,
+    borderColor: colors.gold,
+    borderRadius: 16,
+    borderWidth: 4,
+    height: 96,
+    justifyContent: "center",
+    overflow: "hidden",
+    width: 96
+  },
+  readonlyAvatarImage: {
+    height: "100%",
+    width: "100%"
+  },
+  avatarInitial: {
+    color: colors.gold,
+    fontSize: 40,
+    fontWeight: "900"
+  },
+  readonlyNameBlock: {
+    flex: 1,
+    gap: spacing.xs,
+    paddingBottom: spacing.sm
+  },
+  chipRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: spacing.sm
+  },
+  specialtyChip: {
+    backgroundColor: "rgba(217,154,45,0.1)",
+    borderColor: "rgba(217,154,45,0.28)",
+    borderRadius: 999,
+    borderWidth: 1,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm
+  },
+  specialtyText: {
+    color: colors.gold,
+    fontSize: 12,
+    fontWeight: "900"
   },
   prayerInput: {
     minHeight: 120,

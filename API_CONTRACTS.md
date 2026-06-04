@@ -103,7 +103,7 @@ Response:
 
 ## Advogado
 
-- `GET /v1/lawyers/:id` - consumido pelo mobile com Bearer token pela API Railway
+- `GET /v1/lawyers/:id` - consumido pelo mobile com Bearer token pela API Railway; usado pelo cliente e pelo advogado em perfil readonly
 
 Resposta planejada:
 
@@ -139,8 +139,7 @@ dado do perfil.
 ## Advogado Logado
 
 - `GET /v1/lawyer/me/dashboard`
-- `GET /lawyer/vip-card`
-- `GET /lawyer/benefits`
+- Beneficios reais futuros dependem de admin/back; o cartao especial atual e renderizado no app a partir do dashboard.
 
 Resposta do dashboard:
 
@@ -164,7 +163,7 @@ parceiro externo, cupom real, chat ou agenda.
 
 ## Oracao
 
-- `POST /v1/prayer-requests`
+- `POST /v1/prayer-requests` - usado por cliente e advogado autenticados.
 
 Request:
 

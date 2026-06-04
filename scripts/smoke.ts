@@ -118,9 +118,10 @@ if (
   home.includes("locationBanner") ||
   !home.includes("BottomNavigation") ||
   !home.includes('label: "Home"') ||
-  !home.includes('label: "Cartao"') ||
+  !home.includes('label: "Beneficios"') ||
   !home.includes('label: "Perfil"') ||
-  !home.includes('label: "Conta"') ||
+  home.includes('label: "Cartao"') ||
+  home.includes('label: "Conta"') ||
   home.includes('label: "Oracao"') ||
   home.includes('label: "Buscar"') ||
   home.includes("scrollTo") ||
