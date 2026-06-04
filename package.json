@@ -11,7 +11,8 @@
     "test": "vitest run",
     "smoke": "tsx scripts/smoke.ts",
     "smoke:runtime": "tsx scripts/runtime-smoke.ts",
-    "harness": "tsx scripts/harness.ts"
+    "harness": "tsx scripts/harness.ts",
+    "postinstall": "node scripts/patch-expo-cli-tar-interop.cjs"
   },
   "dependencies": {
     "@expo/vector-icons": "~14.0.4",
