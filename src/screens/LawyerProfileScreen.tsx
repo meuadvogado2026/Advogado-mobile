@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, Image, Linking, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { AppIcon, type AppIconName } from "../components/AppIcon";
 import { SafeAreaView } from "react-native-safe-area-context";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { RootStackParamList } from "../../App";
@@ -12,7 +12,7 @@ import { colors, spacing } from "../theme/tokens";
 
 type Props = NativeStackScreenProps<RootStackParamList, "LawyerProfile">;
 type ProfileStatus = "loading" | "ready" | "error" | "unavailable";
-type SocialLink = { key: string; label: string; icon: keyof typeof Ionicons.glyphMap; url: string };
+type SocialLink = { key: string; label: string; icon: AppIconName; url: string };
 
 const legalUrls = {
   privacy: "https://meuadvogado2026.github.io/meu-advogado-legal/privacidade.html",
@@ -36,7 +36,7 @@ function safeExternalUrl(url?: string | null) {
   return typeof url === "string" && url.startsWith("https://") ? url : null;
 }
 
-function getAreaIcon(areaName: string): keyof typeof Ionicons.glyphMap {
+function getAreaIcon(areaName: string): AppIconName {
   const normalized = areaName.toLowerCase();
   if (normalized.includes("criminal")) return "shield-outline";
   if (normalized.includes("trabalh")) return "briefcase-outline";
@@ -108,11 +108,11 @@ export function LawyerProfileScreen({ navigation, route }: Props) {
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.topControls}>
         <TouchableOpacity accessibilityRole="button" onPress={() => navigation.goBack()} style={styles.iconButton}>
-          <Ionicons color={colors.textPrimary} name="arrow-back" size={24} />
+          <AppIcon color={colors.textPrimary} name="arrow-back" size={24} />
         </TouchableOpacity>
         <View style={styles.topRightControls}>
           <View style={styles.passiveIcon}>
-            <Ionicons color={colors.textPrimary} name="shield-checkmark-outline" size={20} />
+            <AppIcon color={colors.textPrimary} name="shield-checkmark-outline" size={20} />
           </View>
         </View>
       </View>
@@ -144,7 +144,7 @@ export function LawyerProfileScreen({ navigation, route }: Props) {
                 <Image accessibilityIgnoresInvertColors source={{ uri: coverUrl }} style={styles.coverImage} />
               ) : (
                 <View style={styles.coverFallback}>
-                  <Ionicons color={colors.gold} name="business-outline" size={56} />
+                  <AppIcon color={colors.gold} name="business-outline" size={56} />
                 </View>
               )}
               <View style={styles.heroScrim} />
@@ -159,11 +159,11 @@ export function LawyerProfileScreen({ navigation, route }: Props) {
                     <Text style={styles.avatarInitial}>{profile.name.slice(0, 1).toUpperCase()}</Text>
                   )}
                   <View style={styles.verifiedBadge}>
-                    <Ionicons color={colors.surfaceDeep} name="checkmark" size={14} />
+                    <AppIcon color={colors.surfaceDeep} name="checkmark" size={14} />
                   </View>
                 </View>
                 <View style={styles.verifiedStack}>
-                  <Ionicons color={colors.gold} name="star" size={18} />
+                  <AppIcon color={colors.gold} name="star" size={18} />
                   <Text style={styles.verifiedText}>Verificado</Text>
                 </View>
               </View>
@@ -179,7 +179,7 @@ export function LawyerProfileScreen({ navigation, route }: Props) {
 
               {distance || place ? (
                 <View style={styles.locationRow}>
-                  <Ionicons color={colors.textMuted} name="location-outline" size={17} />
+                  <AppIcon color={colors.textMuted} name="location-outline" size={17} />
                   <Text style={styles.panelText}>{[distance, place].filter(Boolean).join(" - ")}</Text>
                 </View>
               ) : null}
@@ -227,7 +227,7 @@ export function LawyerProfileScreen({ navigation, route }: Props) {
                       onPress={() => Linking.openURL(link.url)}
                       style={styles.socialButton}
                     >
-                      <Ionicons color={colors.gold} name={link.icon} size={22} />
+                      <AppIcon color={colors.gold} name={link.icon} size={22} />
                       <Text style={styles.socialLabel}>{link.label}</Text>
                     </TouchableOpacity>
                   ))}
@@ -241,7 +241,7 @@ export function LawyerProfileScreen({ navigation, route }: Props) {
                 {profile.areas.map((area) => (
                   <View key={area.id} style={styles.areaCard}>
                     <View style={styles.areaIcon}>
-                      <Ionicons color={colors.gold} name={getAreaIcon(area.name)} size={22} />
+                      <AppIcon color={colors.gold} name={getAreaIcon(area.name)} size={22} />
                     </View>
                     <View style={styles.areaTextBlock}>
                       <Text style={styles.areaTitle}>{area.name}</Text>
@@ -265,7 +265,7 @@ export function LawyerProfileScreen({ navigation, route }: Props) {
               onPress={() => Linking.openURL(`https://wa.me/${whatsapp}`)}
               style={styles.whatsButton}
             >
-              <Ionicons color={colors.surfaceDeep} name="logo-whatsapp" size={22} />
+              <AppIcon color={colors.surfaceDeep} name="logo-whatsapp" size={22} />
               <Text style={styles.whatsButtonText}>WhatsApp VIP</Text>
             </TouchableOpacity>
           ) : (

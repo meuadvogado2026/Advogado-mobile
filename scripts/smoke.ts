@@ -5,7 +5,7 @@ const requiredFiles = [
   "App.tsx",
   "app.json",
   "app.config.ts",
-  "assets/fonts/Ionicons.ttf",
+  "src/components/AppIcon.tsx",
   "src/screens/HomeScreen.tsx",
   "src/theme/tokens.ts",
   "src/services/authService.ts",
@@ -55,6 +55,7 @@ const appConfig = readFileSync("app.config.ts", "utf8");
 const appJson = readFileSync("app.json", "utf8");
 const home = readFileSync("src/screens/HomeScreen.tsx", "utf8");
 const app = readFileSync("App.tsx", "utf8");
+const appIcon = readFileSync("src/components/AppIcon.tsx", "utf8");
 const lawyerProfile = readFileSync("src/screens/LawyerProfileScreen.tsx", "utf8");
 const locationService = readFileSync("src/services/locationService.ts", "utf8");
 const clientSignupService = readFileSync("src/services/clientSignupService.ts", "utf8");
@@ -88,7 +89,11 @@ if (
 }
 
 if (
-  !app.includes('Ionicons: require("./assets/fonts/Ionicons.ttf")') ||
+  !home.includes("AppIcon") ||
+  !lawyerProfile.includes("AppIcon") ||
+  !appIcon.includes("glyphs") ||
+  /@expo\/vector-icons|Ionicons/.test(`${home}\n${lawyerProfile}`) ||
+  app.includes("useFonts") ||
   !appJson.includes('"assetBundlePatterns"') ||
   !appJson.includes('"assets/**/*"') ||
   app.includes("fontFallbackReady") ||

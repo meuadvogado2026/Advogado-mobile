@@ -10,7 +10,7 @@ import {
   TouchableOpacity,
   View
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { AppIcon, type AppIconName } from "../components/AppIcon";
 import { SafeAreaView } from "react-native-safe-area-context";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { RootStackParamList } from "../../App";
@@ -113,7 +113,7 @@ function BottomNavigation<TTab extends string>({
   onSelect
 }: {
   activeTab: TTab;
-  items: Array<{ label: string; tab: TTab; icon: keyof typeof Ionicons.glyphMap }>;
+  items: Array<{ label: string; tab: TTab; icon: AppIconName }>;
   onSelect: (tab: TTab) => void;
 }) {
   return (
@@ -129,7 +129,7 @@ function BottomNavigation<TTab extends string>({
             style={styles.bottomNavItem}
           >
             <View style={[styles.bottomIconBadge, selected && styles.bottomIconBadgeActive]}>
-              <Ionicons color={selected ? colors.surfaceDeep : colors.goldBright} name={item.icon} size={22} />
+              <AppIcon color={selected ? colors.surfaceDeep : colors.goldBright} name={item.icon} size={22} />
             </View>
             <Text style={[styles.bottomNavText, selected && styles.bottomNavTextActive]}>{item.label}</Text>
           </TouchableOpacity>
@@ -139,12 +139,12 @@ function BottomNavigation<TTab extends string>({
   );
 }
 
-const clientNavItems: Array<{ label: string; tab: ClientTab; icon: keyof typeof Ionicons.glyphMap }> = [
+const clientNavItems: Array<{ label: string; tab: ClientTab; icon: AppIconName }> = [
   { label: "Home", tab: "home", icon: "home-outline" },
   { label: "Perfil", tab: "profile", icon: "person-outline" }
 ];
 
-const lawyerNavItems: Array<{ label: string; tab: LawyerTab; icon: keyof typeof Ionicons.glyphMap }> = [
+const lawyerNavItems: Array<{ label: string; tab: LawyerTab; icon: AppIconName }> = [
   { label: "Home", tab: "home", icon: "home-outline" },
   { label: "Beneficios", tab: "benefits", icon: "card-outline" },
   { label: "Perfil", tab: "profile", icon: "person-outline" }
@@ -194,7 +194,7 @@ function AreaCarousel({
               style={[styles.areaTile, selected && styles.areaTileSelected]}
             >
               <View style={[styles.areaIconBadge, selected && styles.areaIconBadgeSelected]}>
-                <Ionicons color={selected ? colors.surfaceDeep : colors.goldBright} name={getAreaIcon(area.name)} size={31} />
+                <AppIcon color={selected ? colors.surfaceDeep : colors.goldBright} name={getAreaIcon(area.name)} size={31} />
               </View>
               <Text numberOfLines={2} style={[styles.areaTileText, selected && styles.areaTileTextSelected]}>
                 {getAreaLabel(area.name)}
@@ -207,7 +207,7 @@ function AreaCarousel({
   );
 }
 
-function getAreaIcon(areaName: string): keyof typeof Ionicons.glyphMap {
+function getAreaIcon(areaName: string): AppIconName {
   const normalized = areaName.toLowerCase();
   if (normalized.includes("trabalh")) return "briefcase-outline";
   if (normalized.includes("famil")) return "people-outline";
@@ -262,7 +262,7 @@ function MatchCard({
             )}
             {hasLawyer ? (
               <View style={styles.verifiedDot}>
-                <Ionicons color={colors.textPrimary} name="checkmark" size={12} />
+                <AppIcon color={colors.textPrimary} name="checkmark" size={12} />
               </View>
             ) : null}
           </View>
@@ -280,7 +280,7 @@ function MatchCard({
         <Text style={styles.panelText}>{match?.message ?? describeMatch(match)}</Text>
         {match?.lawyer?.city ? (
           <View style={styles.matchMetaRow}>
-            <Ionicons color={colors.textMuted} name="navigate-outline" size={17} />
+            <AppIcon color={colors.textMuted} name="navigate-outline" size={17} />
             <Text style={styles.matchMeta}>
               {match.lawyer.city}
               {match.lawyer.state ? `/${match.lawyer.state}` : ""}
@@ -296,13 +296,13 @@ function MatchCard({
         onPress={onMatch}
       >
         <View style={styles.goldGradientLayer} />
-        <Ionicons color={colors.surfaceDeep} name="search-outline" size={18} />
+        <AppIcon color={colors.surfaceDeep} name="search-outline" size={18} />
         <Text style={styles.primaryButtonText}>Buscar match</Text>
       </TouchableOpacity>
       <View style={styles.cardActions}>
         {match?.lawyer ? (
           <TouchableOpacity style={styles.lawyerActionButton} accessibilityRole="button" onPress={onOpenProfile}>
-            <Ionicons color={colors.gold} name="person-outline" size={18} />
+            <AppIcon color={colors.gold} name="person-outline" size={18} />
             <Text style={styles.lawyerActionText}>Perfil</Text>
           </TouchableOpacity>
         ) : null}
@@ -312,7 +312,7 @@ function MatchCard({
             accessibilityRole="button"
             onPress={() => openWhatsApp(match.lawyer!.whatsapp!)}
           >
-            <Ionicons color={colors.whatsapp} name="logo-whatsapp" size={18} />
+            <AppIcon color={colors.whatsapp} name="logo-whatsapp" size={18} />
             <Text style={styles.lawyerWhatsText}>WhatsApp</Text>
           </TouchableOpacity>
         ) : null}
@@ -330,12 +330,12 @@ function UrgentLawyerButton() {
       style={styles.urgentButton}
     >
       <View style={styles.urgentIconBadge}>
-        <Ionicons color={colors.textPrimary} name="warning-outline" size={19} />
+        <AppIcon color={colors.textPrimary} name="warning-outline" size={19} />
       </View>
       <View style={styles.urgentTextBlock}>
         <Text style={styles.urgentTitle}>Advogado urgente</Text>
       </View>
-      <Ionicons color={colors.textPrimary} name="logo-whatsapp" size={19} />
+      <AppIcon color={colors.textPrimary} name="logo-whatsapp" size={19} />
     </TouchableOpacity>
   );
 }
@@ -382,7 +382,7 @@ function PrayerHomeBlock({
           onPress={onAnonymousChange}
           style={styles.toggleRow}
         >
-          <Ionicons color={colors.gold} name={anonymous ? "checkbox-outline" : "square-outline"} size={22} />
+          <AppIcon color={colors.gold} name={anonymous ? "checkbox-outline" : "square-outline"} size={22} />
           <Text style={styles.prayerText}>Enviar como anonimo</Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -395,12 +395,12 @@ function PrayerHomeBlock({
           onPress={onSubmit}
         >
           <View style={styles.goldGradientLayer} />
-          <Ionicons color={colors.surfaceDeep} name="heart-outline" size={18} />
+          <AppIcon color={colors.surfaceDeep} name="heart-outline" size={18} />
           <Text style={styles.primaryButtonText}>Enviar pedido</Text>
         </TouchableOpacity>
         {receipt ? (
           <View style={styles.noticeRow}>
-            <Ionicons color={colors.gold} name="checkmark-circle-outline" size={20} />
+            <AppIcon color={colors.gold} name="checkmark-circle-outline" size={20} />
             <Text style={styles.prayerText}>Pedido recebido com seguranca.</Text>
           </View>
         ) : null}
@@ -444,7 +444,7 @@ function LawyerInsightCard({
   label,
   value
 }: {
-  icon: keyof typeof Ionicons.glyphMap;
+  icon: AppIconName;
   label: string;
   value: number;
 }) {
@@ -452,7 +452,7 @@ function LawyerInsightCard({
     <View style={styles.metricCard}>
       <View style={styles.metricHeader}>
         <View style={styles.metricIconBadge}>
-          <Ionicons color={colors.gold} name={icon} size={20} />
+          <AppIcon color={colors.gold} name={icon} size={20} />
         </View>
         <Text style={styles.cardLabel}>{label}</Text>
       </View>
@@ -475,7 +475,7 @@ function LawyerVipCard({ dashboard }: { dashboard: LawyerDashboardResponse | nul
             <Text style={styles.vipKicker}>ADVOGADO 2.0 VIP</Text>
             <Text style={styles.vipSubKicker}>BENEFITS CLUB MEMBER</Text>
           </View>
-          <Ionicons color={colors.gold} name="ribbon-outline" size={28} />
+          <AppIcon color={colors.gold} name="ribbon-outline" size={28} />
         </View>
         <View style={styles.vipMiddleRow}>
           <View style={styles.vipChip}>
@@ -538,7 +538,7 @@ function LawyerReadonlyProfile({
           {coverUrl ? (
             <Image accessibilityIgnoresInvertColors source={{ uri: coverUrl }} style={styles.readonlyCoverImage} />
           ) : (
-            <Ionicons color={colors.gold} name="business-outline" size={46} />
+            <AppIcon color={colors.gold} name="business-outline" size={46} />
           )}
         </View>
         <View style={styles.readonlyIdentity}>
@@ -559,7 +559,7 @@ function LawyerReadonlyProfile({
         </View>
         {place ? (
           <View style={styles.matchMetaRow}>
-            <Ionicons color={colors.textMuted} name="location-outline" size={17} />
+            <AppIcon color={colors.textMuted} name="location-outline" size={17} />
             <Text style={styles.matchMeta}>{place}</Text>
           </View>
         ) : null}
@@ -576,7 +576,7 @@ function LawyerReadonlyProfile({
           </View>
         ) : null}
         <TouchableOpacity style={styles.secondaryButton} accessibilityRole="button" onPress={onRefresh}>
-          <Ionicons color={colors.gold} name="refresh-outline" size={18} />
+          <AppIcon color={colors.gold} name="refresh-outline" size={18} />
           <Text style={styles.secondaryButtonText}>Atualizar perfil</Text>
         </TouchableOpacity>
       </View>
@@ -585,7 +585,7 @@ function LawyerReadonlyProfile({
         <Text style={styles.panelText}>Perfil somente leitura. Edicoes sao feitas pelo administrador.</Text>
         <LegalLinks />
         <TouchableOpacity style={styles.signOutButton} accessibilityRole="button" onPress={onSignOut}>
-          <Ionicons color={colors.gold} name="log-out-outline" size={18} />
+          <AppIcon color={colors.gold} name="log-out-outline" size={18} />
           <Text style={styles.secondaryButtonText}>Sair</Text>
         </TouchableOpacity>
       </View>
@@ -946,7 +946,7 @@ export function HomeScreen({ navigation }: Props) {
               accessibilityRole="button"
               onPress={authMode === "signIn" ? handleSignIn : handleSignUp}
             >
-              <Ionicons
+              <AppIcon
                 color={colors.surfaceDeep}
                 name={authMode === "signIn" ? "log-in-outline" : "person-add-outline"}
                 size={18}
@@ -996,7 +996,7 @@ export function HomeScreen({ navigation }: Props) {
                     accessibilityRole="button"
                     onPress={handleLoadLawyerDashboard}
                   >
-                    <Ionicons color={colors.gold} name="refresh-outline" size={18} />
+                    <AppIcon color={colors.gold} name="refresh-outline" size={18} />
                     <Text style={styles.secondaryButtonText}>Atualizar painel</Text>
                   </TouchableOpacity>
                 </View>
@@ -1057,7 +1057,7 @@ export function HomeScreen({ navigation }: Props) {
               </View>
 
               <View style={styles.searchBar}>
-                <Ionicons color={colors.outline} name="search-outline" size={25} />
+                <AppIcon color={colors.outline} name="search-outline" size={25} />
                 <TextInput
                   autoCapitalize="none"
                   onChangeText={setAreaSearch}
@@ -1096,25 +1096,25 @@ export function HomeScreen({ navigation }: Props) {
                 <View style={styles.stepsRow}>
                   <View style={styles.stepItem}>
                     <View style={styles.stepIconBadge}>
-                      <Ionicons color={colors.surfaceDeep} name="search-outline" size={24} />
+                      <AppIcon color={colors.surfaceDeep} name="search-outline" size={24} />
                     </View>
                     <Text style={styles.stepText}>1. Buscar</Text>
                   </View>
                   <View style={styles.stepItem}>
                     <View style={styles.stepIconBadge}>
-                      <Ionicons color={colors.surfaceDeep} name="shield-checkmark-outline" size={24} />
+                      <AppIcon color={colors.surfaceDeep} name="shield-checkmark-outline" size={24} />
                     </View>
                     <Text style={styles.stepText}>2. Conferir</Text>
                   </View>
                   <View style={styles.stepItem}>
                     <View style={styles.stepIconBadge}>
-                      <Ionicons color={colors.surfaceDeep} name="logo-whatsapp" size={24} />
+                      <AppIcon color={colors.surfaceDeep} name="logo-whatsapp" size={24} />
                     </View>
                     <Text style={styles.stepText}>3. Conversar</Text>
                   </View>
                   <View style={styles.stepItem}>
                     <View style={styles.stepIconBadge}>
-                      <Ionicons color={colors.surfaceDeep} name="checkmark-circle-outline" size={24} />
+                      <AppIcon color={colors.surfaceDeep} name="checkmark-circle-outline" size={24} />
                     </View>
                     <Text style={styles.stepText}>4. Resolver</Text>
                   </View>
@@ -1134,12 +1134,12 @@ export function HomeScreen({ navigation }: Props) {
               <Text style={styles.panelTitle}>Perfil do cliente</Text>
               <Text style={styles.panelText}>Sessao autenticada com seguranca.</Text>
               <TouchableOpacity style={styles.secondaryButton} accessibilityRole="button" onPress={handleLoadAreas}>
-                <Ionicons color={colors.gold} name="refresh-outline" size={18} />
+                <AppIcon color={colors.gold} name="refresh-outline" size={18} />
                 <Text style={styles.secondaryButtonText}>Atualizar areas</Text>
               </TouchableOpacity>
               <LegalLinks />
               <TouchableOpacity style={styles.signOutButton} accessibilityRole="button" onPress={handleSignOut}>
-                <Ionicons color={colors.gold} name="log-out-outline" size={18} />
+                <AppIcon color={colors.gold} name="log-out-outline" size={18} />
                 <Text style={styles.secondaryButtonText}>Sair</Text>
               </TouchableOpacity>
             </View>
