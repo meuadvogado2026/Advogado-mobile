@@ -2,13 +2,13 @@
 
 **Ultima atualizacao:** 2026-06-04
 **Fase:** PRODUTO MVP / UX LOGIN E CADASTRO CLIENTE
-**Veredito:** PERFIL_ADVOGADO_SOCIAIS_LOCAL_OK / MIGRATION_0006_APLICADA_OK / MIGRATION_0005_APLICADA_OK / QUESTIONAR_PUBLICACAO_SOCIAIS / CLIENT_SIGNUP_MOBILE_PREVIEW_BUILD_OK / CLIENT_SIGNUP_MOBILE_APK_VISUAL_OK / CLIENT_SIGNUP_PRODUCAO_OK / MOBILE_UX_LOGIN_CADASTRO_LOGO_LOCAL_OK / SPEC003_DEPENDENCIAS_RELEASE_OK / QUESTIONAR_CREDENCIAIS_PLAY_CONSOLE / SPEC008_CLIENTE_HOME_REPLICACAO_VISUAL_OK / SPEC008_PARTE1R_POLIMENTO_VISUAL_MOBILE_OK
+**Veredito:** PERFIL_ADVOGADO_SOCIAIS_PRODUCAO_OK / MIGRATION_0006_APLICADA_OK / MIGRATION_0005_APLICADA_OK / CLIENT_SIGNUP_MOBILE_PREVIEW_BUILD_OK / CLIENT_SIGNUP_MOBILE_APK_VISUAL_OK / CLIENT_SIGNUP_PRODUCAO_OK / MOBILE_UX_LOGIN_CADASTRO_LOGO_LOCAL_OK / SPEC003_DEPENDENCIAS_RELEASE_OK / QUESTIONAR_CREDENCIAIS_PLAY_CONSOLE / SPEC008_CLIENTE_HOME_REPLICACAO_VISUAL_OK / SPEC008_PARTE1R_POLIMENTO_VISUAL_MOBILE_OK
 
 ## Concluido
 
 - [x] Documentacao inicial do ambiente mobile criada.
 - [x] Perfil do advogado ajustado localmente: capa menor, foto dentro do cartao/modal de identidade e secao `Redes sociais` com icones reais para Instagram, LinkedIn, Facebook e site profissional.
-- [x] Gate mobile da publicacao social em 2026-06-04: `npm run harness` exit 0 e `npm run smoke:runtime` contra Railway exit 0 (`OK_COM_RESSALVAS`) com env publica da raiz e token redigido; backend `prod:smoke` foi destravado apos aplicacao da migration `0005_admin_prayers_partners.sql`.
+- [x] Perfil do advogado com redes sociais publicado no commit `ed2b963`; `npm run harness` exit 0 e `npm run smoke:runtime` contra Railway exit 0 (`OK_COM_RESSALVAS`) com env publica da raiz e token redigido. Lacuna: nenhum Android bootado para smoke visual Expo Go.
 - [x] Escopo Android-first definido.
 - [x] Regra de localizacao do cliente definida.
 - [x] Regra de consumo via backend definida.
