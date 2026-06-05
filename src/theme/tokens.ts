@@ -13,6 +13,8 @@ export const colors = {
   goldBright: "#D99A2D",
   goldContainer: "#D99A2D",
   goldDeep: "#D99A2D",
+  disabledSurface: "#3a352b",
+  disabledBorder: "rgba(217,154,45,0.22)",
   blue: "#0266ff",
   whatsapp: "#25D366",
   danger: "#93000a",

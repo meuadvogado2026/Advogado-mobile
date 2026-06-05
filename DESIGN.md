@@ -14,10 +14,10 @@ App dark-first, premium juridico, com fundo azul-marinho/obsidian, acentos doura
 - Surface: `#0B1628`
 - Surface alt: `#121414`
 - Surface container: `#1a1c1c`
-- Primary gold: `#f4d264`
-- Bright gold: `#ffe08a`
-- Gold container: `#d6b64c`
-- Deep gold: `#9f7a22`
+- Primary gold: `#D99A2D`
+- Bright gold: `#D99A2D`
+- Gold container: `#D99A2D`
+- Deep gold: `#D99A2D`
 - Electric blue: `#0266ff`
 - Search surface: `#e2e2e2`
 - WhatsApp green: `#25D366`
@@ -73,4 +73,4 @@ Antes de fechar telas:
 
 ## Implementacao Inicial
 
-`App.tsx` carrega explicitamente `Ionicons.font` antes de renderizar a navegacao. `src/screens/HomeScreen.tsx` implementa login, estado autenticado, topo com logo centralizada, bottom navigation `Home`/`Perfil` com icones, busca na Home, areas juridicas horizontais com icones/labels legiveis, nota discreta de localizacao no fim da Home, card "Advogado indicado" com match real e pedido de oracao acoplado a Home com `assets/prayer-bible-cross.png`. `src/screens/LawyerProfileScreen.tsx` fecha perfil completo com hero/capa/avatar/chips/bio/areas e WhatsApp externo, preservando allowlist segura. As specs 005/008 nao reintroduzem mensagens, agenda ou plantao como funcionalidades internas.
+`src/components/AppIcon.tsx` renderiza icones reais por `react-native-svg`, sem depender de fonte runtime, `Ionicons` ou `@expo/vector-icons`. `src/screens/HomeScreen.tsx` implementa login, estado autenticado, topo com logo centralizada, bottom navigation `Home`/`Perfil` com icones, busca na Home, areas juridicas horizontais com icones/labels legiveis, nota discreta de localizacao no fim da Home, card "Advogado indicado" com match real e pedido de oracao acoplado a Home com `assets/prayer-bible-cross.png`. `src/screens/LawyerProfileScreen.tsx` fecha perfil completo com hero/capa/avatar/chips/bio/areas, redes sociais e WhatsApp externo, preservando allowlist segura. As specs 005/008 nao reintroduzem mensagens, agenda ou plantao como funcionalidades internas.

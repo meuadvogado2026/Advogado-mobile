@@ -52,7 +52,7 @@ Todo ciclo de implementacao deve seguir SDD, Harness CLI e smoke final.
 - Harness CLI, smoke estrutural cobrindo Auth/API/Location/Match e smoke runtime proporcional contra backend local.
 - `src/screens/LawyerProfileScreen.tsx` e `src/services/lawyerProfileService.ts` fecham `Home -> Perfil -> WhatsApp` via backend.
 - `src/screens/HomeScreen.tsx` com shell autenticado, logo dentro do conteudo rolavel e bottom navigation MVP sem Mensagens/Agenda.
-- `expo-font` instalado/configurado para suportar a iconografia de `@expo/vector-icons` no runtime Android.
+- `src/components/AppIcon.tsx` usa `react-native-svg` para iconografia standalone, sem fonte runtime fragil, `Ionicons` ou `@expo/vector-icons`.
 
 ## Scripts
 

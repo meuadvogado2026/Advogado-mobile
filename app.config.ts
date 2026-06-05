@@ -6,7 +6,7 @@ export default {
   expo: {
     ...expo,
     owner: "advogado2.0",
-    plugins: ["expo-asset", "expo-font", "expo-secure-store"],
+    plugins: ["expo-asset", "expo-secure-store"],
     extra: {
       ...expo.extra,
       apiBaseUrl: process.env.EXPO_PUBLIC_API_BASE_URL ?? expo.extra.apiBaseUrl,

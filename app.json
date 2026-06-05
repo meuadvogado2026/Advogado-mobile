@@ -18,7 +18,7 @@
       "package": "com.advogado20.app",
       "versionCode": 2,
       "adaptiveIcon": {
-        "foregroundImage": "./assets/logo-white.png",
+        "foregroundImage": "./assets/logo-blue.png",
         "backgroundColor": "#071426"
       },
       "permissions": ["ACCESS_COARSE_LOCATION", "ACCESS_FINE_LOCATION"]

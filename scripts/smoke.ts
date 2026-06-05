@@ -53,6 +53,7 @@ if (apiContracts.partnerLogos !== "/v1/partner-logos") {
 
 const appConfig = readFileSync("app.config.ts", "utf8");
 const appJson = readFileSync("app.json", "utf8");
+const packageJson = readFileSync("package.json", "utf8");
 const home = readFileSync("src/screens/HomeScreen.tsx", "utf8");
 const app = readFileSync("App.tsx", "utf8");
 const appIcon = readFileSync("src/components/AppIcon.tsx", "utf8");
@@ -62,6 +63,8 @@ const clientSignupService = readFileSync("src/services/clientSignupService.ts", 
 const lawyerDashboardService = readFileSync("src/services/lawyerDashboardService.ts", "utf8");
 const prayerRequestService = readFileSync("src/services/prayerRequestService.ts", "utf8");
 const partnerLogoService = readFileSync("src/services/partnerLogoService.ts", "utf8");
+const parsedAppJson = JSON.parse(appJson);
+const parsedPackageJson = JSON.parse(packageJson);
 
 if (/SERVICE_ROLE|service_role/i.test(`${appConfig}\n${appJson}`)) {
   throw new Error("Smoke mobile falhou. Service role nao pode aparecer na configuracao mobile.");
@@ -91,8 +94,12 @@ if (
 if (
   !home.includes("AppIcon") ||
   !lawyerProfile.includes("AppIcon") ||
-  !appIcon.includes("glyphs") ||
-  /@expo\/vector-icons|Ionicons/.test(`${home}\n${lawyerProfile}`) ||
+  !appIcon.includes("react-native-svg") ||
+  !appIcon.includes("iconRenderers") ||
+  appIcon.includes("glyphs") ||
+  /<Text|from "react-native"|logo-whatsapp": "W"|logo-instagram": "IG"|logo-linkedin": "in"/.test(appIcon) ||
+  /@expo\/vector-icons|Ionicons/.test(`${home}\n${lawyerProfile}\n${appConfig}\n${packageJson}`) ||
+  /expo-font/.test(`${appConfig}\n${packageJson}`) ||
   app.includes("useFonts") ||
   !appJson.includes('"assetBundlePatterns"') ||
   !appJson.includes('"assets/**/*"') ||
@@ -106,6 +113,44 @@ if (
   !lawyerProfile.includes("WhatsApp VIP")
 ) {
   throw new Error("Smoke mobile falhou. Fluxo Home -> LawyerProfile -> WhatsApp ou estados seguros ausentes.");
+}
+
+if (
+  !parsedPackageJson.dependencies?.["react-native-svg"] ||
+  parsedPackageJson.dependencies?.["@expo/vector-icons"] ||
+  parsedPackageJson.dependencies?.["expo-font"] ||
+  !appIcon.includes('"logo-whatsapp"') ||
+  !appIcon.includes('"logo-instagram"') ||
+  !appIcon.includes('"logo-linkedin"') ||
+  !appIcon.includes('"logo-facebook"') ||
+  !appIcon.includes('"warning-outline"') ||
+  !appIcon.includes('"ribbon-outline"') ||
+  !appIcon.includes('"library-outline"') ||
+  !appIcon.includes('"cart-outline"')
+) {
+  throw new Error("Smoke mobile falhou. Padrao profissional de icones SVG standalone nao esta completo.");
+}
+
+if (
+  home.includes("goldGradientLayer") ||
+  home.includes("LinearGradient") ||
+  home.includes("GradientLayer") ||
+  !home.includes("disabledSurface") ||
+  !home.includes("disabledBorder")
+) {
+  throw new Error("Smoke mobile falhou. Botoes oficiais devem ser solidos, sem overlay/degrade estranho.");
+}
+
+if (
+  !existsSync("assets/logo-blue.png") ||
+  !existsSync("assets/logo-white.png") ||
+  parsedAppJson.expo.icon !== "./assets/logo-blue.png" ||
+  parsedAppJson.expo.splash?.image !== "./assets/logo-blue.png" ||
+  parsedAppJson.expo.splash?.backgroundColor !== "#071426" ||
+  parsedAppJson.expo.android?.adaptiveIcon?.foregroundImage !== "./assets/logo-blue.png" ||
+  parsedAppJson.expo.android?.adaptiveIcon?.backgroundColor !== "#071426"
+) {
+  throw new Error("Smoke mobile falhou. Assets oficiais de logo/app icon/splash Android estao ausentes ou divergentes.");
 }
 
 if (

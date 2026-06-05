@@ -404,7 +404,8 @@ ficar mais dourados.
 
 Implementacao:
 
-- `App.tsx` passou a carregar explicitamente `Ionicons.font` via `useFonts`.
+- `src/components/AppIcon.tsx` passou a renderizar icones reais por `react-native-svg`,
+  sem `Ionicons`, `@expo/vector-icons`, `expo-font` ou `useFonts`.
 - Home autenticada passou a mostrar somente a logo centralizada no topo, com
   cantos arredondados.
 - Bottom nav, cards de areas juridicas e `Como funciona?` ganharam badges de
@@ -418,9 +419,9 @@ Implementacao:
 Gates:
 
 - `npm run typecheck`; exit code 0.
-- `npm run smoke`; exit code 0; smoke estrutural cobre carregamento de
-  `Ionicons.font`, ausencia do bloco antigo de marca/sessao, `locationFootnote`
-  e badges de icones.
+- `npm run smoke`; exit code 0; smoke estrutural reprova retorno de glyphs
+  textuais, `Ionicons`, fonte runtime fragil, `goldGradientLayer` e assets
+  oficiais ausentes.
 - `npm run harness`; exit code 0; typecheck, 12 testes e smoke estrutural.
 - `npm run smoke:runtime` contra Railway; exit code 0; `OK_COM_RESSALVAS`, Auth
   real com token redigido, 6 areas, match `matched` e perfil seguro.
@@ -429,3 +430,38 @@ Gates:
 Resultado: `SPEC008_PARTE1R_POLIMENTO_VISUAL_MOBILE_OK`. Smoke visual Android
 nao foi executado neste ciclo porque nenhum device Android estava
 conectado/bootado; nenhum APK/AAB foi gerado e Play Console nao foi aberto.
+
+## Resultado Do Padrao SVG, Botoes E Logo Oficial
+
+Em 2026-06-04, o padrao definitivo de icones mobile foi trocado do hotfix
+textual para SVG componentizado. A solucao mira APK standalone: `react-native-svg`
+e compilado no bundle nativo, sem esperar carregamento de fonte externa.
+
+Implementacao:
+
+- `react-native-svg@15.8.0` instalado com `npx expo install react-native-svg`.
+- `@expo/vector-icons` e `expo-font` removidos das dependencias diretas e
+  `expo-font` removido dos plugins Expo.
+- `AppIcon` cobre bottom nav, areas, passos, WhatsApp, redes sociais, metricas,
+  check, alerta, localizacao, refresh, logout e beneficios.
+- `goldGradientLayer` removido dos botoes; botao ativo usa `#D99A2D` solido e
+  estado desabilitado usa `disabledSurface`/`disabledBorder`.
+- `assets/logo-blue.png` definido como logo oficial Android para `icon`,
+  `splash.image` e `android.adaptiveIcon.foregroundImage`.
+
+Gates:
+
+- `npm run typecheck`; exit code 0.
+- `npm run test -- --run tests/contracts.test.ts`; exit code 0; 14 testes.
+- `npm run smoke`; exit code 0.
+- `npm run harness`; exit code 0.
+- `npm run smoke:runtime` contra Railway; exit code 0; `OK_COM_RESSALVAS`,
+  Auth real redigido, 6 areas, match `matched` e perfil seguro.
+
+Ressalvas:
+
+- Nenhum device Android estava bootado/conectado para smoke visual local.
+- EAS preview APK, instalacao standalone, screenshots seguros, link e SHA-256
+  ficam como etapa obrigatoria antes de fechar release preview.
+- Play Store ainda precisa de aprovacao humana de margem do icone, feature
+  graphic, screenshots, icone monocromatico se adotado e Data Safety.

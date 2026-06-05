@@ -295,7 +295,6 @@ function MatchCard({
         accessibilityRole="button"
         onPress={onMatch}
       >
-        <View style={styles.goldGradientLayer} />
         <AppIcon color={colors.surfaceDeep} name="search-outline" size={18} />
         <Text style={styles.primaryButtonText}>Buscar match</Text>
       </TouchableOpacity>
@@ -394,7 +393,6 @@ function PrayerHomeBlock({
           accessibilityRole="button"
           onPress={onSubmit}
         >
-          <View style={styles.goldGradientLayer} />
           <AppIcon color={colors.surfaceDeep} name="heart-outline" size={18} />
           <Text style={styles.primaryButtonText}>Enviar pedido</Text>
         </TouchableOpacity>
@@ -600,7 +598,7 @@ export function HomeScreen({ navigation }: Props) {
   const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);
   const [authMode, setAuthMode] = useState<AuthMode>("signIn");
   const [signupName, setSignupName] = useState("");
-  const [email, setEmail] = useState("usuario@advogado20.com");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [areas, setAreas] = useState<LegalArea[]>([]);
   const [selectedAreaIds, setSelectedAreaIds] = useState<string[]>([]);
@@ -647,7 +645,7 @@ export function HomeScreen({ navigation }: Props) {
         if (!mounted) return;
         if (!restoredSession) {
           setStatus("idle");
-          setMessage("Entre com um usuario de teste.");
+          setMessage("Informe suas credenciais cadastradas.");
           return;
         }
         await hydrateUser(restoredSession);
@@ -656,7 +654,7 @@ export function HomeScreen({ navigation }: Props) {
       .catch(() => {
         if (!mounted) return;
         setStatus("idle");
-        setMessage("Entre com um usuario de teste.");
+        setMessage("Informe suas credenciais cadastradas.");
       });
 
     return () => {
@@ -1312,18 +1310,8 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
     minHeight: 44,
     justifyContent: "center",
-    overflow: "hidden",
     paddingHorizontal: spacing.md,
     position: "relative"
-  },
-  goldGradientLayer: {
-    backgroundColor: colors.goldDeep,
-    bottom: 0,
-    opacity: 0.72,
-    position: "absolute",
-    right: 0,
-    top: 0,
-    width: "46%"
   },
   primaryButtonText: {
     color: colors.surfaceDeep,
@@ -1791,7 +1779,9 @@ const styles = StyleSheet.create({
     fontWeight: "800"
   },
   disabledButton: {
-    opacity: 0.45
+    backgroundColor: colors.disabledSurface,
+    borderColor: colors.disabledBorder,
+    opacity: 0.72
   },
   legalLinks: {
     flexDirection: "row",
