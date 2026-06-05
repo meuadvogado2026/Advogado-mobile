@@ -4,7 +4,6 @@ export type PublicConfig = {
   apiBaseUrl: string;
   supabaseUrl: string;
   supabaseAnonKey: string;
-  enableDevLocationFallback: boolean;
 };
 
 declare const process: {
@@ -15,7 +14,6 @@ type ExtraConfig = {
   apiBaseUrl?: string;
   supabaseUrl?: string;
   supabaseAnonKey?: string;
-  enableDevLocationFallback?: string;
 };
 
 /**
@@ -35,9 +33,7 @@ const DEFAULT_SUPABASE_URL = "https://qpemxkiowiiklztgumqy.supabase.co";
 export const publicConfig: PublicConfig = {
   apiBaseUrl: extra.apiBaseUrl || process.env.EXPO_PUBLIC_API_BASE_URL || DEFAULT_API_BASE_URL,
   supabaseUrl: extra.supabaseUrl || process.env.EXPO_PUBLIC_SUPABASE_URL || DEFAULT_SUPABASE_URL,
-  supabaseAnonKey: extra.supabaseAnonKey || process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || "",
-  enableDevLocationFallback:
-    (extra.enableDevLocationFallback ?? process.env.EXPO_PUBLIC_ENABLE_DEV_LOCATION_FALLBACK) === "true"
+  supabaseAnonKey: extra.supabaseAnonKey || process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || ""
 };
 
 export function validatePublicConfig(config: PublicConfig = publicConfig) {

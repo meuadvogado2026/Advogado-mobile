@@ -1,5 +1,10 @@
 # Mobile Status - Meu Advogado 2.0
 
+**Ultima atualizacao:** 2026-06-05
+**Veredito:** MOBILE_MATCH_EXIGE_LOCALIZACAO_REAL_LOCAL_OK
+
+- [x] Hotfix GEO local: removido fallback sintetico `EXPO_PUBLIC_ENABLE_DEV_LOCATION_FALLBACK` de codigo/config/build e removido cache de coordenada na Home. O match agora solicita localizacao real atual em toda busca e bloqueia `POST /v1/match` quando permissao for negada ou o provider nativo nao retornar coordenada. Gates: `npm run typecheck`, `npx vitest run tests/contracts.test.ts`, `npm run smoke`, `npm run harness` e `smoke:runtime` contra Railway passaram. Ressalva: nenhum Android bootado para smoke visual e codigo ainda precisa ser publicado/gerar novo APK.
+
 **Ultima atualizacao:** 2026-06-04
 **Fase:** PRODUTO MVP / UX LOGIN E CADASTRO CLIENTE
 **Veredito:** MOBILE_ICONES_SVG_BOTOES_LOGO_LOCAL_OK / MOBILE_ICONS_STANDALONE_FIX_LOCAL_OK / SPEC010_PAINEL_ADVOGADO_VISUAL_ANDROID_OK / PERFIL_ADVOGADO_SOCIAIS_PRODUCAO_OK / MIGRATION_0006_APLICADA_OK / MIGRATION_0005_APLICADA_OK / CLIENT_SIGNUP_MOBILE_PREVIEW_BUILD_OK / CLIENT_SIGNUP_PRODUCAO_OK / MOBILE_UX_LOGIN_CADASTRO_LOGO_LOCAL_OK / SPEC003_DEPENDENCIAS_RELEASE_OK / QUESTIONAR_CREDENCIAIS_PLAY_CONSOLE / SPEC008_CLIENTE_HOME_REPLICACAO_VISUAL_OK / SPEC008_PARTE1R_POLIMENTO_VISUAL_MOBILE_OK

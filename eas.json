@@ -12,8 +12,7 @@
       "env": {
         "EXPO_PUBLIC_API_BASE_URL": "https://advogado-back-production.up.railway.app",
         "EXPO_PUBLIC_SUPABASE_URL": "https://qpemxkiowiiklztgumqy.supabase.co",
-        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_EdZ0IMljUfu3KdsbbOyKoQ_tjl8dsX6",
-        "EXPO_PUBLIC_ENABLE_DEV_LOCATION_FALLBACK": "false"
+        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_EdZ0IMljUfu3KdsbbOyKoQ_tjl8dsX6"
       }
     },
     "production": {
@@ -24,8 +23,7 @@
       "env": {
         "EXPO_PUBLIC_API_BASE_URL": "https://advogado-back-production.up.railway.app",
         "EXPO_PUBLIC_SUPABASE_URL": "https://qpemxkiowiiklztgumqy.supabase.co",
-        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_EdZ0IMljUfu3KdsbbOyKoQ_tjl8dsX6",
-        "EXPO_PUBLIC_ENABLE_DEV_LOCATION_FALLBACK": "false"
+        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_EdZ0IMljUfu3KdsbbOyKoQ_tjl8dsX6"
       }
     }
   },

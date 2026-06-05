@@ -26,8 +26,7 @@
     "extra": {
       "apiBaseUrl": "http://10.0.2.2:3333",
       "supabaseUrl": "https://qpemxkiowiiklztgumqy.supabase.co",
-      "supabaseAnonKey": "",
-      "enableDevLocationFallback": "false"
+      "supabaseAnonKey": ""
     }
   }
 }

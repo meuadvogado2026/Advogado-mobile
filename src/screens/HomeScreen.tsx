@@ -21,7 +21,7 @@ import { createAuthService } from "../services/authService";
 import { createClientSignupService } from "../services/clientSignupService";
 import { createLawyerDashboardService, type LawyerDashboardResponse } from "../services/lawyerDashboardService";
 import { createLawyerProfileService, type PublicLawyerProfile } from "../services/lawyerProfileService";
-import { requestDeviceLocation, type DeviceLocation } from "../services/locationService";
+import { requestDeviceLocation } from "../services/locationService";
 import { createMatchService, type MatchResponse } from "../services/matchService";
 import { createMeService, type CurrentUser } from "../services/meService";
 import { createPartnerLogoService, type PartnerLogo } from "../services/partnerLogoService";
@@ -603,7 +603,6 @@ export function HomeScreen({ navigation }: Props) {
   const [areas, setAreas] = useState<LegalArea[]>([]);
   const [selectedAreaIds, setSelectedAreaIds] = useState<string[]>([]);
   const [areaSearch, setAreaSearch] = useState("");
-  const [location, setLocation] = useState<DeviceLocation | null>(null);
   const [match, setMatch] = useState<MatchResponse | null>(null);
   const [lawyerDashboard, setLawyerDashboard] = useState<LawyerDashboardResponse | null>(null);
   const [lawyerProfile, setLawyerProfile] = useState<PublicLawyerProfile | null>(null);
@@ -780,7 +779,6 @@ export function HomeScreen({ navigation }: Props) {
     setAreas([]);
     setSelectedAreaIds([]);
     setAreaSearch("");
-    setLocation(null);
     setMatch(null);
     setLawyerDashboard(null);
     setLawyerProfile(null);
@@ -811,32 +809,27 @@ export function HomeScreen({ navigation }: Props) {
       return;
     }
 
-    let activeLocation = location;
-    if (!activeLocation) {
-      setStatus("loading");
-      setMessage("Obtendo sua localizacao para a busca.");
-      const result = await requestDeviceLocation();
-      if (result.status === "denied") {
-        setStatus("error");
-        setMessage("Localizacao negada. Permita o acesso para encontrar um advogado proximo.");
-        return;
-      }
-      if (result.status === "unavailable") {
-        setStatus("error");
-        setMessage("Nao foi possivel obter sua localizacao agora. Tente novamente.");
-        return;
-      }
-      activeLocation = result.location;
-      setLocation(result.location);
+    setStatus("loading");
+    setMessage("Obtendo sua localizacao atual para a busca.");
+    const result = await requestDeviceLocation();
+    if (result.status === "denied") {
+      setStatus("error");
+      setMessage("Localizacao negada. Permita o acesso para encontrar um advogado proximo.");
+      return;
+    }
+    if (result.status === "unavailable") {
+      setStatus("error");
+      setMessage("Nao foi possivel obter sua localizacao atual. Tente novamente.");
+      return;
     }
 
     setStatus("loading");
     setMessage("Consultando match no backend.");
     try {
       const response = await matches.requestMatch({
-        lat: activeLocation.lat,
-        lng: activeLocation.lng,
-        accuracyM: activeLocation.accuracyM,
+        lat: result.location.lat,
+        lng: result.location.lng,
+        accuracyM: result.location.accuracyM,
         areaIds: selectedAreaIds
       });
       setMatch(response);

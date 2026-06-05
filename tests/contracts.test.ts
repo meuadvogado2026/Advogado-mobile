@@ -48,8 +48,7 @@ function memoryStorage(): SessionStorage {
 const publicTestConfig = {
   apiBaseUrl: "http://127.0.0.1:3333",
   supabaseUrl: "https://example.supabase.co",
-  supabaseAnonKey: "anon-public-test-key",
-  enableDevLocationFallback: false
+  supabaseAnonKey: "anon-public-test-key"
 };
 
 describe("mobile foundation contracts", () => {
@@ -399,16 +398,11 @@ describe("mobile foundation contracts", () => {
     await expect(requestDeviceLocation()).resolves.toEqual({ status: "unavailable" });
   });
 
-  it("allows explicit local Android smoke fallback without bypassing denied permission", async () => {
+  it("does not fall back to synthetic coordinates even when old dev flag is present", async () => {
     vi.stubEnv("EXPO_PUBLIC_ENABLE_DEV_LOCATION_FALLBACK", "true");
     locationMock.requestForegroundPermissionsAsync.mockResolvedValue({ status: "granted" });
     locationMock.getCurrentPositionAsync.mockRejectedValue(new Error("provider unavailable"));
 
-    const result = await requestDeviceLocation();
-
-    expect(result.status).toBe("granted");
-    if (result.status === "granted") {
-      expect(result.location).toMatchObject({ accuracyM: 100, source: "devFallback" });
-    }
+    await expect(requestDeviceLocation()).resolves.toEqual({ status: "unavailable" });
   });
 });

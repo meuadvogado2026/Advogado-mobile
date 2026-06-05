@@ -73,7 +73,7 @@ O seletor `@PICK` foi usado e o time efetivo foi `@C10`, `@SPEC`, `@D`, `@M`, `@
 
 ## Resultado Do Fallback Dev De Localizacao Android
 
-O seletor `@PICK` foi usado e o time efetivo foi `@C10`, `@PR`, `@M`, `@GEO`, `@S`, `@GSD` e `@V`. Foi criado fallback local de desenvolvimento atras de `EXPO_PUBLIC_ENABLE_DEV_LOCATION_FALLBACK=true`, acionado somente quando a permissao nativa ja foi concedida e o provider do AVD/Expo Go falha em retornar coordenada. `npm run harness` passou com exit code 0, typecheck, 8 testes e smoke estrutural. `npm run smoke:runtime` passou com exit code 0, device bootado, backend OK, 6 areas, match stub e login real com token redigido. No Android visual, o fluxo fechou login real, areas via UI, prompt nativo, fallback dev explicito, `Buscar match` habilitado e estado vazio/stub apos match via UI. Evidencias: `harness-results/dev-location-fallback-visual-smoke.json`, `android-dev-fallback-areas.png`, `android-dev-fallback-location-prompt.png`, `android-dev-fallback-location.png` e `android-dev-fallback-match.png`.
+O seletor `@PICK` foi usado e o time efetivo foi `@C10`, `@PR`, `@M`, `@GEO`, `@S`, `@GSD` e `@V`. Historicamente houve fallback local de desenvolvimento para contornar instabilidade do AVD/Expo Go, mas ele foi removido em 2026-06-05 por risco de match sem localizacao real. A regra atual e: toda busca chama o provider nativo e, se permissao ou coordenada real falharem, o match fica bloqueado. `npm run harness` e `npm run smoke:runtime` seguem obrigatorios; smoke visual Android deve validar permissao concedida, permissao negada e provider indisponivel sem retorno de advogado.
 
 ## Resultado Da Permissao Negada Android
 

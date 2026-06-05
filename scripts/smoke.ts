@@ -84,11 +84,15 @@ if (
 }
 
 if (
-  !appConfig.includes("EXPO_PUBLIC_ENABLE_DEV_LOCATION_FALLBACK") ||
-  !locationService.includes("EXPO_PUBLIC_ENABLE_DEV_LOCATION_FALLBACK") ||
-  !locationService.includes('source: "devFallback"')
+  /EXPO_PUBLIC_ENABLE_DEV_LOCATION_FALLBACK|enableDevLocationFallback|devFallback/.test(
+    `${appConfig}\n${appJson}\n${locationService}`
+  )
 ) {
-  throw new Error("Smoke mobile falhou. Fallback local de desenvolvimento nao esta explicitamente flagado.");
+  throw new Error("Smoke mobile falhou. Fallback sintetico de localizacao nao pode existir no app.");
+}
+
+if (!home.includes("Obtendo sua localizacao atual") || home.includes("let activeLocation = location")) {
+  throw new Error("Smoke mobile falhou. Match deve solicitar localizacao real atual a cada busca.");
 }
 
 if (
