@@ -3,6 +3,7 @@
 **Ultima atualizacao:** 2026-06-05
 **Veredito:** MOBILE_MATCH_EXIGE_LOCALIZACAO_REAL_PUBLICADO_APK_OK
 
+- [x] Primeiro acesso do advogado implementado localmente: `GET /v1/me` agora pode retornar `mustChangePassword` e `firstLoginCompletedAt`; quando `mustChangePassword=true`, o app mostra somente tela de troca de senha e chama `POST /v1/auth/change-password` antes de liberar dashboard/beneficios/perfil do advogado. Gate local: `npm run harness` exit 0 (14 testes e smoke). Pendente: novo build/publicacao quando backend/migration 0007 forem publicados.
 - [x] Hotfix GEO publicado no commit `0e8573a`: removido fallback sintetico `EXPO_PUBLIC_ENABLE_DEV_LOCATION_FALLBACK` de codigo/config/build e removido cache de coordenada na Home. O match agora solicita localizacao real atual em toda busca e bloqueia `POST /v1/match` quando permissao for negada ou o provider nativo nao retornar coordenada. Gates: `npm run typecheck`, `npx vitest run tests/contracts.test.ts`, `npm run smoke`, `npm run harness` e `smoke:runtime` contra Railway passaram. EAS preview APK `2b975370-3e5c-4c8a-bbb1-d7e1af9016a1`, link `https://expo.dev/artifacts/eas/6ocNby5vG9adJtqKrioSTK.apk`, SHA-256 `442A89E200816A8D5E18495EDC8A87D4E90972D31AFA42946456DF3BF47219B0`; APK extraido sem strings de fallback e instalado/aberto no AVD `Pixel_9`.
 
 **Ultima atualizacao:** 2026-06-04

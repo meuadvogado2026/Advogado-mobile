@@ -1,6 +1,7 @@
 export const apiContracts = {
   health: "/health",
   clientSignup: "/v1/auth/signup-client",
+  changePassword: "/v1/auth/change-password",
   me: "/v1/me",
   areas: "/v1/areas",
   match: "/v1/match",

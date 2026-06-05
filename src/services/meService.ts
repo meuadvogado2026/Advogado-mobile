@@ -7,6 +7,8 @@ export type CurrentUser = {
   id: string;
   email?: string;
   role: CurrentUserRole;
+  mustChangePassword?: boolean;
+  firstLoginCompletedAt?: string | null;
 };
 
 export type CurrentUserResponse = {
@@ -15,7 +17,12 @@ export type CurrentUserResponse = {
 
 export function createMeService(apiClient = createApiClient()) {
   return {
-    getCurrentUser: () => apiClient.request<CurrentUserResponse>(apiContracts.me)
+    getCurrentUser: () => apiClient.request<CurrentUserResponse>(apiContracts.me),
+    changePassword: (newPassword: string) =>
+      apiClient.request<CurrentUserResponse>(apiContracts.changePassword, {
+        method: "POST",
+        body: JSON.stringify({ newPassword })
+      })
   };
 }
 

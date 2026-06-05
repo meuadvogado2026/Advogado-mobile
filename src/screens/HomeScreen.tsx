@@ -600,6 +600,8 @@ export function HomeScreen({ navigation }: Props) {
   const [signupName, setSignupName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [newPasswordConfirm, setNewPasswordConfirm] = useState("");
   const [areas, setAreas] = useState<LegalArea[]>([]);
   const [selectedAreaIds, setSelectedAreaIds] = useState<string[]>([]);
   const [areaSearch, setAreaSearch] = useState("");
@@ -633,7 +635,13 @@ export function HomeScreen({ navigation }: Props) {
     const response = await me.getCurrentUser();
     setCurrentUser(response.user);
     setSession(restoredSession);
-    setMessage(response.user.role === "lawyer" ? "Painel do advogado carregado." : "Sessao restaurada.");
+    setMessage(
+      response.user.mustChangePassword
+        ? "Troque sua senha para liberar o painel."
+        : response.user.role === "lawyer"
+          ? "Painel do advogado carregado."
+          : "Sessao restaurada."
+    );
   }
 
   useEffect(() => {
@@ -662,7 +670,7 @@ export function HomeScreen({ navigation }: Props) {
   }, []);
 
   useEffect(() => {
-    if (!session || (currentUser?.role !== "client" && currentUser?.role !== "lawyer")) {
+    if (!session || currentUser?.mustChangePassword || (currentUser?.role !== "client" && currentUser?.role !== "lawyer")) {
       return;
     }
 
@@ -708,7 +716,7 @@ export function HomeScreen({ navigation }: Props) {
   }, [session, currentUser, partnerLogos]);
 
   useEffect(() => {
-    if (!session || currentUser?.role !== "lawyer") {
+    if (!session || currentUser?.mustChangePassword || currentUser?.role !== "lawyer") {
       return;
     }
 
@@ -782,9 +790,38 @@ export function HomeScreen({ navigation }: Props) {
     setMatch(null);
     setLawyerDashboard(null);
     setLawyerProfile(null);
+    setNewPassword("");
+    setNewPasswordConfirm("");
     setClientTab("home");
     setLawyerTab("home");
     setMessage("Sessao encerrada.");
+  }
+
+  async function handleChangePassword() {
+    if (newPassword.length < 8) {
+      setStatus("error");
+      setMessage("Use uma senha com pelo menos 8 caracteres.");
+      return;
+    }
+    if (newPassword !== newPasswordConfirm) {
+      setStatus("error");
+      setMessage("As senhas nao conferem.");
+      return;
+    }
+
+    setStatus("loading");
+    setMessage("Atualizando senha com seguranca.");
+    try {
+      const response = await me.changePassword(newPassword);
+      setCurrentUser(response.user);
+      setNewPassword("");
+      setNewPasswordConfirm("");
+      setStatus("idle");
+      setMessage("Senha atualizada. Painel liberado.");
+    } catch (error) {
+      setStatus("error");
+      setMessage(getFriendlyError(error));
+    }
   }
 
   async function handleLoadAreas() {
@@ -962,6 +999,58 @@ export function HomeScreen({ navigation }: Props) {
 
           <StatusBox status={status} message={message} />
           <LegalLinks />
+        </ScrollView>
+      </SafeAreaView>
+    );
+  }
+
+  if (currentUser.mustChangePassword) {
+    return (
+      <SafeAreaView style={styles.safeArea}>
+        <ScrollView contentContainerStyle={styles.loginContainer} keyboardShouldPersistTaps="handled">
+          <View style={styles.loginHeader}>
+            <Image accessibilityIgnoresInvertColors source={logo} style={styles.loginLogo} />
+            <Text style={styles.subtitle}>Primeiro acesso do advogado</Text>
+          </View>
+
+          <View style={styles.loginPanel}>
+            <Text style={styles.loginTitle}>Definir nova senha</Text>
+            <TextInput
+              onChangeText={setNewPassword}
+              placeholder="nova senha"
+              placeholderTextColor={colors.textMuted}
+              secureTextEntry
+              style={styles.input}
+              value={newPassword}
+            />
+            <TextInput
+              onChangeText={setNewPasswordConfirm}
+              placeholder="confirmar senha"
+              placeholderTextColor={colors.textMuted}
+              secureTextEntry
+              style={styles.input}
+              value={newPasswordConfirm}
+            />
+            <TouchableOpacity
+              disabled={status === "loading"}
+              style={[styles.primaryButton, status === "loading" && styles.disabledButton]}
+              accessibilityRole="button"
+              onPress={handleChangePassword}
+            >
+              <AppIcon color={colors.surfaceDeep} name="shield-checkmark-outline" size={18} />
+              <Text style={styles.primaryButtonText}>Atualizar senha</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              disabled={status === "loading"}
+              style={styles.authModeButton}
+              accessibilityRole="button"
+              onPress={handleSignOut}
+            >
+              <Text style={styles.authModeButtonText}>Sair</Text>
+            </TouchableOpacity>
+          </View>
+
+          <StatusBox status={status} message={message} />
         </ScrollView>
       </SafeAreaView>
     );

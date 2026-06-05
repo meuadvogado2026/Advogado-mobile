@@ -9,6 +9,8 @@ O mobile usa o backend para cadastro de cliente e Supabase Auth REST apenas para
 login/sessao:
 
 - `POST /v1/auth/signup-client`
+- `POST /v1/auth/change-password`
+- `GET /v1/me`
 - `POST {SUPABASE_URL}/auth/v1/token?grant_type=password`
 
 Dados de dominio nao acessam Supabase diretamente.
@@ -29,6 +31,19 @@ Response:
 
 O app nao recebe senha/token nessa resposta; apos criar, usa o login Supabase Auth REST
 existente para iniciar sessao.
+
+### Primeiro acesso do advogado
+
+Advogados sao cadastrados pelo admin e recebem convite Auth pelo backend. Apos login,
+`GET /v1/me` pode retornar:
+
+```json
+{ "user": { "role": "lawyer", "mustChangePassword": true, "firstLoginCompletedAt": null } }
+```
+
+Quando `mustChangePassword=true`, o app mostra somente a tela de troca de senha e chama
+`POST /v1/auth/change-password` com `{ "newPassword": "..." }`. Dashboard, beneficios
+e perfil do advogado ficam bloqueados ate a resposta confirmar `mustChangePassword=false`.
 
 ## Catalogo
 
