@@ -457,11 +457,22 @@ Gates:
 - `npm run harness`; exit code 0.
 - `npm run smoke:runtime` contra Railway; exit code 0; `OK_COM_RESSALVAS`,
   Auth real redigido, 6 areas, match `matched` e perfil seguro.
+- `npx eas build --platform android --profile preview --non-interactive`;
+  exit code 0; build `b478e26d-fc92-44b6-95bd-4128ec1d76e9`.
+
+Artefato:
+
+- Link direto: `https://expo.dev/artifacts/eas/ohym3qbnEuZkWgxkRvTqUr.apk`.
+- Arquivo local: `harness-results/icons-svg-preview-e2248a3-b478e26d.apk`.
+- SHA-256: `C6E5B88516979FA55827DF25B12A687D4CC690A8A125CA5D9AA7E290F80D16A1`.
+- Evidencias standalone seguras: `icons-svg-launcher-app-icon.png`,
+  `icons-svg-login-safe.png` e `icons-svg-reopen.png`.
 
 Ressalvas:
 
-- Nenhum device Android estava bootado/conectado para smoke visual local.
-- EAS preview APK, instalacao standalone, screenshots seguros, link e SHA-256
-  ficam como etapa obrigatoria antes de fechar release preview.
+- Screenshots autenticados de Home cliente, Home advogado, Beneficios e Perfil
+  no APK ficaram pendentes porque o AVD nao tinha ADB Keyboard e a entrada
+  segura por coordenadas fechava o app. O fluxo autenticado passou no
+  `smoke:runtime`.
 - Play Store ainda precisa de aprovacao humana de margem do icone, feature
   graphic, screenshots, icone monocromatico se adotado e Data Safety.
