@@ -45,6 +45,10 @@ const legalUrls = {
 };
 const URGENT_LAWYER_WHATSAPP = "5561993574056";
 
+function hasReliableDistance(match: MatchResponse | null): boolean {
+  return Boolean(match && match.distanceReliable !== false && typeof match.distanceKm === "number");
+}
+
 function describeMatch(match: MatchResponse | null): string {
   if (!match) {
     return "Selecione uma area, permita a localizacao e toque em Buscar match.";
@@ -55,7 +59,10 @@ function describeMatch(match: MatchResponse | null): string {
   const place = match.lawyer.city
     ? ` em ${match.lawyer.city}${match.lawyer.state ? "/" + match.lawyer.state : ""}`
     : "";
-  const distance = typeof match.distanceKm === "number" ? ` a ${match.distanceKm.toFixed(1)} km de voce` : "";
+  if (!hasReliableDistance(match)) {
+    return match.distanceNotice ?? `Advogado mais proximo${place}. Localizacao do advogado em confirmacao.`;
+  }
+  const distance = ` a ${match.distanceKm!.toFixed(1)} km de voce`;
   return `Advogado mais proximo${place}${distance}.`;
 }
 
@@ -284,7 +291,7 @@ function MatchCard({
             <Text style={styles.matchMeta}>
               {match.lawyer.city}
               {match.lawyer.state ? `/${match.lawyer.state}` : ""}
-              {typeof match.distanceKm === "number" ? ` - ${match.distanceKm.toFixed(1)} km` : ""}
+              {hasReliableDistance(match) ? ` - ${match.distanceKm!.toFixed(1)} km` : " - localizacao em confirmacao"}
             </Text>
           </View>
         ) : null}
@@ -926,7 +933,7 @@ export function HomeScreen({ navigation }: Props) {
     if (!match?.lawyer) return;
     navigation.navigate("LawyerProfile", {
       lawyerId: match.lawyer.id,
-      distanceKm: match.distanceKm
+      distanceKm: hasReliableDistance(match) ? match.distanceKm : undefined
     });
   }
 

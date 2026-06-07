@@ -91,6 +91,10 @@ if (
   throw new Error("Smoke mobile falhou. Fallback sintetico de localizacao nao pode existir no app.");
 }
 
+if (!locationService.includes("Location.Accuracy.High") || locationService.includes("Location.Accuracy.Balanced")) {
+  throw new Error("Smoke mobile falhou. Match deve solicitar localizacao de alta precisao, nao Balanced.");
+}
+
 if (!home.includes("Obtendo sua localizacao atual") || home.includes("let activeLocation = location")) {
   throw new Error("Smoke mobile falhou. Match deve solicitar localizacao real atual a cada busca.");
 }

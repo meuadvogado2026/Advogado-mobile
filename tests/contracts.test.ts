@@ -23,7 +23,8 @@ vi.mock("expo-location", () => ({
     GRANTED: "granted"
   },
   Accuracy: {
-    Balanced: 3
+    Balanced: 3,
+    High: 5
   },
   requestForegroundPermissionsAsync: locationMock.requestForegroundPermissionsAsync,
   getCurrentPositionAsync: locationMock.getCurrentPositionAsync
@@ -199,6 +200,8 @@ describe("mobile foundation contracts", () => {
               avatarUrl: "https://cdn.example.test/ana-avatar.jpg",
               coverUrl: "https://cdn.example.test/ana-cover.jpg"
             },
+            distanceReliable: false,
+            distanceNotice: "Localizacao do advogado em confirmacao.",
             status: "matched"
           }),
           { status: 200 }
@@ -214,6 +217,8 @@ describe("mobile foundation contracts", () => {
         avatarUrl: "https://cdn.example.test/ana-avatar.jpg",
         coverUrl: "https://cdn.example.test/ana-cover.jpg"
       },
+      distanceReliable: false,
+      distanceNotice: "Localizacao do advogado em confirmacao.",
       status: "matched"
     });
   });
@@ -389,6 +394,7 @@ describe("mobile foundation contracts", () => {
       status: "granted",
       location: { lat: -23.55, lng: -46.63, accuracyM: 50, source: "device" }
     });
+    expect(locationMock.getCurrentPositionAsync).toHaveBeenCalledWith({ accuracy: 5 });
   });
 
   it("keeps match blocked when location is unavailable and fallback is off", async () => {

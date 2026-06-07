@@ -21,6 +21,8 @@ export type MatchResponse = {
   };
   // distanceKm vem no nivel raiz da resposta do backend (irmao de lawyer).
   distanceKm?: number;
+  distanceReliable?: boolean;
+  distanceNotice?: string;
   status: "stub" | "matched" | "empty";
   algorithmVersion?: string;
   message?: string;

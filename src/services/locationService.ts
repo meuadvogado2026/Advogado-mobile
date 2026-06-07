@@ -20,7 +20,7 @@ export async function requestDeviceLocation(): Promise<LocationResult> {
 
   try {
     const position = await Location.getCurrentPositionAsync({
-      accuracy: Location.Accuracy.Balanced
+      accuracy: Location.Accuracy.High
     });
 
     return {
