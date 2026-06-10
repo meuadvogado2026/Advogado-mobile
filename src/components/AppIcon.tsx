@@ -29,6 +29,7 @@ export type AppIconName =
   | "person-add-outline"
   | "person-outline"
   | "refresh-outline"
+  | "receipt-outline"
   | "ribbon-outline"
   | "scale-outline"
   | "search-outline"
@@ -233,6 +234,14 @@ const iconRenderers: Record<AppIconName, IconRenderer> = {
       <Polyline points="4 3.8 4 8 8.2 8" {...lineProps(props)} />
       <Path d="M4 13a8 8 0 0 0 14.3 4.9L20 16" {...lineProps(props)} />
       <Polyline points="20 20.2 20 16 15.8 16" {...lineProps(props)} />
+    </>
+  ),
+  "receipt-outline": (props) => (
+    <>
+      <Path d="M6 3.5 8 5l2-1.5L12 5l2-1.5L16 5l2-1.5V21l-2-1.5-2 1.5-2-1.5-2 1.5-2-1.5L6 21V3.5Z" {...lineProps(props)} />
+      <Line x1="9" y1="9" x2="15" y2="9" {...lineProps(props)} />
+      <Line x1="9" y1="13" x2="15" y2="13" {...lineProps(props)} />
+      <Line x1="9" y1="17" x2="13" y2="17" {...lineProps(props)} />
     </>
   ),
   "ribbon-outline": (props) => (

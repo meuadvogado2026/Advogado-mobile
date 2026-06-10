@@ -102,7 +102,7 @@ export function LawyerProfileScreen({ navigation, route }: Props) {
   const socialLinks = profile ? getSocialLinks(profile) : [];
   const place = [profile?.city, profile?.state].filter(Boolean).join(", ");
   const distance =
-    typeof route.params.distanceKm === "number" ? `A ${route.params.distanceKm.toFixed(1)} km de voce` : null;
+    typeof route.params.distanceKm === "number" ? `A ${route.params.distanceKm.toFixed(1)} km de você` : null;
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -127,13 +127,13 @@ export function LawyerProfileScreen({ navigation, route }: Props) {
 
         {status === "error" ? (
           <View style={styles.statePanel}>
-            <Text style={styles.panelText}>Nao foi possivel carregar o perfil agora. Tente novamente.</Text>
+            <Text style={styles.panelText}>Não foi possível carregar o perfil agora. Tente novamente.</Text>
           </View>
         ) : null}
 
         {status === "unavailable" ? (
           <View style={styles.statePanel}>
-            <Text style={styles.panelText}>Este perfil nao esta disponivel no momento. Busque outro advogado.</Text>
+            <Text style={styles.panelText}>Este perfil não está disponível no momento. Busque outro advogado.</Text>
           </View>
         ) : null}
 
@@ -151,6 +151,7 @@ export function LawyerProfileScreen({ navigation, route }: Props) {
             </View>
 
             <View style={styles.identitySection}>
+              <Text style={styles.profileIntro}>Aqui estão os advogados mais próximos da sua localização</Text>
               <View style={styles.identityHeader}>
                 <View style={styles.avatarFrame}>
                   {avatarUrl ? (
@@ -211,7 +212,7 @@ export function LawyerProfileScreen({ navigation, route }: Props) {
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Sobre o Profissional</Text>
               <Text style={styles.bioText}>
-                {profile.fullBio ?? profile.miniBio ?? "Este profissional ainda nao publicou uma bio completa."}
+                {profile.fullBio ?? profile.miniBio ?? "Este profissional ainda não publicou uma bio completa."}
               </Text>
             </View>
 
@@ -236,7 +237,7 @@ export function LawyerProfileScreen({ navigation, route }: Props) {
             ) : null}
 
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Areas de Atuacao</Text>
+              <Text style={styles.sectionTitle}>Áreas de Atuação</Text>
               <View style={styles.areaList}>
                 {profile.areas.map((area) => (
                   <View key={area.id} style={styles.areaCard}>
@@ -270,7 +271,7 @@ export function LawyerProfileScreen({ navigation, route }: Props) {
             </TouchableOpacity>
           ) : (
             <View style={styles.unavailableContact}>
-              <Text style={styles.panelText}>WhatsApp indisponivel para este profissional.</Text>
+              <Text style={styles.panelText}>WhatsApp indisponível para este profissional.</Text>
             </View>
           )}
         </View>
@@ -354,6 +355,12 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
     marginTop: -32,
     padding: spacing.md
+  },
+  profileIntro: {
+    color: colors.textPrimary,
+    fontSize: 16,
+    fontWeight: "800",
+    lineHeight: 23
   },
   identityHeader: {
     alignItems: "flex-start",

@@ -4,7 +4,10 @@ export const apiContracts = {
   changePassword: "/v1/auth/change-password",
   me: "/v1/me",
   areas: "/v1/areas",
+  states: "/v1/states",
+  stateCities: "/v1/states/:stateId/cities",
   match: "/v1/match",
+  matchByCity: "/v1/match/by-city",
   lawyerProfile: "/v1/lawyers/:id",
   lawyerDashboard: "/v1/lawyer/me/dashboard",
   prayerRequests: "/v1/prayer-requests",
@@ -14,8 +17,8 @@ export const apiContracts = {
 } as const;
 
 export const appCopy = {
-  brand: "ADVOGADO 2.0",
-  subtitle: "A justica ao alcance de um toque",
+  brand: "Meu Advogado 2.0",
+  subtitle: "A justiça ao alcance de um toque",
   location:
-    "Sua localizacao e usada somente no momento da busca para indicar um advogado proximo. Voce pode negar e tentar novamente depois."
+    "Sua localização é usada somente no momento da busca para indicar um advogado próximo. Você pode negar e tentar novamente depois."
 } as const;

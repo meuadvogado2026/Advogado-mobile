@@ -28,10 +28,34 @@ export type MatchResponse = {
   message?: string;
 };
 
+export type CityMatchRequest = {
+  stateId: string;
+  cityId: string;
+  areaIds: string[];
+  page: number;
+  pageSize: 5;
+};
+
+export type CityMatchLawyer = NonNullable<MatchResponse["lawyer"]> & {
+  distanceFromCityCenterKm: number;
+};
+
+export type CityMatchResponse = {
+  status: "matched" | "empty";
+  lawyers: CityMatchLawyer[];
+  pagination: { page: number; pageSize: 5; total: number; totalPages: number };
+  algorithmVersion: "city-nearest-v1";
+};
+
 export function createMatchService(apiClient = createApiClient()) {
   return {
     requestMatch: (payload: MatchRequest) =>
       apiClient.request<MatchResponse>(apiContracts.match, {
+        method: "POST",
+        body: JSON.stringify(payload)
+      }),
+    requestCityMatch: (payload: CityMatchRequest) =>
+      apiClient.request<CityMatchResponse>(apiContracts.matchByCity, {
         method: "POST",
         body: JSON.stringify(payload)
       })

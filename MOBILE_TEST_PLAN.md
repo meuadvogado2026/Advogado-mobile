@@ -1,5 +1,11 @@
 # Mobile Test Plan - Meu Advogado 2.0
 
+## Spec 012
+
+- Modo cidade nao chama Expo Location nem envia coordenadas.
+- Selecao dependente, vazio sem fallback, pagina de 5 e abertura do perfil existente.
+- Regressao GPS e smoke visual Android/cross-stack.
+
 ## Harness Obrigatorio
 
 Comando principal:
@@ -46,6 +52,22 @@ Registrar:
 - resultado;
 - lacunas;
 - screenshot quando visual.
+
+## Resultado Da Spec 011
+
+Em 2026-06-10, a Spec 011 alterou a Home cliente para remover busca textual e card de advogado indicado, criar hub de especialidades ao redor do botao de match, usar `assets/logo-gold.png` como logo visual interna, navegar direto para `LawyerProfile` quando o match retorna advogado e reorganizar o painel advogado com menus `Home`, `Oracao`, `Perfil`.
+
+Evidencias:
+
+- `npm run typecheck`: exit code 0.
+- `npm run test -- --run tests/contracts.test.ts`: exit code 0, 14 testes.
+- `npm run smoke`: exit code 0, validando a nova UX estrutural.
+- `npm run harness`: exit code 0.
+- `npm run smoke:runtime` com `EXPO_PUBLIC_API_BASE_URL=https://advogado-back-production.up.railway.app` e `EXPO_PUBLIC_*` carregadas da `.env` raiz sem imprimir segredo: exit code 0, `OK_COM_RESSALVAS`, 6 areas, login real redigido, match `matched` e perfil seguro.
+- `git diff --check`: exit code 0.
+- Smoke visual Android parcial no AVD `Pixel_9` com Expo Go/Metro local: login renderizou com nova logo; Home cliente renderizou saudacao, hub de especialidades, sem busca textual, sem card de advogado, sem parceiros; `Advogado urgente` mostrou exemplos curtos; pedido de oracao mostrou copy segura sem o texto antigo.
+
+Lacuna: o CTA de match apareceu habilitado no XML do AVD, mas o toque ADB no botao central e no CTA `Buscar match agora` nao comprovou a navegacao visual para `LawyerProfile`. O runtime smoke confirmou match `matched` e perfil seguro via backend. O proximo gate visual deve repetir em device fisico ou AVD limpo: login, Home cliente, toque no match, perfil com frase de proximidade e painel advogado com `Home -> Oracao -> Perfil`, sem capturar senha/token/telefone/coordenada/texto de oracao.
 
 ## Resultado Da Fundacao
 

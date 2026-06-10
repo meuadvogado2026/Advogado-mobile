@@ -4,6 +4,7 @@ import { createApiClient } from "../src/services/apiClient";
 import { createAuthService } from "../src/services/authService";
 import { createAreasService } from "../src/services/areasService";
 import { createClientSignupService } from "../src/services/clientSignupService";
+import { createGeographyService } from "../src/services/geographyService";
 import { requestDeviceLocation } from "../src/services/locationService";
 import { createLawyerDashboardService } from "../src/services/lawyerDashboardService";
 import { createLawyerProfileService } from "../src/services/lawyerProfileService";
@@ -60,6 +61,8 @@ describe("mobile foundation contracts", () => {
 
   it("uses backend API contracts instead of Supabase direct access", () => {
     expect(apiContracts.match).toBe("/v1/match");
+    expect(apiContracts.matchByCity).toBe("/v1/match/by-city");
+    expect(apiContracts.states).toBe("/v1/states");
     expect(apiContracts.clientSignup).toBe("/v1/auth/signup-client");
     expect(apiContracts.me).toBe("/v1/me");
     expect(apiContracts.lawyerDashboard).toBe("/v1/lawyer/me/dashboard");
@@ -69,8 +72,8 @@ describe("mobile foundation contracts", () => {
   });
 
   it("explains location before the native permission flow is implemented", () => {
-    expect(appCopy.location).toContain("localizacao");
-    expect(appCopy.location).toContain("Voce pode negar");
+    expect(appCopy.location).toContain("localização");
+    expect(appCopy.location).toContain("Você pode negar");
   });
 
   it("stores only the returned session after controlled Supabase Auth login", async () => {
@@ -163,14 +166,16 @@ describe("mobile foundation contracts", () => {
         expect(String(url)).toBe("http://127.0.0.1:3333/v1/me");
         expect(headers.get("Authorization")).toBe("Bearer jwt-redacted");
         return new Response(
-          JSON.stringify({ user: { id: "lawyer-user", email: "advogado@advogado20.com", role: "lawyer" } }),
+          JSON.stringify({
+            user: { id: "lawyer-user", name: "Dra. Teste", email: "advogado@advogado20.com", role: "lawyer" }
+          }),
           { status: 200 }
         );
       }) as typeof fetch
     });
 
     await expect(createMeService(api).getCurrentUser()).resolves.toEqual({
-      user: { id: "lawyer-user", email: "advogado@advogado20.com", role: "lawyer" }
+      user: { id: "lawyer-user", name: "Dra. Teste", email: "advogado@advogado20.com", role: "lawyer" }
     });
   });
 
@@ -221,6 +226,40 @@ describe("mobile foundation contracts", () => {
       distanceNotice: "Localizacao do advogado em confirmacao.",
       status: "matched"
     });
+  });
+
+  it("loads dependent cities and searches by city without coordinates", async () => {
+    const calls: Array<{ url: string; body?: unknown }> = [];
+    const api = createApiClient({
+      config: publicTestConfig,
+      getSession: async () => ({ accessToken: "jwt-redacted", email: "usuario@advogado20.com" }),
+      fetchImpl: (async (url, init) => {
+        calls.push({ url: String(url), body: init?.body ? JSON.parse(String(init.body)) : undefined });
+        if (String(url).endsWith("/v1/states")) {
+          return new Response(JSON.stringify({ states: [{ id: "state-df", code: "DF", name: "Distrito Federal", active: true }] }), { status: 200 });
+        }
+        if (String(url).includes("/v1/states/state-df/cities")) {
+          return new Response(JSON.stringify({ cities: [{ id: "city-bsb", stateId: "state-df", name: "Brasilia", active: true }] }), { status: 200 });
+        }
+        return new Response(JSON.stringify({
+          status: "matched",
+          lawyers: [{ id: "lawyer-1", name: "Dra. Cidade", areaIds: ["civil"], distanceFromCityCenterKm: 2.1 }],
+          pagination: { page: 1, pageSize: 5, total: 1, totalPages: 1 },
+          algorithmVersion: "city-nearest-v1"
+        }), { status: 200 });
+      }) as typeof fetch
+    });
+
+    await createGeographyService(api).listStates();
+    await createGeographyService(api).listCities("state-df");
+    await createMatchService(api).requestCityMatch({ stateId: "state-df", cityId: "city-bsb", areaIds: ["civil"], page: 1, pageSize: 5 });
+
+    expect(calls[2]).toEqual({
+      url: "http://127.0.0.1:3333/v1/match/by-city",
+      body: { stateId: "state-df", cityId: "city-bsb", areaIds: ["civil"], page: 1, pageSize: 5 }
+    });
+    expect(calls[2]?.body).not.toHaveProperty("lat");
+    expect(locationMock.getCurrentPositionAsync).not.toHaveBeenCalled();
   });
 
   it("loads public partner logos through the backend API", async () => {

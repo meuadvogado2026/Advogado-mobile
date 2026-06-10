@@ -77,7 +77,7 @@ if (!home.includes("authService.signIn") || !home.includes("requestDeviceLocatio
 if (
   !clientSignupService.includes("apiContracts.clientSignup") ||
   !home.includes("handleSignUp") ||
-  !home.includes("Criar novo usuario") ||
+  !home.includes("Criar novo usuário") ||
   !home.includes("clientSignups.create")
 ) {
   throw new Error("Smoke mobile falhou. Opcao de cadastro cliente nao esta conectada ao backend.");
@@ -95,7 +95,7 @@ if (!locationService.includes("Location.Accuracy.High") || locationService.inclu
   throw new Error("Smoke mobile falhou. Match deve solicitar localizacao de alta precisao, nao Balanced.");
 }
 
-if (!home.includes("Obtendo sua localizacao atual") || home.includes("let activeLocation = location")) {
+if (!home.includes("Obtendo sua localização atual") || home.includes("let activeLocation = location")) {
   throw new Error("Smoke mobile falhou. Match deve solicitar localizacao real atual a cada busca.");
 }
 
@@ -113,11 +113,11 @@ if (
   !appJson.includes('"assets/**/*"') ||
   app.includes("fontFallbackReady") ||
   !app.includes("LawyerProfile") ||
-  !home.includes("openMatchedProfile") ||
   !home.includes('navigate("LawyerProfile"') ||
+  !home.includes("Advogado encontrado. Abrindo perfil.") ||
   !lawyerProfile.includes("Carregando perfil profissional.") ||
-  !lawyerProfile.includes("Este perfil nao esta disponivel no momento. Busque outro advogado.") ||
-  !lawyerProfile.includes("WhatsApp indisponivel para este profissional.") ||
+  !lawyerProfile.includes("Este perfil não está disponível no momento. Busque outro advogado.") ||
+  !lawyerProfile.includes("WhatsApp indisponível para este profissional.") ||
   !lawyerProfile.includes("WhatsApp VIP")
 ) {
   throw new Error("Smoke mobile falhou. Fluxo Home -> LawyerProfile -> WhatsApp ou estados seguros ausentes.");
@@ -151,6 +151,7 @@ if (
 
 if (
   !existsSync("assets/logo-blue.png") ||
+  !existsSync("assets/logo-gold.png") ||
   !existsSync("assets/logo-white.png") ||
   parsedAppJson.expo.icon !== "./assets/logo-blue.png" ||
   parsedAppJson.expo.splash?.image !== "./assets/logo-blue.png" ||
@@ -172,6 +173,7 @@ if (
 if (
   !home.includes("PageLogo") ||
   !home.includes("pageLogo") ||
+  !home.includes("logo-gold.png") ||
   home.includes("<ShellHeader") ||
   home.includes("shellHeader") ||
   home.includes("brandTitle") ||
@@ -180,22 +182,34 @@ if (
   home.includes("locationBanner") ||
   !home.includes("BottomNavigation") ||
   !home.includes('label: "Home"') ||
-  !home.includes('label: "Beneficios"') ||
+  !home.includes('label: "Oração"') ||
   !home.includes('label: "Perfil"') ||
+  home.includes('label: "Beneficios"') ||
   home.includes('label: "Cartao"') ||
   home.includes('label: "Conta"') ||
-  home.includes('label: "Oracao"') ||
   home.includes('label: "Buscar"') ||
   home.includes("scrollTo") ||
-  !home.includes("Buscar por area ou problema juridico") ||
-  !home.includes("AreaCarousel") ||
-  !home.includes("areaIconBadge") ||
+  home.includes("Buscar por area ou problema juridico") ||
+  home.includes("searchBar") ||
+  home.includes("AreaCarousel") ||
+  !home.includes("SpecialtyMatchOrbit") ||
+  !home.includes("orbitMatchButton") ||
+  !home.includes("orbitSpecialty") ||
+  home.includes("MatchActionButton") ||
+  home.includes("Atualizar perfil") ||
+  home.includes("Atualizar painel") ||
+  home.includes("Atualizar areas") ||
+  home.includes("Atualizar áreas") ||
+  home.includes("Sessao restaurada") ||
+  home.includes("Sessão restaurada") ||
+  home.includes("Painel do advogado atualizado") ||
+  !home.includes("Olá, {clientDisplayName}") ||
   !home.includes("stepIconBadge") ||
   !home.includes("bottomIconBadge") ||
   !home.includes("PrayerHomeBlock") ||
   !home.includes("prayer-bible-cross.png")
 ) {
-  throw new Error("Smoke mobile falhou. Shell cliente Home/Perfil, areas horizontais ou oracao na Home nao esta presente.");
+  throw new Error("Smoke mobile falhou. Shell cliente/advogado, hub de areas ou oracao nao esta presente.");
 }
 
 if (/Mensagens|Agenda|Plant[aã]o|Favoritos|avalia[cç][oõ]es|24h/i.test(home)) {
@@ -218,24 +232,32 @@ if (
   !home.includes("createPartnerLogoService") ||
   !home.includes("PartnersFooter") ||
   !home.includes("partnerLogoImage") ||
-  !home.includes("avatarUrl") ||
-  !home.includes("coverUrl") ||
-  !home.includes("lawyerCoverImage") ||
-  !home.includes("matchAvatarImage")
+  !home.includes('currentUser?.role !== "lawyer"') ||
+  home.includes("<PartnersFooter partners={partners} />\n            </>")
 ) {
-  throw new Error("Smoke mobile falhou. Match com foto/capa ou rodape publico de parceiros ausente.");
+  throw new Error("Smoke mobile falhou. Parceiros devem ficar restritos ao painel do advogado.");
 }
 
 if (
   !lawyerDashboardService.includes("apiContracts.lawyerDashboard") ||
   !prayerRequestService.includes("apiContracts.prayerRequests") ||
   !home.includes("handleSubmitPrayer") ||
-  !home.includes("Enviar como anonimo") ||
-  !home.includes("handleLoadLawyerDashboard")
+  !home.includes("Enviar como anônimo") ||
+  !home.includes('tab: "prayer"') ||
+  !home.includes("LawyerVipCard dashboard={lawyerDashboard}")
 ) {
   throw new Error("Smoke mobile falhou. Parte 3 nao esta conectada aos contratos backend.");
 }
 
+if (
+  home.includes("Advogado indicado") ||
+  home.includes("function MatchCard") ||
+  !home.includes('navigation.navigate("LawyerProfile"') ||
+  !home.includes("Advogado encontrado. Abrindo perfil.")
+) {
+  throw new Error("Smoke mobile falhou. Home cliente deve abrir o perfil apos match sem exibir card de advogado indicado.");
+}
+
 console.log(
-  "Smoke mobile OK: Expo entry, Auth, API backend, SecureStore, Location, Match, LawyerProfile, Spec 008 Parte 3, role shell cliente/advogado e links legais existem."
+  "Smoke mobile OK: Expo entry, Auth, API backend, SecureStore, Location, Match direto para LawyerProfile, home por role, oracao e parceiros do advogado existem."
 );

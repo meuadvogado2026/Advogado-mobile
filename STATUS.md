@@ -1,8 +1,17 @@
 # Mobile Status - Meu Advogado 2.0
 
-**Ultima atualizacao:** 2026-06-05
-**Veredito:** MOBILE_MATCH_EXIGE_LOCALIZACAO_REAL_PUBLICADO_APK_OK
+## Spec 012 - 2026-06-10
 
+Busca por cidade, seletores dependentes, listagem paginada e perfil existente
+implementados sem alterar GPS. Harness passou com 15 testes. `smoke:runtime` falhou sem
+device, backend alvo e anon key; estado `QUESTIONAR`.
+
+**Ultima atualizacao:** 2026-06-10
+**Veredito:** SPEC011_LOCAL_OK_COM_RESSALVAS / MOBILE_MATCH_EXIGE_LOCALIZACAO_REAL_PUBLICADO_APK_OK
+
+- [x] Revisao ortografica e limpeza operacional local em 2026-06-10: removidos `Atualizar painel`, `Atualizar areas`, mensagem de painel atualizado e banner de sessao restaurada. Home, login, oracao, perfil profissional, conta e mensagens de erro receberam acentuacao em portugues. AVD confirmou `Olá`, `próximo`, `localização`, `área`, `Família`, `Previdência` e `Tributário`, sem banner restaurado. Gates: typecheck, 14 testes, smoke e harness exit 0.
+- [x] Ajustes pos-Spec 011 locais em 2026-06-10: removido o CTA duplicado `Buscar match agora`; o unico CTA central ficou menor com area de toque preservada; hub usa 8 posicoes alinhadas `3 + 2 + 3`, badges de especialidade ganharam tratamento visual e icone tributario proprio; opcao `Atualizar perfil` removida do painel advogado. Gates: `npm run typecheck`, 14 testes, `npm run smoke`, `npm run harness`, `git diff --check` e `npm run smoke:runtime` contra Railway passaram. AVD confirmou badges/CTA central; Railway ainda retorna 6 areas ate a migration backend `0010` ser publicada.
+- [x] Spec 011 implementada localmente em 2026-06-10: Home cliente recebeu saudacao por nome, logo visual interna `assets/logo-gold.png`, hub de especialidades ao redor do botao `Buscar match`, sem busca textual, sem parceiros e sem card de advogado indicado. Match bem-sucedido navega direto para `LawyerProfile`, que mostra a mensagem de proximidade/localizacao. `Advogado urgente` ganhou exemplos explicitos; pedido de oracao ficou com copy simples e segura. Painel advogado agora usa menus `Home`, `Oracao`, `Perfil`; beneficios e parceiros ficam na Home, e oracao fica no menu proprio. Gates: `npm run typecheck`, teste focado 14 testes, `npm run smoke`, `npm run harness`, `npm run smoke:runtime` contra Railway com env publica redigida e `git diff --check` passaram. Lacuna: nenhum device/emulador Android bootado para smoke visual.
 - [x] APK preview instalavel gerado em 2026-06-05 para uso fora da mesma rede: EAS build Android `72c1a18f-6583-4c68-b93e-b9489b343bb2`, commit `5401d69878ba75990e922c26b909bf5fbd41fff4`, perfil `preview`/APK/internal, link `https://expo.dev/artifacts/eas/faTVgUaV3BwyMvpZE673Ef.apk`, arquivo local `harness-results/meu-advogado-20-preview-72c1a18f.apk`, SHA-256 `62DFFA00083A30575C633D8D57470C864DFBF0D0604A0DCC8CC80EB6F24155CE`, tamanho `66163670` bytes. Gate antes do build: `npm run harness` exit 0.
 - [x] Primeiro acesso do advogado enviado ao GitHub no commit `6e175c4`: `GET /v1/me` agora pode retornar `mustChangePassword` e `firstLoginCompletedAt`; quando `mustChangePassword=true`, o app mostra somente tela de troca de senha e chama `POST /v1/auth/change-password` antes de liberar dashboard/beneficios/perfil do advogado. Gate local: `npm run harness` exit 0 (14 testes e smoke). Build EAS/APK de distribuicao gerado no item acima.
 - [x] Hotfix GEO publicado no commit `0e8573a`: removido fallback sintetico `EXPO_PUBLIC_ENABLE_DEV_LOCATION_FALLBACK` de codigo/config/build e removido cache de coordenada na Home. O match agora solicita localizacao real atual em toda busca e bloqueia `POST /v1/match` quando permissao for negada ou o provider nativo nao retornar coordenada. Gates: `npm run typecheck`, `npx vitest run tests/contracts.test.ts`, `npm run smoke`, `npm run harness` e `smoke:runtime` contra Railway passaram. EAS preview APK `2b975370-3e5c-4c8a-bbb1-d7e1af9016a1`, link `https://expo.dev/artifacts/eas/6ocNby5vG9adJtqKrioSTK.apk`, SHA-256 `442A89E200816A8D5E18495EDC8A87D4E90972D31AFA42946456DF3BF47219B0`; APK extraido sem strings de fallback e instalado/aberto no AVD `Pixel_9`.
@@ -107,6 +116,8 @@
 - [x] Home cliente recebeu CTA vermelho `Advogado urgente` com icone de alerta e abertura externa para WhatsApp `5561993574056`, sem backend/schema novo.
 - [x] UX solicitada em 2026-06-03 implementada localmente: copy `A justica ao alcance de um toque` menor e sem negrito; cadastro cliente na tela de login; logo autenticada maior e rolavel. Gates: mobile `npm run harness` exit 0; backend `npm run harness` exit 0; `npm run smoke:runtime` mobile contra Railway exit 0 (`OK_COM_RESSALVAS`) com login real redigido, 6 areas, match `matched` e perfil seguro.
 - [x] Bloqueio de dependencias de producao da Spec 003 tratado: `npm audit --omit=dev` zerou apos overrides transitivos documentados para `@expo/plist/@xmldom`, `postcss`, `tar` e `uuid`, preservando Expo SDK 52 e sem `npm audit fix --force`.
+- [x] Spec 011 implementada localmente em 2026-06-10: Home cliente removeu busca textual, parceiros e card de advogado indicado; novo hub de especialidades fica ao redor do botao de match; `Buscar match agora` preserva localizacao real e o runtime smoke confirmou match `matched` com perfil seguro; login/Home/painel usam `assets/logo-gold.png`; copy de boas-vindas usa nome quando disponivel; advogado ganhou menus `Home`, `Oracao`, `Perfil`, beneficios no topo e parceiros apenas no painel advogado. Gates: `npm run typecheck`, teste focado, smoke, harness, runtime e `git diff --check` passaram.
+- [ ] Lacuna visual da Spec 011: no AVD `Pixel_9`, login/Home/copy/urgencia/oracao renderizaram corretamente, mas o toque ADB no CTA de match habilitado nao comprovou navegacao visual para `LawyerProfile`. Repetir em device fisico ou AVD limpo antes de fechar como visualmente aprovado.
 
 ## Em Andamento
 
@@ -164,4 +175,7 @@
 
 ## Proximo Passo
 
-Spec 003 nao deve gerar AAB ainda. A parte local esta revalidada, mas o `SPEC003_AAB_INTERNAL_TESTING_BUILD` ainda depende de confirmacao humana objetiva de app `com.advogado20.app`, EAS/keystore, conta de teste, Data Safety/Data deletion, crash reporting adiado, versionCode/versionName e rollback. Spec 008 Parte 3 esta `SPEC008_PARTE3_RETENCAO_ORACAO_PUBLICADA_OK`; Parte 1R continua `SPEC008_CLIENTE_HOME_REPLICACAO_VISUAL_OK` e o polimento visual local fica `SPEC008_PARTE1R_POLIMENTO_VISUAL_MOBILE_OK`. O proximo gate mobile e versionar/publicar o polimento quando aprovado pelo usuario, mantendo AAB e Play Console fora do ciclo.
+Perna mobile do gate Spec 002 passou com conta advogado de teste ativa: login OK,
+`/v1/me role=lawyer`, `mustChangePassword=false` e dashboard `200`. Falta apenas repetir
+apos um convite humano novo com e-mail real valido, se for necessario fechar o fluxo de
+troca de senha. Spec 003 nao deve gerar AAB sem os gates humanos de release.
