@@ -36,7 +36,7 @@ export function LawyerCityResultsScreen({ navigation, route }: Props) {
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}><AppIcon color={colors.textPrimary} name="arrow-back" size={24} /></TouchableOpacity>
-        <View style={styles.headerText}><Text style={styles.title}>Advogados em {route.params.cityName}</Text><Text style={styles.muted}>Ordenados pela proximidade ao centro da cidade</Text></View>
+        <View style={styles.headerText}><Text style={styles.title}>Advogados em {route.params.cityName}</Text><Text style={styles.muted}>Todos os advogados disponiveis nessa cidade e especialidade.</Text></View>
       </View>
       <ScrollView contentContainerStyle={styles.content}>
         {loading ? <ActivityIndicator color={colors.gold} /> : null}
@@ -45,7 +45,7 @@ export function LawyerCityResultsScreen({ navigation, route }: Props) {
         {result?.lawyers.map((lawyer) => (
           <TouchableOpacity key={lawyer.id} onPress={() => navigation.navigate("LawyerProfile", { lawyerId: lawyer.id })} style={styles.card}>
             {lawyer.avatarUrl ? <Image source={{ uri: lawyer.avatarUrl }} style={styles.avatar} /> : <View style={styles.avatar}><Text style={styles.initial}>{lawyer.name.slice(0, 1)}</Text></View>}
-            <View style={styles.cardText}><Text style={styles.name}>{lawyer.name}</Text><Text style={styles.muted}>{lawyer.distanceFromCityCenterKm.toFixed(1)} km do centro</Text></View>
+            <View style={styles.cardText}><Text style={styles.name}>{lawyer.name}</Text><Text style={styles.muted}>Toque para ver o perfil</Text></View>
             <AppIcon color={colors.gold} name="navigate-outline" size={20} />
           </TouchableOpacity>
         ))}

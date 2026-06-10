@@ -2,9 +2,9 @@
 
 ## Spec 012 - 2026-06-10
 
-Busca por cidade, seletores dependentes, listagem paginada e perfil existente
-implementados sem alterar GPS. Harness passou com 15 testes. `smoke:runtime` falhou sem
-device, backend alvo e anon key; estado `QUESTIONAR`.
+Busca por cidade, seletores dependentes, listagem paginada sem distancia e perfil
+existente implementados sem alterar GPS. `algorithmVersion=city-list-v1`. Smoke visual
+Android e build atualizado seguem como gate.
 
 **Ultima atualizacao:** 2026-06-10
 **Veredito:** SPEC011_LOCAL_OK_COM_RESSALVAS / MOBILE_MATCH_EXIGE_LOCALIZACAO_REAL_PUBLICADO_APK_OK

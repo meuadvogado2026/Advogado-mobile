@@ -243,9 +243,9 @@ describe("mobile foundation contracts", () => {
         }
         return new Response(JSON.stringify({
           status: "matched",
-          lawyers: [{ id: "lawyer-1", name: "Dra. Cidade", areaIds: ["civil"], distanceFromCityCenterKm: 2.1 }],
+          lawyers: [{ id: "lawyer-1", name: "Dra. Cidade", areaIds: ["civil"] }],
           pagination: { page: 1, pageSize: 5, total: 1, totalPages: 1 },
-          algorithmVersion: "city-nearest-v1"
+          algorithmVersion: "city-list-v1"
         }), { status: 200 });
       }) as typeof fetch
     });

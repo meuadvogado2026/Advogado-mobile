@@ -36,15 +36,13 @@ export type CityMatchRequest = {
   pageSize: 5;
 };
 
-export type CityMatchLawyer = NonNullable<MatchResponse["lawyer"]> & {
-  distanceFromCityCenterKm: number;
-};
+export type CityMatchLawyer = NonNullable<MatchResponse["lawyer"]>;
 
 export type CityMatchResponse = {
   status: "matched" | "empty";
   lawyers: CityMatchLawyer[];
   pagination: { page: number; pageSize: 5; total: number; totalPages: number };
-  algorithmVersion: "city-nearest-v1";
+  algorithmVersion: "city-list-v1";
 };
 
 export function createMatchService(apiClient = createApiClient()) {

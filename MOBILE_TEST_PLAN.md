@@ -3,7 +3,7 @@
 ## Spec 012
 
 - Modo cidade nao chama Expo Location nem envia coordenadas.
-- Selecao dependente, vazio sem fallback, pagina de 5 e abertura do perfil existente.
+- Selecao dependente, vazio sem fallback, pagina de 5, listagem sem distancia e abertura do perfil existente.
 - Regressao GPS e smoke visual Android/cross-stack.
 
 ## Harness Obrigatorio
