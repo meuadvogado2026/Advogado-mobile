@@ -1,4 +1,4 @@
-# Mobile API Contracts - Meu Advogado 2.0
+# Mobile API Contracts - Advogado 2.0
 
 **Estado:** match e perfil profissional integrados pelo backend Railway
 **Base path esperado:** `/v1`

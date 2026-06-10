@@ -1,4 +1,4 @@
-# Mobile Status - Meu Advogado 2.0
+# Mobile Status - Advogado 2.0
 
 ## Spec 012 - 2026-06-10
 
@@ -21,7 +21,7 @@ Android e build atualizado seguem como gate.
 - [x] Revisao ortografica e limpeza operacional local em 2026-06-10: removidos `Atualizar painel`, `Atualizar areas`, mensagem de painel atualizado e banner de sessao restaurada. Home, login, oracao, perfil profissional, conta e mensagens de erro receberam acentuacao em portugues. AVD confirmou `Olá`, `próximo`, `localização`, `área`, `Família`, `Previdência` e `Tributário`, sem banner restaurado. Gates: typecheck, 14 testes, smoke e harness exit 0.
 - [x] Ajustes pos-Spec 011 locais em 2026-06-10: removido o CTA duplicado `Buscar match agora`; o unico CTA central ficou menor com area de toque preservada; hub usa 8 posicoes alinhadas `3 + 2 + 3`, badges de especialidade ganharam tratamento visual e icone tributario proprio; opcao `Atualizar perfil` removida do painel advogado. Gates: `npm run typecheck`, 14 testes, `npm run smoke`, `npm run harness`, `git diff --check` e `npm run smoke:runtime` contra Railway passaram. AVD confirmou badges/CTA central; Railway ainda retorna 6 areas ate a migration backend `0010` ser publicada.
 - [x] Spec 011 implementada localmente em 2026-06-10: Home cliente recebeu saudacao por nome, logo visual interna `assets/logo-gold.png`, hub de especialidades ao redor do botao `Buscar match`, sem busca textual, sem parceiros e sem card de advogado indicado. Match bem-sucedido navega direto para `LawyerProfile`, que mostra a mensagem de proximidade/localizacao. `Advogado urgente` ganhou exemplos explicitos; pedido de oracao ficou com copy simples e segura. Painel advogado agora usa menus `Home`, `Oracao`, `Perfil`; beneficios e parceiros ficam na Home, e oracao fica no menu proprio. Gates: `npm run typecheck`, teste focado 14 testes, `npm run smoke`, `npm run harness`, `npm run smoke:runtime` contra Railway com env publica redigida e `git diff --check` passaram. Lacuna: nenhum device/emulador Android bootado para smoke visual.
-- [x] APK preview instalavel gerado em 2026-06-05 para uso fora da mesma rede: EAS build Android `72c1a18f-6583-4c68-b93e-b9489b343bb2`, commit `5401d69878ba75990e922c26b909bf5fbd41fff4`, perfil `preview`/APK/internal, link `https://expo.dev/artifacts/eas/faTVgUaV3BwyMvpZE673Ef.apk`, arquivo local `harness-results/meu-advogado-20-preview-72c1a18f.apk`, SHA-256 `62DFFA00083A30575C633D8D57470C864DFBF0D0604A0DCC8CC80EB6F24155CE`, tamanho `66163670` bytes. Gate antes do build: `npm run harness` exit 0.
+- [x] APK preview instalavel gerado em 2026-06-05 para uso fora da mesma rede: EAS build Android `72c1a18f-6583-4c68-b93e-b9489b343bb2`, commit `5401d69878ba75990e922c26b909bf5fbd41fff4`, perfil `preview`/APK/internal, link `https://expo.dev/artifacts/eas/faTVgUaV3BwyMvpZE673Ef.apk`, arquivo local `harness-results/advogado-20-preview-72c1a18f.apk`, SHA-256 `62DFFA00083A30575C633D8D57470C864DFBF0D0604A0DCC8CC80EB6F24155CE`, tamanho `66163670` bytes. Gate antes do build: `npm run harness` exit 0.
 - [x] Primeiro acesso do advogado enviado ao GitHub no commit `6e175c4`: `GET /v1/me` agora pode retornar `mustChangePassword` e `firstLoginCompletedAt`; quando `mustChangePassword=true`, o app mostra somente tela de troca de senha e chama `POST /v1/auth/change-password` antes de liberar dashboard/beneficios/perfil do advogado. Gate local: `npm run harness` exit 0 (14 testes e smoke). Build EAS/APK de distribuicao gerado no item acima.
 - [x] Hotfix GEO publicado no commit `0e8573a`: removido fallback sintetico `EXPO_PUBLIC_ENABLE_DEV_LOCATION_FALLBACK` de codigo/config/build e removido cache de coordenada na Home. O match agora solicita localizacao real atual em toda busca e bloqueia `POST /v1/match` quando permissao for negada ou o provider nativo nao retornar coordenada. Gates: `npm run typecheck`, `npx vitest run tests/contracts.test.ts`, `npm run smoke`, `npm run harness` e `smoke:runtime` contra Railway passaram. EAS preview APK `2b975370-3e5c-4c8a-bbb1-d7e1af9016a1`, link `https://expo.dev/artifacts/eas/6ocNby5vG9adJtqKrioSTK.apk`, SHA-256 `442A89E200816A8D5E18495EDC8A87D4E90972D31AFA42946456DF3BF47219B0`; APK extraido sem strings de fallback e instalado/aberto no AVD `Pixel_9`.
 
@@ -81,7 +81,7 @@ Android e build atualizado seguem como gate.
 - [x] Fallback local dev de localizacao criado com `EXPO_PUBLIC_ENABLE_DEV_LOCATION_FALLBACK=true`, acionado somente apos permissao concedida e falha do provider.
 - [x] Match via UI Android validado visualmente com fallback dev explicito: login real, areas, prompt nativo, botao habilitado e estado vazio/stub.
 - [x] Permissao de localizacao negada revalidada visualmente no Android; app mostra estado claro e mantem `Buscar match` bloqueado.
-- [x] Ambiente mobile passou a ser governado pela `.codex/` unica da raiz; copia local `Meu Advogado 2.0 - mobile/.codex` removida.
+- [x] Ambiente mobile passou a ser governado pela `.codex/` unica da raiz; copia local `Advogado 2.0 - mobile/.codex` removida.
 - [x] `smoke:runtime` corrigido para autenticar antes do `POST /v1/match`; Railway, 6 areas, login real e match autenticado passaram com token redigido.
 - [x] Novo APK preview EAS com UX corrigida gerado: build `4352f306-53b9-4989-8eed-02bd71518dd3`.
 - [x] Links publicos de `Privacidade`, `Termos` e `Excluir dados` adicionados na tela de login e na Home.
@@ -169,7 +169,7 @@ Android e build atualizado seguem como gate.
 
 ## Validacao Em Device Fisico (APK EAS)
 
-- APK preview gerado via EAS Build (perfil `preview`, projeto `@advogado2.0/meu-advogado-20`), apontando para o backend de producao na Railway.
+- APK preview gerado via EAS Build (perfil `preview`, projeto `@advogado2.0/advogado-20`), apontando para o backend de producao na Railway.
 - Instalado em device Android fisico: login real `usuario@advogado20.com` OK, 6 areas via backend, **permissao de localizacao concedida e GPS real** disparou `POST /v1/match`.
 - **Match real retornou a fixture DF (Dra. Carla Lima) via PostGIS** com base na localizacao real (device a <=200km de Brasilia). GPS real -> match real ponta-a-ponta, sem fallback dev.
 - Bug de UX corrigido: a tela mostrava copy antigo ("match fica para o proximo ciclo"); agora exibe cidade/distancia do advogado + botao "Falar no WhatsApp". Depois disso, a spec 004 foi validada no APK preview e o direcionamento ao WhatsApp foi confirmado manualmente em device fisico. A lacuna atual e gerar novo build/preview ja com o shell da spec 005.

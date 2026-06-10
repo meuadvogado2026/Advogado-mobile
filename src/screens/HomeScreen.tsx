@@ -433,7 +433,7 @@ function LawyerVipCard({ dashboard }: { dashboard: LawyerDashboardResponse | nul
       <View style={styles.vipPhysicalCard}>
         <View style={styles.vipTopRow}>
           <View>
-            <Text style={styles.vipKicker}>MEU ADVOGADO 2.0 VIP</Text>
+            <Text style={styles.vipKicker}>ADVOGADO 2.0 VIP</Text>
             <Text style={styles.vipSubKicker}>BENEFITS CLUB MEMBER</Text>
           </View>
           <AppIcon color={colors.gold} name="ribbon-outline" size={28} />
@@ -483,7 +483,7 @@ function LawyerReadonlyProfile({
   profile: PublicLawyerProfile | null;
   onSignOut: () => void;
 }) {
-  const name = profile?.name ?? dashboard?.lawyer.name ?? "Meu Advogado 2.0";
+  const name = profile?.name ?? dashboard?.lawyer.name ?? "Advogado 2.0";
   const avatarUrl = safeImageUrl(profile?.avatarUrl ?? dashboard?.lawyer.avatarUrl);
   const coverUrl = safeImageUrl(profile?.coverUrl ?? dashboard?.lawyer.coverUrl);
   const initial = name.slice(0, 1).toUpperCase();
@@ -1044,7 +1044,7 @@ export function HomeScreen({ navigation }: Props) {
                     Olá, {lawyerDisplayName}, tudo bem?
                   </Text>
                   <Text style={styles.panelText}>
-                    Acompanhe sua presença no Meu Advogado 2.0 e mantenha seu perfil pronto para novos atendimentos.
+                    Acompanhe sua presença no Advogado 2.0 e mantenha seu perfil pronto para novos atendimentos.
                   </Text>
                 </View>
                 <LawyerVipCard dashboard={lawyerDashboard} />

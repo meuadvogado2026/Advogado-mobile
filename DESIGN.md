@@ -1,4 +1,4 @@
-# Mobile Design - Meu Advogado 2.0
+# Mobile Design - Advogado 2.0
 
 **Referencia principal:** `../Telas/`  
 **Sistema visual:** Lex Elite  

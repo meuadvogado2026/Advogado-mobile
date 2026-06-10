@@ -1,4 +1,4 @@
-# Mobile Security - Meu Advogado 2.0
+# Mobile Security - Advogado 2.0
 
 **Estado:** integracao inicial validada estruturalmente
 

@@ -1,4 +1,4 @@
-# Mobile Release - Meu Advogado 2.0
+# Mobile Release - Advogado 2.0
 
 **Estado:** nao pronto para release  
 **Canal inicial:** internal testing Android

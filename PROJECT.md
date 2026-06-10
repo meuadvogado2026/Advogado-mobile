@@ -1,4 +1,4 @@
-# Mobile Project - Meu Advogado 2.0
+# Mobile Project - Advogado 2.0
 
 **Fase:** produto MVP / spec 005 navegacao e design shell implementada com smoke visual proporcional
 **Plataforma inicial:** Android  
@@ -7,7 +7,7 @@
 
 ## Objetivo
 
-Construir o app nativo do cliente e do advogado para o Meu Advogado 2.0. O cliente usa localizacao do aparelho e areas juridicas para receber um advogado indicado. O advogado acessa painel, cartao VIP e beneficios.
+Construir o app nativo do cliente e do advogado para o Advogado 2.0. O cliente usa localizacao do aparelho e areas juridicas para receber um advogado indicado. O advogado acessa painel, cartao VIP e beneficios.
 
 ## Responsabilidades
 
@@ -30,7 +30,7 @@ Construir o app nativo do cliente e do advogado para o Meu Advogado 2.0. O clien
 
 - `../DOCUMENTACAO_TECNICA.md`
 - `../ESPECIFICACAO_FUNCIONAL_APP.md`
-- `../.codex/SPEC_Specs/SPEC_MeuAdvogado20_SDD.md`
+- `../.codex/SPEC_Specs/SPEC_Advogado20_SDD.md`
 - `../Telas/home_do_cliente`
 - `../Telas/perfil_do_advogado`
 - `../Telas/dashboard_do_advogado`

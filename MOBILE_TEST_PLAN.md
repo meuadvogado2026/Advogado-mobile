@@ -1,4 +1,4 @@
-# Mobile Test Plan - Meu Advogado 2.0
+# Mobile Test Plan - Advogado 2.0
 
 ## Spec 012
 
@@ -77,11 +77,11 @@ Harness local passou com typecheck, teste de contratos e smoke estrutural. Smoke
 
 ## Resultado Da Integracao Inicial
 
-`npm run harness` em `Meu Advogado 2.0 - mobile` passou com exit code 0. O harness executou typecheck, 5 testes de services/contratos e smoke estrutural de Auth/API/Location/Match. Lacunas: sem smoke visual em Android/emulador e sem login real em runtime porque a anon key publica deve ser fornecida por `EXPO_PUBLIC_SUPABASE_ANON_KEY`.
+`npm run harness` em `Advogado 2.0 - mobile` passou com exit code 0. O harness executou typecheck, 5 testes de services/contratos e smoke estrutural de Auth/API/Location/Match. Lacunas: sem smoke visual em Android/emulador e sem login real em runtime porque a anon key publica deve ser fornecida por `EXPO_PUBLIC_SUPABASE_ANON_KEY`.
 
 ## Resultado Do Smoke Runtime Android
 
-`npm run smoke:runtime` em `Meu Advogado 2.0 - mobile` passou com exit code 0 e resultado `OK_COM_RESSALVAS`. O smoke detectou ADB, AVD e device bootado, validou backend local em `/health`, `GET /v1/areas` com 6 areas e `POST /v1/match` com status `stub`. Lacunas: `EXPO_PUBLIC_SUPABASE_ANON_KEY` ausente, portanto login real nao foi executado.
+`npm run smoke:runtime` em `Advogado 2.0 - mobile` passou com exit code 0 e resultado `OK_COM_RESSALVAS`. O smoke detectou ADB, AVD e device bootado, validou backend local em `/health`, `GET /v1/areas` com 6 areas e `POST /v1/match` com status `stub`. Lacunas: `EXPO_PUBLIC_SUPABASE_ANON_KEY` ausente, portanto login real nao foi executado.
 
 ## Resultado Do Smoke Visual Android
 
@@ -113,7 +113,7 @@ Em 2026-05-31, o TDD vermelho registrou `npm run test` exit code 1 por service a
 
 ## Resultado Do APK Preview Da Spec 004
 
-Em 2026-05-31, o commit publicado `7d4bbdc08482c79b1feb41ceaeab158815219f26` foi validado como HEAD de `main...origin/main`. `npm run harness` em `Meu Advogado 2.0 - mobile` passou com exit code 0; `git diff --check` passou com exit code 0. A primeira tentativa de `npm run smoke:runtime` sem env/device terminou com exit code 1; a repeticao com env preview EAS e AVD bootado passou com exit code 0 contra Railway: health OK, 6 areas, Auth real com token redigido, match `matched`, perfil `verified=true`, duas areas e `hasForbiddenField=false`.
+Em 2026-05-31, o commit publicado `7d4bbdc08482c79b1feb41ceaeab158815219f26` foi validado como HEAD de `main...origin/main`. `npm run harness` em `Advogado 2.0 - mobile` passou com exit code 0; `git diff --check` passou com exit code 0. A primeira tentativa de `npm run smoke:runtime` sem env/device terminou com exit code 1; a repeticao com env preview EAS e AVD bootado passou com exit code 0 contra Railway: health OK, 6 areas, Auth real com token redigido, match `matched`, perfil `verified=true`, duas areas e `hasForbiddenField=false`.
 
 O EAS Build gerou o APK preview Android `11026258-edc1-4552-9b2b-9f5a8e92ab3f`, package `com.advogado20.app`, commit `7d4bbdc08482c79b1feb41ceaeab158815219f26`. O APK foi baixado para `harness-results/preview-11026258-spec004.apk`, instalado no AVD `Pixel_9` (`emulator-5554`) e validado visualmente: login real, Home com 6 areas, prompt nativo de localizacao, match com `Dra. Ana Geo (fixture)`, distancia efemera, CTA `Ver perfil`, tela `LawyerProfile`, botao `Voltar`, retorno ao card e CTA `Falar no WhatsApp`. Evidencias: `harness-results/preview-004-open.png`, `preview-004-after-login.png`, `preview-004-home-before-match.png`, `preview-004-location-prompt-or-loading.png`, `preview-004-match-result-wait2.png`, `preview-004-lawyer-profile.png`, `preview-004-after-back-home.png`, `preview-004-whatsapp-handler.png` e XMLs correspondentes.
 
@@ -173,7 +173,7 @@ Resultado: `QUESTIONAR`. `adb` nao esta disponivel no PATH desta sessao, portant
 
 ## Resultado Da Rechecagem Do Gate Fisico Da Spec 005 Em 2026-06-02
 
-Sem codigo novo e sem gerar APK novo, `npm run harness` passou com exit code 0 em `Meu Advogado 2.0 - mobile`: typecheck, 10 testes e smoke estrutural passaram. O `npm run smoke:runtime`, carregando somente `EXPO_PUBLIC_*` da `.env` raiz sem imprimir valores e usando Railway, passou com exit code 0 (`OK_COM_RESSALVAS`): backend health OK, 6 areas, login real com token redigido, match `matched` e perfil seguro.
+Sem codigo novo e sem gerar APK novo, `npm run harness` passou com exit code 0 em `Advogado 2.0 - mobile`: typecheck, 10 testes e smoke estrutural passaram. O `npm run smoke:runtime`, carregando somente `EXPO_PUBLIC_*` da `.env` raiz sem imprimir valores e usando Railway, passou com exit code 0 (`OK_COM_RESSALVAS`): backend health OK, 6 areas, login real com token redigido, match `matched` e perfil seguro.
 
 O APK `harness-results/preview-5c9741f9-spec005-shell.apk` existe, tem `66185270` bytes e SHA-256 `61D2DF3D1D76D8AEB8397FCA9C5FBB2BE118CBD625BB6C048620EFCD59C249EC`, igual ao esperado. ADB foi localizado pelo SDK local, mas `adb devices -l` nao listou device fisico. Resultado: `SPEC005_DEVICE_FISICO_QUESTIONAR` ate validar GPS real e WhatsApp real em device Android fisico ou checklist manual assistido. Evidencia: `harness-results/spec005-device-gate-recheck-2026-06-02.md`.
 

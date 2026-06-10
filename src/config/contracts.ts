@@ -17,7 +17,7 @@ export const apiContracts = {
 } as const;
 
 export const appCopy = {
-  brand: "Meu Advogado 2.0",
+  brand: "Advogado 2.0",
   subtitle: "A justiça ao alcance de um toque",
   location:
     "Sua localização é usada somente no momento da busca para indicar um advogado próximo. Você pode negar e tentar novamente depois."
