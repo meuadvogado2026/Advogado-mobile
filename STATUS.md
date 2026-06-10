@@ -5,6 +5,11 @@
 Seletores de localidade refinados: `ESTADOS` abre pela seta; apos selecionar, surge
 `CIDADE`, tambem recolhivel. Smoke visual no AVD `Pixel_9` confirmou estado fechado,
 lista de estados, estado selecionado, cidade liberada e lista de cidades.
+APK preview EAS do commit `509aa5f`: build
+`9018ebcd-1295-4483-93ed-b6d3ad77eee4`, link
+`https://expo.dev/artifacts/eas/E2LxdPx7Wm2LjHjTNvceWeNN1AiPwjvUo1H55qbExmE.apk`,
+SHA-256 `BDC0E2FAEB2B8DEB6AC408D0749980A726AB1C67BFED2816C3B2355B6CC0B498`,
+instalacao e abertura standalone no AVD OK.
 
 Busca por cidade, seletores dependentes, listagem paginada sem distancia e perfil
 existente implementados sem alterar GPS. `algorithmVersion=city-list-v1`. Smoke visual
