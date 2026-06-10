@@ -566,6 +566,8 @@ export function HomeScreen({ navigation }: Props) {
   const [cities, setCities] = useState<PublicCity[]>([]);
   const [selectedStateId, setSelectedStateId] = useState("");
   const [selectedCityId, setSelectedCityId] = useState("");
+  const [isStatePickerOpen, setIsStatePickerOpen] = useState(false);
+  const [isCityPickerOpen, setIsCityPickerOpen] = useState(false);
   const [lawyerDashboard, setLawyerDashboard] = useState<LawyerDashboardResponse | null>(null);
   const [lawyerProfile, setLawyerProfile] = useState<PublicLawyerProfile | null>(null);
   const [partners, setPartners] = useState<PartnerLogo[]>([]);
@@ -589,6 +591,8 @@ export function HomeScreen({ navigation }: Props) {
   const clientDisplayName = currentUser?.name?.trim() || currentUser?.email?.split("@")[0] || "cliente";
   const lawyerDisplayName =
     lawyerDashboard?.lawyer.name?.trim() || currentUser?.name?.trim() || currentUser?.email?.split("@")[0] || "advogado";
+  const selectedState = states.find((item) => item.id === selectedStateId);
+  const selectedCity = cities.find((item) => item.id === selectedCityId);
 
   async function hydrateUser(restoredSession: Session) {
     const response = await me.getCurrentUser();
@@ -755,6 +759,8 @@ export function HomeScreen({ navigation }: Props) {
     setCities([]);
     setSelectedStateId("");
     setSelectedCityId("");
+    setIsStatePickerOpen(false);
+    setIsCityPickerOpen(false);
     setLawyerDashboard(null);
     setLawyerProfile(null);
     setPartners([]);
@@ -843,6 +849,8 @@ export function HomeScreen({ navigation }: Props) {
     setSelectedStateId(stateId);
     setSelectedCityId("");
     setCities([]);
+    setIsStatePickerOpen(false);
+    setIsCityPickerOpen(false);
     if (!stateId) return;
     try {
       const response = await geographies.listCities(stateId);
@@ -1117,22 +1125,68 @@ export function HomeScreen({ navigation }: Props) {
                   <Text style={styles.primaryButtonText}>Buscar perto de mim</Text>
                 </TouchableOpacity>
                 <Text style={styles.panelText}>Buscar por cidade nao solicita sua localizacao.</Text>
-                <Text style={styles.cardLabel}>Estado</Text>
-                <View style={styles.areaGrid}>
-                  {states.map((state) => (
-                    <TouchableOpacity key={state.id} onPress={() => void handleSelectState(state.id)} style={[styles.areaPill, selectedStateId === state.id && styles.areaPillSelected]}>
-                      <Text style={[styles.areaText, selectedStateId === state.id && styles.areaTextSelected]}>{state.code}</Text>
+                <TouchableOpacity
+                  accessibilityRole="button"
+                  accessibilityState={{ expanded: isStatePickerOpen }}
+                  onPress={() => setIsStatePickerOpen((current) => !current)}
+                  style={styles.locationSelectHeader}
+                >
+                  <View style={styles.locationSelectText}>
+                    <Text style={styles.locationSelectLabel}>ESTADOS</Text>
+                    {selectedState ? <Text style={styles.locationSelectValue}>{selectedState.code} - {selectedState.name}</Text> : null}
+                  </View>
+                  <AppIcon color={colors.goldBright} name={isStatePickerOpen ? "chevron-up" : "chevron-down"} size={20} />
+                </TouchableOpacity>
+                {isStatePickerOpen ? (
+                  <View style={styles.locationOptions}>
+                    {states.map((state) => (
+                      <TouchableOpacity
+                        key={state.id}
+                        onPress={() => void handleSelectState(state.id)}
+                        style={[styles.locationOption, selectedStateId === state.id && styles.locationOptionSelected]}
+                      >
+                        <Text style={[styles.locationOptionText, selectedStateId === state.id && styles.locationOptionTextSelected]}>
+                          {state.code} - {state.name}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                    {states.length === 0 ? <Text style={styles.locationEmpty}>Nenhum estado disponivel.</Text> : null}
+                  </View>
+                ) : null}
+
+                {selectedStateId ? (
+                  <>
+                    <TouchableOpacity
+                      accessibilityRole="button"
+                      accessibilityState={{ expanded: isCityPickerOpen }}
+                      onPress={() => setIsCityPickerOpen((current) => !current)}
+                      style={styles.locationSelectHeader}
+                    >
+                      <View style={styles.locationSelectText}>
+                        <Text style={styles.locationSelectLabel}>CIDADE</Text>
+                        {selectedCity ? <Text style={styles.locationSelectValue}>{selectedCity.name}</Text> : null}
+                      </View>
+                      <AppIcon color={colors.goldBright} name={isCityPickerOpen ? "chevron-up" : "chevron-down"} size={20} />
                     </TouchableOpacity>
-                  ))}
-                </View>
-                <Text style={styles.cardLabel}>Cidade</Text>
-                <View style={styles.areaGrid}>
-                  {cities.map((city) => (
-                    <TouchableOpacity key={city.id} onPress={() => setSelectedCityId(city.id)} style={[styles.areaPill, selectedCityId === city.id && styles.areaPillSelected]}>
-                      <Text style={[styles.areaText, selectedCityId === city.id && styles.areaTextSelected]}>{city.name}</Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
+                    {isCityPickerOpen ? (
+                      <View style={styles.locationOptions}>
+                        {cities.map((city) => (
+                          <TouchableOpacity
+                            key={city.id}
+                            onPress={() => {
+                              setSelectedCityId(city.id);
+                              setIsCityPickerOpen(false);
+                            }}
+                            style={[styles.locationOption, selectedCityId === city.id && styles.locationOptionSelected]}
+                          >
+                            <Text style={[styles.locationOptionText, selectedCityId === city.id && styles.locationOptionTextSelected]}>{city.name}</Text>
+                          </TouchableOpacity>
+                        ))}
+                        {cities.length === 0 ? <Text style={styles.locationEmpty}>Nenhuma cidade disponivel.</Text> : null}
+                      </View>
+                    ) : null}
+                  </>
+                ) : null}
                 <TouchableOpacity disabled={!selectedStateId || !selectedCityId || selectedAreaIds.length === 0} onPress={handleCityMatch} style={[styles.secondaryButton, (!selectedStateId || !selectedCityId || selectedAreaIds.length === 0) && styles.disabledButton]}>
                   <AppIcon color={colors.goldBright} name="business-outline" size={18} />
                   <Text style={styles.secondaryButtonText}>Buscar por cidade</Text>
@@ -1260,6 +1314,61 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     gap: spacing.md,
     padding: spacing.lg
+  },
+  locationSelectHeader: {
+    alignItems: "center",
+    backgroundColor: colors.surfaceContainer,
+    borderColor: colors.borderSubtle,
+    borderRadius: 8,
+    borderWidth: 1,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    minHeight: 54,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm
+  },
+  locationSelectText: {
+    flex: 1,
+    gap: 3
+  },
+  locationSelectLabel: {
+    color: colors.goldBright,
+    fontSize: 12,
+    fontWeight: "900",
+    letterSpacing: 0.5
+  },
+  locationSelectValue: {
+    color: colors.textPrimary,
+    fontSize: 14,
+    fontWeight: "700"
+  },
+  locationOptions: {
+    borderColor: colors.borderSubtle,
+    borderRadius: 8,
+    borderWidth: 1,
+    overflow: "hidden"
+  },
+  locationOption: {
+    borderBottomColor: colors.borderSubtle,
+    borderBottomWidth: 1,
+    minHeight: 46,
+    justifyContent: "center",
+    paddingHorizontal: spacing.md
+  },
+  locationOptionSelected: {
+    backgroundColor: colors.goldContainer
+  },
+  locationOptionText: {
+    color: colors.textPrimary,
+    fontSize: 14,
+    fontWeight: "700"
+  },
+  locationOptionTextSelected: {
+    color: colors.surfaceDeep
+  },
+  locationEmpty: {
+    color: colors.textMuted,
+    padding: spacing.md
   },
   loginTitle: {
     color: colors.textPrimary,

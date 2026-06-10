@@ -258,6 +258,18 @@ if (
   throw new Error("Smoke mobile falhou. Home cliente deve abrir o perfil apos match sem exibir card de advogado indicado.");
 }
 
+if (
+  !home.includes("isStatePickerOpen") ||
+  !home.includes("isCityPickerOpen") ||
+  !home.includes(">ESTADOS</Text>") ||
+  !home.includes(">CIDADE</Text>") ||
+  !home.includes('name={isStatePickerOpen ? "chevron-up" : "chevron-down"}') ||
+  !home.includes('name={isCityPickerOpen ? "chevron-up" : "chevron-down"}') ||
+  !home.includes("{selectedStateId ? (")
+) {
+  throw new Error("Smoke mobile falhou. Seletores progressivos de estado e cidade estao ausentes.");
+}
+
 console.log(
   "Smoke mobile OK: Expo entry, Auth, API backend, SecureStore, Location, Match direto para LawyerProfile, home por role, oracao e parceiros do advogado existem."
 );

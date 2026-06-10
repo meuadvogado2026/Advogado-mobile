@@ -10,6 +10,8 @@ export type AppIconName =
   | "checkmark"
   | "checkmark-circle-outline"
   | "checkbox-outline"
+  | "chevron-down"
+  | "chevron-up"
   | "document-text-outline"
   | "eye-outline"
   | "globe-outline"
@@ -112,6 +114,8 @@ const iconRenderers: Record<AppIconName, IconRenderer> = {
       <Polyline points="7.5 12 10.5 15 17 8" {...lineProps(props)} />
     </>
   ),
+  "chevron-down": (props) => <Polyline points="6 9 12 15 18 9" {...lineProps(props)} />,
+  "chevron-up": (props) => <Polyline points="6 15 12 9 18 15" {...lineProps(props)} />,
   "document-text-outline": (props) => (
     <>
       <Path d="M7 3.5h6l4 4V20a1.5 1.5 0 0 1-1.5 1.5h-8A1.5 1.5 0 0 1 6 20V5A1.5 1.5 0 0 1 7.5 3.5Z" {...lineProps(props)} />

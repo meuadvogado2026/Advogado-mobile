@@ -2,6 +2,8 @@
 
 ## Spec 012
 
+- Validar visualmente o seletor recolhivel de estados.
+- Validar que `CIDADE` nao aparece antes do estado e fecha depois da selecao.
 - Modo cidade nao chama Expo Location nem envia coordenadas.
 - Selecao dependente, vazio sem fallback, pagina de 5, listagem sem distancia e abertura do perfil existente.
 - Regressao GPS e smoke visual Android/cross-stack.

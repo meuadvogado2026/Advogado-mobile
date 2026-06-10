@@ -2,6 +2,10 @@
 
 ## Spec 012 - 2026-06-10
 
+Seletores de localidade refinados: `ESTADOS` abre pela seta; apos selecionar, surge
+`CIDADE`, tambem recolhivel. Smoke visual no AVD `Pixel_9` confirmou estado fechado,
+lista de estados, estado selecionado, cidade liberada e lista de cidades.
+
 Busca por cidade, seletores dependentes, listagem paginada sem distancia e perfil
 existente implementados sem alterar GPS. `algorithmVersion=city-list-v1`. Smoke visual
 Android e build atualizado seguem como gate.
