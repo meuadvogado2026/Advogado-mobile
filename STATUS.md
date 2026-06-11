@@ -1,5 +1,17 @@
 # Mobile Status - Advogado 2.0
 
+## Branding - 2026-06-10
+
+Nome Android corrigido para `Advogado 2.0` em `app.json`, preservando
+`com.advogado20.app` para nao criar outro aplicativo no aparelho. O slug EAS tecnico
+permanece `meu-advogado-20` porque o `projectId` remoto ainda exige esse valor para
+builds. A cota mensal Android do EAS free bloqueou novo build Expo ate 2026-07-01.
+Como contingencia, foi gerado APK release local com bundle JS embutido:
+`harness-results/advogado-20-local-release-brand.apk`, SHA-256
+`AC1BDFC70A951E74A94644CDE8E7A34F2F14F3D9175D16FCB6DE81A09E411DBE`, tamanho
+`66252962` bytes. `aapt` confirmou `application-label:'Advogado 2.0'` e o AVD
+`Pixel_9` instalou limpo e abriu a tela de login standalone.
+
 ## Spec 012 - 2026-06-10
 
 Seletores de localidade refinados: `ESTADOS` abre pela seta; apos selecionar, surge

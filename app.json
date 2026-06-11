@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Advogado 2.0",
-    "slug": "advogado-20",
+    "slug": "meu-advogado-20",
     "version": "0.1.0",
     "orientation": "portrait",
     "platforms": ["android"],
