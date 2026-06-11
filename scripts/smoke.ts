@@ -261,8 +261,10 @@ if (
 if (
   !home.includes("isStatePickerOpen") ||
   !home.includes("isCityPickerOpen") ||
-  !home.includes(">ESTADOS</Text>") ||
+  !home.includes(">ESTADO</Text>") ||
   !home.includes(">CIDADE</Text>") ||
+  !home.includes("Digite para buscar estado") ||
+  !home.includes("Digite para buscar cidade") ||
   !home.includes('name={isStatePickerOpen ? "chevron-up" : "chevron-down"}') ||
   !home.includes('name={isCityPickerOpen ? "chevron-up" : "chevron-down"}') ||
   !home.includes("{selectedStateId ? (")

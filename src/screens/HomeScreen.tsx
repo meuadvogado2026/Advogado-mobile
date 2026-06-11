@@ -38,6 +38,9 @@ type ClientTab = "home" | "profile";
 type LawyerTab = "home" | "prayer" | "profile";
 type Props = NativeStackScreenProps<RootStackParamList, "Home">;
 
+const normalizeSearchText = (value: string) =>
+  value.trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+
 const logo = require("../../assets/logo-gold.png");
 const prayerArt = require("../../assets/prayer-bible-cross.png");
 const legalUrls = {
@@ -568,6 +571,8 @@ export function HomeScreen({ navigation }: Props) {
   const [selectedCityId, setSelectedCityId] = useState("");
   const [isStatePickerOpen, setIsStatePickerOpen] = useState(false);
   const [isCityPickerOpen, setIsCityPickerOpen] = useState(false);
+  const [stateSearch, setStateSearch] = useState("");
+  const [citySearch, setCitySearch] = useState("");
   const [lawyerDashboard, setLawyerDashboard] = useState<LawyerDashboardResponse | null>(null);
   const [lawyerProfile, setLawyerProfile] = useState<PublicLawyerProfile | null>(null);
   const [partners, setPartners] = useState<PartnerLogo[]>([]);
@@ -593,6 +598,17 @@ export function HomeScreen({ navigation }: Props) {
     lawyerDashboard?.lawyer.name?.trim() || currentUser?.name?.trim() || currentUser?.email?.split("@")[0] || "advogado";
   const selectedState = states.find((item) => item.id === selectedStateId);
   const selectedCity = cities.find((item) => item.id === selectedCityId);
+  const selectedAreaKey = selectedAreaIds.join(",");
+  const filteredStates = useMemo(() => {
+    const term = normalizeSearchText(stateSearch);
+    if (!term) return states;
+    return states.filter((state) => normalizeSearchText(`${state.code} ${state.name}`).includes(term));
+  }, [stateSearch, states]);
+  const filteredCities = useMemo(() => {
+    const term = normalizeSearchText(citySearch);
+    if (!term) return cities;
+    return cities.filter((city) => normalizeSearchText(city.name).includes(term));
+  }, [citySearch, cities]);
 
   async function hydrateUser(restoredSession: Session) {
     const response = await me.getCurrentUser();
@@ -654,12 +670,50 @@ export function HomeScreen({ navigation }: Props) {
 
   useEffect(() => {
     if (!session || currentUser?.role !== "client") return;
+    if (selectedAreaIds.length === 0) {
+      setStates([]);
+      setCities([]);
+      setSelectedStateId("");
+      setSelectedCityId("");
+      return;
+    }
     let active = true;
-    geographies.listStates()
-      .then((response) => active && setStates(response.states))
-      .catch(() => active && setStates([]));
+    geographies.listStates(selectedAreaIds)
+      .then((response) => {
+        if (!active) return;
+        setStates(response.states);
+        setSelectedStateId((current) => (response.states.some((state) => state.id === current) ? current : ""));
+      })
+      .catch(() => {
+        if (!active) return;
+        setStates([]);
+        setSelectedStateId("");
+      });
     return () => { active = false; };
-  }, [session, currentUser, geographies]);
+  }, [session, currentUser, geographies, selectedAreaKey]);
+
+  useEffect(() => {
+    if (!session || currentUser?.role !== "client" || !selectedStateId || selectedAreaIds.length === 0) {
+      setCities([]);
+      setSelectedCityId("");
+      return;
+    }
+    let active = true;
+    geographies.listCities(selectedStateId, selectedAreaIds)
+      .then((response) => {
+        if (!active) return;
+        setCities(response.cities);
+        setSelectedCityId((current) => (response.cities.some((city) => city.id === current) ? current : ""));
+      })
+      .catch(() => {
+        if (!active) return;
+        setCities([]);
+        setSelectedCityId("");
+        setStatus("error");
+        setMessage("Nao foi possivel carregar as cidades deste estado.");
+      });
+    return () => { active = false; };
+  }, [session, currentUser, geographies, selectedStateId, selectedAreaKey]);
 
   useEffect(() => {
     if (!session || currentUser?.role !== "lawyer") {
@@ -761,6 +815,8 @@ export function HomeScreen({ navigation }: Props) {
     setSelectedCityId("");
     setIsStatePickerOpen(false);
     setIsCityPickerOpen(false);
+    setStateSearch("");
+    setCitySearch("");
     setLawyerDashboard(null);
     setLawyerProfile(null);
     setPartners([]);
@@ -845,20 +901,14 @@ export function HomeScreen({ navigation }: Props) {
     }
   }
 
-  async function handleSelectState(stateId: string) {
+  function handleSelectState(stateId: string) {
     setSelectedStateId(stateId);
     setSelectedCityId("");
     setCities([]);
     setIsStatePickerOpen(false);
     setIsCityPickerOpen(false);
-    if (!stateId) return;
-    try {
-      const response = await geographies.listCities(stateId);
-      setCities(response.cities);
-    } catch {
-      setStatus("error");
-      setMessage("Nao foi possivel carregar as cidades deste estado.");
-    }
+    setStateSearch("");
+    setCitySearch("");
   }
 
   function handleCityMatch() {
@@ -1132,17 +1182,25 @@ export function HomeScreen({ navigation }: Props) {
                   style={styles.locationSelectHeader}
                 >
                   <View style={styles.locationSelectText}>
-                    <Text style={styles.locationSelectLabel}>ESTADOS</Text>
+                    <Text style={styles.locationSelectLabel}>ESTADO</Text>
                     {selectedState ? <Text style={styles.locationSelectValue}>{selectedState.code} - {selectedState.name}</Text> : null}
                   </View>
                   <AppIcon color={colors.goldBright} name={isStatePickerOpen ? "chevron-up" : "chevron-down"} size={20} />
                 </TouchableOpacity>
                 {isStatePickerOpen ? (
                   <View style={styles.locationOptions}>
-                    {states.map((state) => (
+                    <TextInput
+                      autoCapitalize="words"
+                      onChangeText={setStateSearch}
+                      placeholder="Digite para buscar estado"
+                      placeholderTextColor={colors.textMuted}
+                      style={styles.locationSearchInput}
+                      value={stateSearch}
+                    />
+                    {filteredStates.map((state) => (
                       <TouchableOpacity
                         key={state.id}
-                        onPress={() => void handleSelectState(state.id)}
+                        onPress={() => handleSelectState(state.id)}
                         style={[styles.locationOption, selectedStateId === state.id && styles.locationOptionSelected]}
                       >
                         <Text style={[styles.locationOptionText, selectedStateId === state.id && styles.locationOptionTextSelected]}>
@@ -1150,7 +1208,8 @@ export function HomeScreen({ navigation }: Props) {
                         </Text>
                       </TouchableOpacity>
                     ))}
-                    {states.length === 0 ? <Text style={styles.locationEmpty}>Nenhum estado disponivel.</Text> : null}
+                    {states.length === 0 ? <Text style={styles.locationEmpty}>Nenhum estado disponivel para a especialidade selecionada.</Text> : null}
+                    {states.length > 0 && filteredStates.length === 0 ? <Text style={styles.locationEmpty}>Nenhum estado encontrado.</Text> : null}
                   </View>
                 ) : null}
 
@@ -1170,19 +1229,29 @@ export function HomeScreen({ navigation }: Props) {
                     </TouchableOpacity>
                     {isCityPickerOpen ? (
                       <View style={styles.locationOptions}>
-                        {cities.map((city) => (
+                        <TextInput
+                          autoCapitalize="words"
+                          onChangeText={setCitySearch}
+                          placeholder="Digite para buscar cidade"
+                          placeholderTextColor={colors.textMuted}
+                          style={styles.locationSearchInput}
+                          value={citySearch}
+                        />
+                        {filteredCities.map((city) => (
                           <TouchableOpacity
                             key={city.id}
                             onPress={() => {
                               setSelectedCityId(city.id);
                               setIsCityPickerOpen(false);
+                              setCitySearch("");
                             }}
                             style={[styles.locationOption, selectedCityId === city.id && styles.locationOptionSelected]}
                           >
                             <Text style={[styles.locationOptionText, selectedCityId === city.id && styles.locationOptionTextSelected]}>{city.name}</Text>
                           </TouchableOpacity>
                         ))}
-                        {cities.length === 0 ? <Text style={styles.locationEmpty}>Nenhuma cidade disponivel.</Text> : null}
+                        {cities.length === 0 ? <Text style={styles.locationEmpty}>Nenhuma cidade disponivel para a especialidade selecionada.</Text> : null}
+                        {cities.length > 0 && filteredCities.length === 0 ? <Text style={styles.locationEmpty}>Nenhuma cidade encontrada.</Text> : null}
                       </View>
                     ) : null}
                   </>
@@ -1347,6 +1416,13 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 1,
     overflow: "hidden"
+  },
+  locationSearchInput: {
+    borderBottomColor: colors.borderSubtle,
+    borderBottomWidth: 1,
+    color: colors.textPrimary,
+    minHeight: 46,
+    paddingHorizontal: spacing.md
   },
   locationOption: {
     borderBottomColor: colors.borderSubtle,

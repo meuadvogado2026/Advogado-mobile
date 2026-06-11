@@ -235,10 +235,10 @@ describe("mobile foundation contracts", () => {
       getSession: async () => ({ accessToken: "jwt-redacted", email: "usuario@advogado20.com" }),
       fetchImpl: (async (url, init) => {
         calls.push({ url: String(url), body: init?.body ? JSON.parse(String(init.body)) : undefined });
-        if (String(url).endsWith("/v1/states")) {
+        if (String(url).endsWith("/v1/states?areaIds=civil")) {
           return new Response(JSON.stringify({ states: [{ id: "state-df", code: "DF", name: "Distrito Federal", active: true }] }), { status: 200 });
         }
-        if (String(url).includes("/v1/states/state-df/cities")) {
+        if (String(url).includes("/v1/states/state-df/cities?areaIds=civil")) {
           return new Response(JSON.stringify({ cities: [{ id: "city-bsb", stateId: "state-df", name: "Brasilia", active: true }] }), { status: 200 });
         }
         return new Response(JSON.stringify({
@@ -250,8 +250,8 @@ describe("mobile foundation contracts", () => {
       }) as typeof fetch
     });
 
-    await createGeographyService(api).listStates();
-    await createGeographyService(api).listCities("state-df");
+    await createGeographyService(api).listStates(["civil"]);
+    await createGeographyService(api).listCities("state-df", ["civil"]);
     await createMatchService(api).requestCityMatch({ stateId: "state-df", cityId: "city-bsb", areaIds: ["civil"], page: 1, pageSize: 5 });
 
     expect(calls[2]).toEqual({

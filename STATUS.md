@@ -1,5 +1,14 @@
 # Mobile Status - Advogado 2.0
 
+## Busca Por Cidade - 2026-06-10
+
+Home cliente ajustada para mostrar `ESTADO` no singular, campo digitavel de busca
+em Estado/Cidade e catalogos filtrados pela especialidade selecionada via `areaIds`.
+O modo cidade continua sem solicitar GPS e sem gerar build novo. `npm run harness`
+exit `0`. Expo Go local abriu no AVD `Pixel_9` com Metro/backend local; o input
+automatico via ADB nao focou os campos de login, entao a validacao autenticada foi
+deixada para uso manual com o app rodando.
+
 ## Branding - 2026-06-10
 
 Nome Android corrigido para `Advogado 2.0` em `app.json`, preservando
