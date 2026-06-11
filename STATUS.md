@@ -11,6 +11,8 @@ Como contingencia, foi gerado APK release local com bundle JS embutido:
 `AC1BDFC70A951E74A94644CDE8E7A34F2F14F3D9175D16FCB6DE81A09E411DBE`, tamanho
 `66252962` bytes. `aapt` confirmou `application-label:'Advogado 2.0'` e o AVD
 `Pixel_9` instalou limpo e abriu a tela de login standalone.
+Link alternativo GitHub:
+`https://github.com/meuadvogado2026/Advogado-mobile/releases/download/advogado-20-local-release-brand-20260610/advogado-20-local-release-brand.apk`.
 
 ## Spec 012 - 2026-06-10
 
