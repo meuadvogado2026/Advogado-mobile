@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { apiContracts, appCopy } from "../src/config/contracts";
 import { createApiClient } from "../src/services/apiClient";
@@ -74,6 +75,15 @@ describe("mobile foundation contracts", () => {
   it("explains location before the native permission flow is implemented", () => {
     expect(appCopy.location).toContain("localização");
     expect(appCopy.location).toContain("Você pode negar");
+  });
+
+  it("keeps an in-app account deletion path available in authenticated account areas", () => {
+    const home = readFileSync("src/screens/HomeScreen.tsx", "utf8");
+
+    expect(home).toContain("function AccountDeletionRequest");
+    expect(home).toContain("Solicitar exclusao de conta e dados");
+    expect(home).toContain("/exclusao-de-dados.html");
+    expect(home.split("<AccountDeletionRequest />").length - 1).toBe(2);
   });
 
   it("stores only the returned session after controlled Supabase Auth login", async () => {

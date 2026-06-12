@@ -171,6 +171,14 @@ if (
 }
 
 if (
+  !home.includes("function AccountDeletionRequest") ||
+  !home.includes("Solicitar exclusao de conta e dados") ||
+  home.split("<AccountDeletionRequest />").length - 1 !== 2
+) {
+  throw new Error("Smoke mobile falhou. Caminho in-app de exclusao de conta/dados ausente nas areas autenticadas.");
+}
+
+if (
   !home.includes("PageLogo") ||
   !home.includes("pageLogo") ||
   !home.includes("logo-gold.png") ||

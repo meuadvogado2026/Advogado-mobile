@@ -1,11 +1,14 @@
 import { apiContracts } from "../config/contracts";
-import { publicConfig, type PublicConfig } from "../config/env";
+import { publicConfig, validateApiBaseUrl, type PublicConfig } from "../config/env";
 import type { Session } from "./sessionStorage";
+
+const API_REQUEST_TIMEOUT_MS = 15_000;
 
 type ApiClientDependencies = {
   config?: PublicConfig;
   fetchImpl?: typeof fetch;
   getSession?: () => Promise<Session | null>;
+  requestTimeoutMs?: number;
 };
 
 export type ApiErrorCode = "API_OFFLINE" | "TOKEN_INVALIDO" | "VALIDATION_ERROR" | "API_ERROR";
@@ -20,8 +23,15 @@ export class ApiClientError extends Error {
   }
 }
 
-export function createApiClient({ config = publicConfig, fetchImpl = fetch, getSession }: ApiClientDependencies = {}) {
+export function createApiClient({
+  config = publicConfig,
+  fetchImpl = fetch,
+  getSession,
+  requestTimeoutMs = API_REQUEST_TIMEOUT_MS
+}: ApiClientDependencies = {}) {
   async function request<TResponse>(path: string, init: RequestInit = {}) {
+    validateApiBaseUrl(config);
+
     const headers = new Headers(init.headers);
     headers.set("Content-Type", "application/json");
 
@@ -31,10 +41,23 @@ export function createApiClient({ config = publicConfig, fetchImpl = fetch, getS
     }
 
     let response: Response;
+    const controller = init.signal ? null : new AbortController();
+    const timeout = controller
+      ? setTimeout(() => controller.abort(), requestTimeoutMs)
+      : null;
+
     try {
-      response = await fetchImpl(`${config.apiBaseUrl}${path}`, { ...init, headers });
+      response = await fetchImpl(`${config.apiBaseUrl}${path}`, {
+        ...init,
+        headers,
+        signal: init.signal ?? controller?.signal
+      });
     } catch {
       throw new ApiClientError("API_OFFLINE", "Nao foi possivel conectar ao backend.");
+    } finally {
+      if (timeout) {
+        clearTimeout(timeout);
+      }
     }
 
     const text = await response.text();

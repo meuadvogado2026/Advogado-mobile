@@ -111,6 +111,28 @@ function LegalLinks() {
   );
 }
 
+function AccountDeletionRequest() {
+  return (
+    <View style={styles.accountDeletionBox}>
+      <View style={styles.accountDeletionHeader}>
+        <AppIcon color={colors.goldBright} name="document-text-outline" size={20} />
+        <Text style={styles.accountDeletionTitle}>Exclusao de conta e dados</Text>
+      </View>
+      <Text style={styles.panelText}>
+        Solicite a exclusao da sua conta e dos dados associados pelo recurso oficial publicado.
+      </Text>
+      <TouchableOpacity
+        accessibilityLabel="Solicitar exclusao de conta e dados"
+        accessibilityRole="link"
+        onPress={() => Linking.openURL(legalUrls.deletion)}
+        style={styles.accountDeletionButton}
+      >
+        <Text style={styles.secondaryButtonText}>Solicitar exclusao</Text>
+      </TouchableOpacity>
+    </View>
+  );
+}
+
 function PageLogo() {
   return (
     <View style={styles.pageLogoWrap}>
@@ -541,6 +563,7 @@ function LawyerReadonlyProfile({
       <View style={styles.accountPanel}>
         <Text style={styles.panelTitle}>Conta</Text>
         <Text style={styles.panelText}>Perfil somente leitura. Edições são feitas pelo administrador.</Text>
+        <AccountDeletionRequest />
         <LegalLinks />
         <TouchableOpacity style={styles.signOutButton} accessibilityRole="button" onPress={onSignOut}>
           <AppIcon color={colors.gold} name="log-out-outline" size={18} />
@@ -1315,6 +1338,7 @@ export function HomeScreen({ navigation }: Props) {
             <View style={styles.accountPanel}>
               <Text style={styles.panelTitle}>Perfil do cliente</Text>
               <Text style={styles.panelText}>Sessão autenticada com segurança.</Text>
+              <AccountDeletionRequest />
               <LegalLinks />
               <TouchableOpacity style={styles.signOutButton} accessibilityRole="button" onPress={handleSignOut}>
                 <AppIcon color={colors.gold} name="log-out-outline" size={18} />
@@ -1753,6 +1777,35 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     gap: spacing.md,
     padding: spacing.lg
+  },
+  accountDeletionBox: {
+    backgroundColor: "rgba(217,154,45,0.08)",
+    borderColor: "rgba(217,154,45,0.28)",
+    borderRadius: 8,
+    borderWidth: 1,
+    gap: spacing.sm,
+    padding: spacing.md
+  },
+  accountDeletionHeader: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: spacing.sm
+  },
+  accountDeletionTitle: {
+    color: colors.textPrimary,
+    flex: 1,
+    fontSize: 15,
+    fontWeight: "900"
+  },
+  accountDeletionButton: {
+    alignItems: "center",
+    alignSelf: "flex-start",
+    borderColor: colors.goldBright,
+    borderRadius: 8,
+    borderWidth: 1,
+    minHeight: 40,
+    justifyContent: "center",
+    paddingHorizontal: spacing.md
   },
   vipCard: {
     backgroundColor: colors.surface,

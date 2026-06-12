@@ -9,6 +9,7 @@ export type PublicConfig = {
 declare const process: {
   env: Record<string, string | undefined>;
 };
+declare const __DEV__: boolean | undefined;
 
 type ExtraConfig = {
   apiBaseUrl?: string;
@@ -29,6 +30,7 @@ const extra: ExtraConfig =
 
 const DEFAULT_API_BASE_URL = "http://10.0.2.2:3333";
 const DEFAULT_SUPABASE_URL = "https://qpemxkiowiiklztgumqy.supabase.co";
+const isProductionRuntime = typeof __DEV__ === "undefined" ? process.env.NODE_ENV === "production" : !__DEV__;
 
 export const publicConfig: PublicConfig = {
   apiBaseUrl: extra.apiBaseUrl || process.env.EXPO_PUBLIC_API_BASE_URL || DEFAULT_API_BASE_URL,
@@ -36,10 +38,18 @@ export const publicConfig: PublicConfig = {
   supabaseAnonKey: extra.supabaseAnonKey || process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || ""
 };
 
-export function validatePublicConfig(config: PublicConfig = publicConfig) {
+export function validateApiBaseUrl(config: Pick<PublicConfig, "apiBaseUrl"> = publicConfig) {
   if (!config.apiBaseUrl) {
     throw new Error("API_BASE_URL_PUBLICA_AUSENTE");
   }
+
+  if (isProductionRuntime && !config.apiBaseUrl.startsWith("https://")) {
+    throw new Error("API_BASE_URL_PRODUCAO_DEVE_USAR_HTTPS");
+  }
+}
+
+export function validatePublicConfig(config: PublicConfig = publicConfig) {
+  validateApiBaseUrl(config);
 
   if (!config.supabaseUrl || !config.supabaseAnonKey) {
     throw new Error("SUPABASE_AUTH_PUBLICO_AUSENTE");
