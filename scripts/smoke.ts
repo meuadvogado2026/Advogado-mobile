@@ -252,7 +252,9 @@ if (
   !home.includes("handleSubmitPrayer") ||
   !home.includes("Enviar como anônimo") ||
   !home.includes('tab: "prayer"') ||
-  !home.includes("LawyerVipCard dashboard={lawyerDashboard}")
+  !home.includes("LawyerVipCard dashboard={lawyerDashboard}") ||
+  !home.includes("benefitCards") ||
+  home.includes("ciclo futuro com admin e backend")
 ) {
   throw new Error("Smoke mobile falhou. Parte 3 nao esta conectada aos contratos backend.");
 }

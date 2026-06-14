@@ -452,6 +452,7 @@ function LawyerVipCard({ dashboard }: { dashboard: LawyerDashboardResponse | nul
   const oab = dashboard?.lawyer.oabNumber
     ? `${dashboard.lawyer.oabNumber}/${dashboard.lawyer.oabState}`
     : "Verificado";
+  const benefits = dashboard?.benefits ?? [];
 
   return (
     <View style={styles.benefitsPanel}>
@@ -490,10 +491,32 @@ function LawyerVipCard({ dashboard }: { dashboard: LawyerDashboardResponse | nul
       </View>
       <View style={styles.panel}>
         <Text style={styles.panelTitle}>Benefícios</Text>
-        <Text style={styles.panelText}>
-          Seu cartão especial já identifica você como advogado participante. A lista de benefícios reais entrará em
-          um ciclo futuro com admin e backend dedicados.
-        </Text>
+        {benefits.length === 0 ? (
+          <Text style={styles.panelText}>Nenhum benefício ativo no momento.</Text>
+        ) : (
+          <View style={styles.benefitCards}>
+            {benefits.map((benefit) => (
+              <View key={benefit.id} style={styles.benefitCard}>
+                <View style={styles.benefitHeader}>
+                  <Text style={styles.benefitTitle}>{benefit.title}</Text>
+                  {benefit.badge ? <Text style={styles.benefitBadge}>{benefit.badge}</Text> : null}
+                </View>
+                <Text style={styles.benefitDescription}>{benefit.description}</Text>
+                {benefit.redemptionUrl ? (
+                  <TouchableOpacity
+                    accessibilityLabel={`Abrir resgate do beneficio ${benefit.title}`}
+                    accessibilityRole="link"
+                    onPress={() => benefit.redemptionUrl && Linking.openURL(benefit.redemptionUrl)}
+                    style={styles.benefitLink}
+                  >
+                    <Text style={styles.secondaryButtonText}>Acessar resgate</Text>
+                    <AppIcon color={colors.goldBright} name="globe-outline" size={16} />
+                  </TouchableOpacity>
+                ) : null}
+              </View>
+            ))}
+          </View>
+        )}
       </View>
     </View>
   );
@@ -1817,6 +1840,50 @@ const styles = StyleSheet.create({
   },
   benefitsPanel: {
     gap: spacing.lg
+  },
+  benefitCards: {
+    gap: spacing.md
+  },
+  benefitCard: {
+    backgroundColor: "rgba(217,154,45,0.08)",
+    borderColor: "rgba(217,154,45,0.22)",
+    borderRadius: 12,
+    borderWidth: 1,
+    gap: spacing.sm,
+    padding: spacing.md
+  },
+  benefitHeader: {
+    alignItems: "flex-start",
+    flexDirection: "row",
+    gap: spacing.sm,
+    justifyContent: "space-between"
+  },
+  benefitBadge: {
+    backgroundColor: colors.goldBright,
+    borderRadius: 999,
+    color: colors.surfaceDeep,
+    fontSize: 10,
+    fontWeight: "900",
+    overflow: "hidden",
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 4,
+    textTransform: "uppercase"
+  },
+  benefitDescription: {
+    color: colors.textMuted,
+    fontSize: 13,
+    lineHeight: 19
+  },
+  benefitLink: {
+    alignItems: "center",
+    alignSelf: "flex-start",
+    borderColor: colors.goldBright,
+    borderRadius: 8,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: spacing.sm,
+    minHeight: 38,
+    paddingHorizontal: spacing.md
   },
   vipPhysicalCard: {
     backgroundColor: "#000B21",

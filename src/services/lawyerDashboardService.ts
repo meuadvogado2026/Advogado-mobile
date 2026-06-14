@@ -22,6 +22,7 @@ export type LawyerDashboardResponse = {
     title: string;
     description: string;
     badge?: string;
+    redemptionUrl?: string | null;
   }>;
 };
 

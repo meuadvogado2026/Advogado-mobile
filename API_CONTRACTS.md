@@ -154,7 +154,7 @@ dado do perfil.
 ## Advogado Logado
 
 - `GET /v1/lawyer/me/dashboard`
-- Beneficios reais futuros dependem de admin/back; o cartao especial atual e renderizado no app a partir do dashboard.
+- O dashboard retorna o cartao VIP e beneficios ativos cadastrados pelo admin no backend.
 
 Resposta do dashboard:
 
@@ -169,12 +169,11 @@ Resposta do dashboard:
     "verified": true
   },
   "metrics": { "profileViews": 0, "whatsappClicks": 0, "contacts": 0 },
-  "benefits": [{ "id": "verified-profile", "title": "Perfil verificado", "description": "..." }]
+  "benefits": [{ "id": "uuid", "title": "Desconto em software", "description": "...", "badge": "VIP", "redemptionUrl": "https://..." }]
 }
 ```
 
-Metricas sao placeholder seguro no MVP. Beneficios sao estaticos; sem pagamento,
-parceiro externo, cupom real, chat ou agenda.
+Metricas sao placeholder seguro no MVP. Beneficios sao geridos no painel admin e exibidos somente quando ativos.
 
 ## Oracao
 
