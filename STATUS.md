@@ -1,5 +1,14 @@
 # Mobile Status - Advogado 2.0
 
+## Lawyer Dashboard Cards - 2026-07-03
+
+Status: `LAWYER_DASHBOARD_CARDS_SIMPLIFICADOS_EXPO_GO_OK`.
+
+Painel do advogado simplificado no Expo Go: removidos os cards `Taxa de contato`
+e `Status`, mantendo apenas `Visitas` e `WhatsApp`. Smoke estatico agora reprova
+se esses cards voltarem. Gates: `npm run typecheck`, `npm run smoke` e
+`npm run test` OK; Metro LAN `exp://192.168.1.3:8083` rebundlou o app.
+
 ## Lawyer Insights Production - 2026-07-03
 
 Status: `LAWYER_INSIGHTS_PRODUCAO_OK`.

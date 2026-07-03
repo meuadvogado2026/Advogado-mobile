@@ -590,22 +590,6 @@ function LawyerInsightCard({
   );
 }
 
-function formatContactRate(rate?: number) {
-  if (!rate || !Number.isFinite(rate)) return "--";
-  return `${Math.round(rate * 100)}%`;
-}
-
-function getProfileStatus(profile: PublicLawyerProfile | null) {
-  if (!profile) return { value: "Carregando", helper: "Perfil profissional" };
-  const missing = [
-    profile.avatarUrl ? null : "foto",
-    profile.coverUrl ? null : "capa",
-    profile.fullBio || profile.miniBio ? null : "bio"
-  ].filter(Boolean);
-  if (missing.length === 0) return { value: "Completo", helper: "Perfil pronto para visitas" };
-  return { value: "Pendente", helper: `Falta ${missing.join(", ")}` };
-}
-
 function LawyerVipCard({ dashboard }: { dashboard: LawyerDashboardResponse | null }) {
   const name = dashboard?.lawyer.name ?? "Membro Exclusivo";
   const oab = dashboard?.lawyer.oabNumber
@@ -1304,7 +1288,6 @@ export function HomeScreen({ navigation }: Props) {
                 <View style={styles.metricsGrid}>
                   {(() => {
                     const metrics = lawyerDashboard?.metrics;
-                    const profileStatus = getProfileStatus(lawyerProfile);
                     return (
                       <>
                         <LawyerInsightCard
@@ -1319,18 +1302,6 @@ export function HomeScreen({ navigation }: Props) {
                           value={metrics?.whatsappClicks ?? 0}
                           helper="Contatos iniciados"
                           accent={colors.whatsapp}
-                        />
-                        <LawyerInsightCard
-                          icon="checkmark-circle-outline"
-                          label="Taxa de contato"
-                          value={formatContactRate(metrics?.conversionRate)}
-                          helper={metrics?.profileViews ? "Cliques / visitas" : "Aguardando visitas"}
-                        />
-                        <LawyerInsightCard
-                          icon="shield-checkmark-outline"
-                          label="Status"
-                          value={profileStatus.value}
-                          helper={profileStatus.helper}
                         />
                       </>
                     );

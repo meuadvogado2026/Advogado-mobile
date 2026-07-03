@@ -305,8 +305,9 @@ if (
   !home.includes("Enviar como anônimo") ||
   !home.includes('tab: "prayer"') ||
   !home.includes("LawyerVipCard dashboard={lawyerDashboard}") ||
-  !home.includes("Taxa de contato") ||
-  !home.includes("getProfileStatus") ||
+  home.includes("Taxa de contato") ||
+  home.includes("getProfileStatus") ||
+  home.includes('label="Status"') ||
   !home.includes("benefitCards") ||
   home.includes("ciclo futuro com admin e backend")
 ) {
