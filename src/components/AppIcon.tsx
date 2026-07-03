@@ -8,6 +8,7 @@ export type AppIconName =
   | "card-outline"
   | "cart-outline"
   | "checkmark"
+  | "checkmark-outline"
   | "checkmark-circle-outline"
   | "checkbox-outline"
   | "chevron-down"
@@ -16,6 +17,7 @@ export type AppIconName =
   | "eye-outline"
   | "globe-outline"
   | "hammer-outline"
+  | "help-circle-outline"
   | "heart-outline"
   | "home-outline"
   | "library-outline"
@@ -102,6 +104,7 @@ const iconRenderers: Record<AppIconName, IconRenderer> = {
     </>
   ),
   checkmark: (props) => <Polyline points="5 12.5 10 17 19 7" {...lineProps(props)} />,
+  "checkmark-outline": (props) => <Polyline points="5 12.5 10 17 19 7" {...lineProps(props)} />,
   "checkmark-circle-outline": (props) => (
     <>
       <Circle cx="12" cy="12" r="9" {...lineProps(props)} />
@@ -141,6 +144,13 @@ const iconRenderers: Record<AppIconName, IconRenderer> = {
       <Path d="M13.5 5.5 16 3l5 5-2.5 2.5" {...lineProps(props)} />
       <Path d="M14.5 8.5 6 17l-2 4 4-2 8.5-8.5" {...lineProps(props)} />
       <Path d="M10.5 4.5 19.5 13.5" {...lineProps(props)} />
+    </>
+  ),
+  "help-circle-outline": (props) => (
+    <>
+      <Circle cx="12" cy="12" r="9" {...lineProps(props)} />
+      <Path d="M9.4 9.2a2.8 2.8 0 0 1 5.4 1.1c0 2-2.8 2.4-2.8 4.2" {...lineProps(props)} />
+      <Line x1="12" y1="18" x2="12" y2="18.1" {...lineProps(props)} />
     </>
   ),
   "heart-outline": (props) => (

@@ -8,6 +8,7 @@ import { createClientSignupService } from "../src/services/clientSignupService";
 import { createGeographyService } from "../src/services/geographyService";
 import { requestDeviceLocation } from "../src/services/locationService";
 import { createLawyerDashboardService } from "../src/services/lawyerDashboardService";
+import { createLawyerEventService } from "../src/services/lawyerEventService";
 import { createLawyerProfileService } from "../src/services/lawyerProfileService";
 import { createMatchService } from "../src/services/matchService";
 import { createMeService } from "../src/services/meService";
@@ -84,6 +85,56 @@ describe("mobile foundation contracts", () => {
     expect(home).toContain("Solicitar exclusao de conta e dados");
     expect(home).toContain("/exclusao-de-dados.html");
     expect(home.split("<AccountDeletionRequest />").length - 1).toBe(2);
+  });
+
+  it("keeps the client specialty orbit aligned with unified gold palette and generic help", () => {
+    const home = readFileSync("src/screens/HomeScreen.tsx", "utf8");
+    const appIcon = readFileSync("src/components/AppIcon.tsx", "utf8");
+
+    expect(home).toContain("SPECIALTY_CARD_SIZE");
+    expect(home).toContain("SPECIALTY_CENTER_SIZE");
+    expect(home).toContain("SPECIALTY_ORBIT_GAP");
+    expect(home).toContain("SPECIALTY_LINE_COLOR");
+    expect(home).toContain("SPECIALTY_HELP_BUTTON_SIZE");
+    expect(home).toContain("SPECIALTY_HELP_ICON_SIZE");
+    expect(home).toContain('const SPECIALTY_AREA_COLOR = "#FFD34D"');
+    expect(home).toContain('const SPECIALTY_AREA_RGB = "255,211,77"');
+    expect(home).toContain("getAreaVisual");
+    expect(home).toContain("inactiveColor");
+    expect(home).toContain("iconBackgroundColor");
+    expect(home).toContain("backgroundColor: `rgba(${rgb},0.08)`");
+    expect(home).toContain("iconBackgroundColor: `rgba(${rgb},0.22)`");
+    expect(home).toContain("inactiveColor: `rgba(${rgb},0.62)`");
+    expect(home).toContain("selectedIconColor");
+    expect(home).toContain("selectedTextColor");
+    expect(home).toContain("orbitSelectedCheck");
+    expect(home).toContain('name="checkmark-outline"');
+    expect(home).toContain("orbitConnectorLayer");
+    expect(home).toContain("orbitConnectorLine");
+    expect(home).toContain("mascotHaloOuter");
+    expect(home).toContain("mascotHaloInner");
+    expect(home).not.toContain("#A78BFA");
+    expect(home).not.toContain("#FF6BCB");
+    expect(home).not.toContain("#36E58B");
+    expect(home).not.toContain("#38BDF8");
+    expect(home).not.toContain("#FF5A5F");
+    expect(home).not.toContain("#2EC4B6");
+    expect(home).toContain("help-circle-outline");
+    expect(home).toContain('name="help-circle-outline" size={SPECIALTY_HELP_ICON_SIZE}');
+    expect(home).toContain("showSpecialtyHelp");
+    expect(home).toContain("Alert.alert");
+    expect(home).toContain("Falar no WhatsApp");
+    expect(home).toContain("canal de atendimento");
+    expect(home).not.toContain("Bru" + "no");
+    expect(home).toContain("mascotHelpTouchTarget");
+    expect(home).toContain("height: 44");
+    expect(home).toContain("width: 44");
+    expect(home).toContain("orbitHelpAnchor");
+    expect(home).toContain("width: SPECIALTY_CENTER_SIZE");
+    expect(home).toContain("height: SPECIALTY_CENTER_SIZE");
+    expect(home).not.toContain("mascotHelpText");
+    expect(appIcon).toContain('"checkmark-outline"');
+    expect(appIcon).toContain('"help-circle-outline"');
   });
 
   it("stores only the returned session after controlled Supabase Auth login", async () => {
@@ -238,17 +289,17 @@ describe("mobile foundation contracts", () => {
     });
   });
 
-  it("loads dependent cities and searches by city without coordinates", async () => {
+  it("loads public geographies without specialty query and searches by city with area", async () => {
     const calls: Array<{ url: string; body?: unknown }> = [];
     const api = createApiClient({
       config: publicTestConfig,
       getSession: async () => ({ accessToken: "jwt-redacted", email: "usuario@advogado20.com" }),
       fetchImpl: (async (url, init) => {
         calls.push({ url: String(url), body: init?.body ? JSON.parse(String(init.body)) : undefined });
-        if (String(url).endsWith("/v1/states?areaIds=civil")) {
+        if (String(url).endsWith("/v1/states")) {
           return new Response(JSON.stringify({ states: [{ id: "state-df", code: "DF", name: "Distrito Federal", active: true }] }), { status: 200 });
         }
-        if (String(url).includes("/v1/states/state-df/cities?areaIds=civil")) {
+        if (String(url).endsWith("/v1/states/state-df/cities")) {
           return new Response(JSON.stringify({ cities: [{ id: "city-bsb", stateId: "state-df", name: "Brasilia", active: true }] }), { status: 200 });
         }
         return new Response(JSON.stringify({
@@ -260,16 +311,30 @@ describe("mobile foundation contracts", () => {
       }) as typeof fetch
     });
 
-    await createGeographyService(api).listStates(["civil"]);
-    await createGeographyService(api).listCities("state-df", ["civil"]);
+    await createGeographyService(api).listStates();
+    await createGeographyService(api).listCities("state-df");
     await createMatchService(api).requestCityMatch({ stateId: "state-df", cityId: "city-bsb", areaIds: ["civil"], page: 1, pageSize: 5 });
 
+    expect(calls[0]).toEqual({ url: "http://127.0.0.1:3333/v1/states", body: undefined });
+    expect(calls[1]).toEqual({ url: "http://127.0.0.1:3333/v1/states/state-df/cities", body: undefined });
     expect(calls[2]).toEqual({
       url: "http://127.0.0.1:3333/v1/match/by-city",
       body: { stateId: "state-df", cityId: "city-bsb", areaIds: ["civil"], page: 1, pageSize: 5 }
     });
     expect(calls[2]?.body).not.toHaveProperty("lat");
     expect(locationMock.getCurrentPositionAsync).not.toHaveBeenCalled();
+  });
+
+  it("keeps Home geography loading independent from selected specialty", () => {
+    const home = readFileSync("src/screens/HomeScreen.tsx", "utf8");
+    const geographyService = readFileSync("src/services/geographyService.ts", "utf8");
+
+    expect(home).toContain("geographies.listStates()");
+    expect(home).toContain("geographies.listCities(selectedStateId)");
+    expect(home).not.toContain("geographies.listStates(selectedAreaIds)");
+    expect(home).not.toContain("geographies.listCities(selectedStateId, selectedAreaIds)");
+    expect(home).not.toContain("selectedAreaIds.length === 0) {\n      setStates([])");
+    expect(geographyService).not.toContain("areaIds=");
   });
 
   it("loads public partner logos through the backend API", async () => {
@@ -381,7 +446,7 @@ describe("mobile foundation contracts", () => {
               planLabel: "MVP interno",
               verified: true
             },
-            metrics: { profileViews: 0, whatsappClicks: 0, contacts: 0 },
+            metrics: { profileViews: 12, whatsappClicks: 3, contacts: 3, conversionRate: 0.25 },
             benefits: [{ id: "verified-profile", title: "Perfil verificado", description: "Seguro" }]
           }),
           { status: 200 }
@@ -391,8 +456,39 @@ describe("mobile foundation contracts", () => {
 
     await expect(createLawyerDashboardService(api).getDashboard()).resolves.toMatchObject({
       lawyer: { id: "lawyer-123", verified: true },
-      metrics: { profileViews: 0, whatsappClicks: 0, contacts: 0 }
+      metrics: { profileViews: 12, whatsappClicks: 3, contacts: 3, conversionRate: 0.25 }
     });
+  });
+
+  it("sends lawyer insight events through the backend without direct Supabase access", async () => {
+    const api = createApiClient({
+      config: publicTestConfig,
+      getSession: async () => ({
+        accessToken: "jwt-redacted",
+        email: "usuario@advogado20.com"
+      }),
+      fetchImpl: (async (url, init) => {
+        const headers = new Headers(init?.headers);
+        const payload = JSON.parse(String(init?.body));
+        expect(String(url)).toBe("http://127.0.0.1:3333/v1/lawyers/lawyer-123/events");
+        expect(headers.get("Authorization")).toBe("Bearer jwt-redacted");
+        expect(init?.method).toBe("POST");
+        expect(payload).toEqual({
+          eventType: "whatsapp_click",
+          source: "mobile",
+          dedupeKey: "click-lawyer-123"
+        });
+        return new Response(JSON.stringify({ recorded: true }), { status: 201 });
+      }) as typeof fetch
+    });
+
+    await expect(
+      createLawyerEventService(api).record("lawyer-123", {
+        eventType: "whatsapp_click",
+        source: "mobile",
+        dedupeKey: "click-lawyer-123"
+      })
+    ).resolves.toEqual({ recorded: true });
   });
 
   it("sends prayer request through the authenticated backend API without echoing secrets locally", async () => {

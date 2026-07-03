@@ -16,6 +16,7 @@ export type LawyerDashboardResponse = {
     profileViews: number;
     whatsappClicks: number;
     contacts: number;
+    conversionRate: number;
   };
   benefits: Array<{
     id: string;

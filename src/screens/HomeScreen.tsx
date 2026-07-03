@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   Image,
   Linking,
-  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -12,6 +12,7 @@ import {
   View
 } from "react-native";
 import { AppIcon, type AppIconName } from "../components/AppIcon";
+import Svg, { Line } from "react-native-svg";
 import { SafeAreaView } from "react-native-safe-area-context";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { RootStackParamList } from "../../App";
@@ -42,6 +43,7 @@ const normalizeSearchText = (value: string) =>
   value.trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 
 const logo = require("../../assets/logo-gold.png");
+const mascot = require("../../assets/mascot-lawyer.png");
 const prayerArt = require("../../assets/prayer-bible-cross.png");
 const legalUrls = {
   privacy: "https://meuadvogado2026.github.io/meu-advogado-legal/privacidade.html",
@@ -49,6 +51,36 @@ const legalUrls = {
   deletion: "https://meuadvogado2026.github.io/meu-advogado-legal/exclusao-de-dados.html"
 };
 const URGENT_LAWYER_WHATSAPP = "5561993574056";
+const URGENT_LAWYER_MESSAGE = "Preciso de advogado urgente. Vim pelo Advogado 2.0 e preciso falar com um advogado agora.";
+const SPECIALTY_HELP_MESSAGE = "Olá. Estou no Advogado 2.0 e tenho dúvida em qual área escolher.";
+const SPECIALTY_CARD_SIZE = 76;
+const SPECIALTY_CENTER_SIZE = 124;
+const SPECIALTY_ORBIT_GAP = 10;
+const SPECIALTY_STAGE_WIDTH = SPECIALTY_CARD_SIZE * 2 + SPECIALTY_CENTER_SIZE + SPECIALTY_ORBIT_GAP * 2;
+const SPECIALTY_STAGE_HEIGHT = SPECIALTY_CARD_SIZE * 2 + SPECIALTY_CENTER_SIZE + SPECIALTY_ORBIT_GAP * 2;
+const SPECIALTY_ICON_SIZE = 36;
+const SPECIALTY_HELP_BUTTON_SIZE = 30;
+const SPECIALTY_HELP_ICON_SIZE = 18;
+const SPECIALTY_AREA_COLOR = "#FFD34D";
+const SPECIALTY_AREA_RGB = "255,211,77";
+const SPECIALTY_LINE_COLOR = "rgba(255,211,77,0.22)";
+
+type AreaVisual = {
+  backgroundColor: string;
+  borderColor: string;
+  iconBackgroundColor: string;
+  iconBorderColor: string;
+  inactiveColor: string;
+  textColor: string;
+  accentColor: string;
+  color: string;
+  glowColor: string;
+  icon: AppIconName;
+  selectedBorderColor: string;
+  selectedBackgroundColor: string;
+  selectedIconColor: string;
+  selectedTextColor: string;
+};
 
 function hasReliableDistance(match: MatchResponse | null): boolean {
   return Boolean(match && match.distanceReliable !== false && typeof match.distanceKm === "number");
@@ -71,10 +103,25 @@ function describeMatch(match: MatchResponse | null): string {
   return `Advogado mais próximo${place}${distance}.`;
 }
 
-function openWhatsApp(rawNumber: string) {
+function openWhatsApp(rawNumber: string, message?: string) {
   const digits = rawNumber.replace(/\D/g, "");
   const intl = digits.startsWith("55") ? digits : `55${digits}`;
-  return Linking.openURL(`https://wa.me/${intl}`);
+  const text = message ? `?text=${encodeURIComponent(message)}` : "";
+  return Linking.openURL(`https://wa.me/${intl}${text}`);
+}
+
+function showSpecialtyHelp() {
+  Alert.alert(
+    "Dúvida na área?",
+    "Se você tiver dúvida em qual área escolher, toque em Falar no WhatsApp para conversar com o canal de atendimento.",
+    [
+      { text: "Agora não", style: "cancel" },
+      {
+        text: "Falar no WhatsApp",
+        onPress: () => openWhatsApp(URGENT_LAWYER_WHATSAPP, SPECIALTY_HELP_MESSAGE)
+      }
+    ]
+  );
 }
 
 function getFriendlyError(error: unknown) {
@@ -197,18 +244,51 @@ function StatusBox({ status, message }: { status: ViewStatus; message: string })
   );
 }
 
+function OrbitConnectors() {
+  const inset = (SPECIALTY_STAGE_WIDTH - (SPECIALTY_CARD_SIZE * 3 + SPECIALTY_ORBIT_GAP * 2)) / 2;
+  const center = SPECIALTY_STAGE_WIDTH / 2;
+  const cardMid = SPECIALTY_CARD_SIZE / 2;
+  const topY = cardMid;
+  const middleY = SPECIALTY_CARD_SIZE + SPECIALTY_ORBIT_GAP + SPECIALTY_CENTER_SIZE / 2;
+  const bottomY = SPECIALTY_STAGE_HEIGHT - cardMid;
+  const topLeftX = inset + cardMid;
+  const topRightX = SPECIALTY_STAGE_WIDTH - inset - cardMid;
+  const sideLeftX = cardMid;
+  const sideRightX = SPECIALTY_STAGE_WIDTH - cardMid;
+
+  return (
+    <Svg
+      accessibilityElementsHidden
+      focusable={false}
+      height={SPECIALTY_STAGE_HEIGHT}
+      importantForAccessibility="no"
+      pointerEvents="none"
+      style={styles.orbitConnectorLayer}
+      viewBox={`0 0 ${SPECIALTY_STAGE_WIDTH} ${SPECIALTY_STAGE_HEIGHT}`}
+      width={SPECIALTY_STAGE_WIDTH}
+    >
+      <Line x1={center} y1={middleY} x2={topLeftX} y2={topY} stroke={SPECIALTY_LINE_COLOR} strokeLinecap="round" strokeWidth={1.2} opacity={0.9} />
+      <Line x1={center} y1={middleY} x2={center} y2={topY} stroke={SPECIALTY_LINE_COLOR} strokeLinecap="round" strokeWidth={1.2} opacity={0.9} />
+      <Line x1={center} y1={middleY} x2={topRightX} y2={topY} stroke={SPECIALTY_LINE_COLOR} strokeLinecap="round" strokeWidth={1.2} opacity={0.9} />
+      <Line x1={center} y1={middleY} x2={sideLeftX} y2={middleY} stroke={SPECIALTY_LINE_COLOR} strokeLinecap="round" strokeWidth={1.2} opacity={0.9} />
+      <Line x1={center} y1={middleY} x2={sideRightX} y2={middleY} stroke={SPECIALTY_LINE_COLOR} strokeLinecap="round" strokeWidth={1.2} opacity={0.9} />
+      <Line x1={center} y1={middleY} x2={topLeftX} y2={bottomY} stroke={SPECIALTY_LINE_COLOR} strokeLinecap="round" strokeWidth={1.2} opacity={0.9} />
+      <Line x1={center} y1={middleY} x2={center} y2={bottomY} stroke={SPECIALTY_LINE_COLOR} strokeLinecap="round" strokeWidth={1.2} opacity={0.9} />
+      <Line x1={center} y1={middleY} x2={topRightX} y2={bottomY} stroke={SPECIALTY_LINE_COLOR} strokeLinecap="round" strokeWidth={1.2} opacity={0.9} />
+    </Svg>
+  );
+}
+
 function SpecialtyMatchOrbit({
   areas,
   selectedAreaIds,
-  status,
   onToggle,
-  onMatch
+  onHelp
 }: {
   areas: LegalArea[];
   selectedAreaIds: string[];
-  status: ViewStatus;
   onToggle: (areaId: string) => void;
-  onMatch: () => void;
+  onHelp: () => void;
 }) {
   if (areas.length === 0) {
     return null;
@@ -218,31 +298,62 @@ function SpecialtyMatchOrbit({
   const topAreas = featuredAreas.slice(0, 3);
   const sideAreas = featuredAreas.slice(3, 5);
   const bottomAreas = featuredAreas.slice(5, 8);
-  const disabled = selectedAreaIds.length === 0 || status === "loading";
-  const handleMatchPress = () => {
-    if (disabled) return;
-    onMatch();
-  };
   const renderSpecialty = (area: LegalArea) => {
     const selected = selectedAreaIds.includes(area.id);
+    const visual = getAreaVisual(area.name);
     return (
       <TouchableOpacity
         accessibilityRole="checkbox"
         accessibilityState={{ checked: selected }}
         key={area.id}
         onPress={() => onToggle(area.id)}
-        style={[styles.orbitSpecialty, selected && styles.orbitSpecialtySelected]}
+        style={[
+          styles.orbitSpecialty,
+          selected && styles.orbitSpecialtySelected,
+          {
+            backgroundColor: selected ? visual.selectedBackgroundColor : visual.backgroundColor,
+            borderColor: selected ? visual.selectedBorderColor : visual.borderColor,
+            shadowColor: visual.color
+          }
+        ]}
       >
-        <View style={[styles.orbitIconBadge, selected && styles.orbitIconBadgeSelected]}>
-          <View style={[styles.orbitIconGlow, selected && styles.orbitIconGlowSelected]} />
-          <AppIcon color={selected ? colors.surfaceDeep : colors.goldBright} name={getAreaIcon(area.name)} size={27} />
-          <View style={[styles.orbitIconAccent, selected && styles.orbitIconAccentSelected]} />
+        {selected ? (
+          <View style={styles.orbitSelectedCheck}>
+            <AppIcon color={visual.color} name="checkmark-outline" size={12} />
+          </View>
+        ) : null}
+        <View
+          style={[
+            styles.orbitIconBadge,
+            selected && styles.orbitIconBadgeSelected,
+            {
+              backgroundColor: selected ? visual.color : visual.iconBackgroundColor,
+              borderColor: selected ? visual.color : visual.iconBorderColor,
+              shadowColor: visual.color
+            }
+          ]}
+        >
+          <View style={[styles.orbitIconGlow, { backgroundColor: selected ? "rgba(7,20,38,0.22)" : visual.glowColor }]} />
+          <AppIcon color={selected ? visual.selectedIconColor : visual.inactiveColor} name={visual.icon} size={23} />
+          <View
+            style={[
+              styles.orbitIconAccent,
+              {
+                backgroundColor: selected ? colors.surfaceDeep : visual.accentColor,
+                borderColor: selected ? visual.color : "#071931"
+              }
+            ]}
+          />
         </View>
         <Text
           adjustsFontSizeToFit
           minimumFontScale={0.72}
           numberOfLines={2}
-          style={[styles.orbitSpecialtyText, selected && styles.orbitSpecialtyTextSelected]}
+          style={[
+            styles.orbitSpecialtyText,
+            selected && styles.orbitSpecialtyTextSelected,
+            { color: selected ? visual.selectedTextColor : visual.textColor }
+          ]}
         >
           {getAreaLabel(area.name)}
         </Text>
@@ -252,51 +363,78 @@ function SpecialtyMatchOrbit({
 
   return (
     <View style={styles.orbitPanel}>
-      <View style={styles.orbitHeader}>
-        <Text style={styles.orbitTitle}>Escolha sua área do direito</Text>
-        <Text style={styles.orbitAction}>Toque para selecionar</Text>
-      </View>
-      <View style={styles.orbitTopRow}>{topAreas.map(renderSpecialty)}</View>
-      <View style={styles.orbitMiddleRow}>
-        <View style={styles.orbitSideColumn}>{sideAreas.slice(0, 1).map(renderSpecialty)}</View>
-        <Pressable
-          disabled={disabled}
-          hitSlop={12}
-          accessibilityRole="button"
-          accessibilityLabel="Buscar match"
-          onPress={handleMatchPress}
-          style={({ pressed }) => [styles.orbitMatchTapZone, pressed && styles.pressedButton]}
-        >
-          <View style={[styles.orbitMatchButton, disabled && styles.disabledButton]}>
-            <AppIcon color={colors.surfaceDeep} name="navigate-outline" size={28} />
-            <Text style={styles.orbitMatchText}>MATCH</Text>
+      <View style={styles.orbitStage}>
+        <OrbitConnectors />
+        <View style={styles.orbitTopRow}>{topAreas.map(renderSpecialty)}</View>
+        <View style={styles.orbitMiddleRow}>
+          <View style={styles.orbitSideColumn}>{sideAreas.slice(0, 1).map(renderSpecialty)}</View>
+          <View style={styles.orbitMascotCenter}>
+            <View style={styles.mascotHaloOuter} />
+            <View style={styles.mascotHaloInner} />
+            <Image accessibilityIgnoresInvertColors source={mascot} style={styles.mascotImage} />
+            <View style={styles.orbitHelpAnchor}>
+              <TouchableOpacity
+                accessible
+                accessibilityHint="Abre o WhatsApp para orientar a escolha da especialidade"
+                accessibilityLabel="Tem dúvidas na escolha da área? Clique aqui"
+                accessibilityRole="button"
+                onPress={onHelp}
+                style={styles.mascotHelpTouchTarget}
+              >
+                <View style={styles.mascotHelpButton}>
+                  <AppIcon color={colors.surfaceDeep} name="help-circle-outline" size={SPECIALTY_HELP_ICON_SIZE} />
+                </View>
+              </TouchableOpacity>
+            </View>
           </View>
-        </Pressable>
-        <View style={styles.orbitSideColumn}>{sideAreas.slice(1, 2).map(renderSpecialty)}</View>
+          <View style={styles.orbitSideColumn}>{sideAreas.slice(1, 2).map(renderSpecialty)}</View>
+        </View>
+        <View style={styles.orbitBottomRow}>{bottomAreas.map(renderSpecialty)}</View>
       </View>
-      <View style={styles.orbitBottomRow}>{bottomAreas.map(renderSpecialty)}</View>
-      <Text style={styles.orbitHint}>Selecione uma ou mais áreas e encontre um advogado próximo da sua localização.</Text>
     </View>
   );
 }
 
-function getAreaIcon(areaName: string): AppIconName {
-  const normalized = areaName.toLowerCase();
-  if (normalized.includes("trabalh")) return "briefcase-outline";
-  if (normalized.includes("famil")) return "people-outline";
-  if (normalized.includes("consum")) return "cart-outline";
-  if (normalized.includes("imob")) return "business-outline";
-  if (normalized.includes("empres")) return "business-outline";
-  if (normalized.includes("tribut")) return "receipt-outline";
-  if (normalized.includes("criminal")) return "shield-checkmark-outline";
-  if (normalized.includes("previd")) return "ribbon-outline";
-  if (normalized.includes("civil") || normalized.includes("civel")) return "scale-outline";
-  return "library-outline";
+function areaVisual(icon: AppIconName, color: string, rgb: string): AreaVisual {
+  return {
+    backgroundColor: `rgba(${rgb},0.08)`,
+    borderColor: `rgba(${rgb},0.24)`,
+    iconBackgroundColor: `rgba(${rgb},0.22)`,
+    iconBorderColor: `rgba(${rgb},0.36)`,
+    inactiveColor: `rgba(${rgb},0.62)`,
+    textColor: `rgba(${rgb},0.72)`,
+    accentColor: `rgba(${rgb},0.5)`,
+    color,
+    glowColor: `rgba(${rgb},0.12)`,
+    icon,
+    selectedBorderColor: "rgba(255,246,201,0.98)",
+    selectedBackgroundColor: color,
+    selectedIconColor: colors.surfaceDeep,
+    selectedTextColor: colors.surfaceDeep
+  };
+}
+
+function specialtyAreaVisual(icon: AppIconName): AreaVisual {
+  return areaVisual(icon, SPECIALTY_AREA_COLOR, SPECIALTY_AREA_RGB);
+}
+
+function getAreaVisual(areaName: string): AreaVisual {
+  const normalized = normalizeSearchText(areaName);
+  if (normalized.includes("trabalh")) return specialtyAreaVisual("briefcase-outline");
+  if (normalized.includes("famil")) return specialtyAreaVisual("people-outline");
+  if (normalized.includes("consum")) return specialtyAreaVisual("cart-outline");
+  if (normalized.includes("imob")) return specialtyAreaVisual("business-outline");
+  if (normalized.includes("empres")) return specialtyAreaVisual("business-outline");
+  if (normalized.includes("tribut")) return specialtyAreaVisual("receipt-outline");
+  if (normalized.includes("criminal")) return specialtyAreaVisual("shield-checkmark-outline");
+  if (normalized.includes("previd")) return specialtyAreaVisual("ribbon-outline");
+  if (normalized.includes("civil") || normalized.includes("civel")) return specialtyAreaVisual("scale-outline");
+  return specialtyAreaVisual("library-outline");
 }
 
 function getAreaLabel(areaName: string): string {
   const label = areaName.replace(/^direito\s+(de|da|do|das|dos)?\s*/i, "").trim();
-  const normalized = label.toLowerCase();
+  const normalized = normalizeSearchText(label);
   if (normalized.includes("famil")) return "Família";
   if (normalized.includes("previdenci")) return "Previdência";
   if (normalized.includes("tribut")) return "Tributário";
@@ -312,7 +450,7 @@ function UrgentLawyerButton() {
     <TouchableOpacity
       accessibilityLabel="Advogado urgente pelo WhatsApp"
       accessibilityRole="button"
-      onPress={() => openWhatsApp(URGENT_LAWYER_WHATSAPP)}
+      onPress={() => openWhatsApp(URGENT_LAWYER_WHATSAPP, URGENT_LAWYER_MESSAGE)}
       style={styles.urgentButton}
     >
       <View style={styles.urgentIconBadge}>
@@ -428,23 +566,44 @@ function PartnersFooter({ partners }: { partners: PartnerLogo[] }) {
 function LawyerInsightCard({
   icon,
   label,
-  value
+  value,
+  helper,
+  accent = colors.gold
 }: {
   icon: AppIconName;
   label: string;
-  value: number;
+  value: number | string;
+  helper?: string;
+  accent?: string;
 }) {
   return (
     <View style={styles.metricCard}>
       <View style={styles.metricHeader}>
         <View style={styles.metricIconBadge}>
-          <AppIcon color={colors.gold} name={icon} size={20} />
+          <AppIcon color={accent} name={icon} size={20} />
         </View>
         <Text style={styles.cardLabel}>{label}</Text>
       </View>
       <Text style={styles.metricValue}>{value}</Text>
+      {helper ? <Text style={styles.metricHelper}>{helper}</Text> : null}
     </View>
   );
+}
+
+function formatContactRate(rate?: number) {
+  if (!rate || !Number.isFinite(rate)) return "--";
+  return `${Math.round(rate * 100)}%`;
+}
+
+function getProfileStatus(profile: PublicLawyerProfile | null) {
+  if (!profile) return { value: "Carregando", helper: "Perfil profissional" };
+  const missing = [
+    profile.avatarUrl ? null : "foto",
+    profile.coverUrl ? null : "capa",
+    profile.fullBio || profile.miniBio ? null : "bio"
+  ].filter(Boolean);
+  if (missing.length === 0) return { value: "Completo", helper: "Perfil pronto para visitas" };
+  return { value: "Pendente", helper: `Falta ${missing.join(", ")}` };
 }
 
 function LawyerVipCard({ dashboard }: { dashboard: LawyerDashboardResponse | null }) {
@@ -644,7 +803,6 @@ export function HomeScreen({ navigation }: Props) {
     lawyerDashboard?.lawyer.name?.trim() || currentUser?.name?.trim() || currentUser?.email?.split("@")[0] || "advogado";
   const selectedState = states.find((item) => item.id === selectedStateId);
   const selectedCity = cities.find((item) => item.id === selectedCityId);
-  const selectedAreaKey = selectedAreaIds.join(",");
   const filteredStates = useMemo(() => {
     const term = normalizeSearchText(stateSearch);
     if (!term) return states;
@@ -715,8 +873,7 @@ export function HomeScreen({ navigation }: Props) {
   }, [session, currentUser, legalAreas]);
 
   useEffect(() => {
-    if (!session || currentUser?.role !== "client") return;
-    if (selectedAreaIds.length === 0) {
+    if (!session || currentUser?.role !== "client") {
       setStates([]);
       setCities([]);
       setSelectedStateId("");
@@ -724,7 +881,7 @@ export function HomeScreen({ navigation }: Props) {
       return;
     }
     let active = true;
-    geographies.listStates(selectedAreaIds)
+    geographies.listStates()
       .then((response) => {
         if (!active) return;
         setStates(response.states);
@@ -736,16 +893,16 @@ export function HomeScreen({ navigation }: Props) {
         setSelectedStateId("");
       });
     return () => { active = false; };
-  }, [session, currentUser, geographies, selectedAreaKey]);
+  }, [session, currentUser, geographies]);
 
   useEffect(() => {
-    if (!session || currentUser?.role !== "client" || !selectedStateId || selectedAreaIds.length === 0) {
+    if (!session || currentUser?.role !== "client" || !selectedStateId) {
       setCities([]);
       setSelectedCityId("");
       return;
     }
     let active = true;
-    geographies.listCities(selectedStateId, selectedAreaIds)
+    geographies.listCities(selectedStateId)
       .then((response) => {
         if (!active) return;
         setCities(response.cities);
@@ -759,7 +916,7 @@ export function HomeScreen({ navigation }: Props) {
         setMessage("Nao foi possivel carregar as cidades deste estado.");
       });
     return () => { active = false; };
-  }, [session, currentUser, geographies, selectedStateId, selectedAreaKey]);
+  }, [session, currentUser, geographies, selectedStateId]);
 
   useEffect(() => {
     if (!session || currentUser?.role !== "lawyer") {
@@ -1145,16 +1302,39 @@ export function HomeScreen({ navigation }: Props) {
                 </View>
                 <LawyerVipCard dashboard={lawyerDashboard} />
                 <View style={styles.metricsGrid}>
-                  <LawyerInsightCard
-                    icon="eye-outline"
-                    label="Visitas"
-                    value={lawyerDashboard?.metrics.profileViews ?? 0}
-                  />
-                  <LawyerInsightCard
-                    icon="logo-whatsapp"
-                    label="Cliques no WhatsApp"
-                    value={lawyerDashboard?.metrics.whatsappClicks ?? 0}
-                  />
+                  {(() => {
+                    const metrics = lawyerDashboard?.metrics;
+                    const profileStatus = getProfileStatus(lawyerProfile);
+                    return (
+                      <>
+                        <LawyerInsightCard
+                          icon="eye-outline"
+                          label="Visitas"
+                          value={metrics?.profileViews ?? 0}
+                          helper="Ultimos 30 dias"
+                        />
+                        <LawyerInsightCard
+                          icon="logo-whatsapp"
+                          label="WhatsApp"
+                          value={metrics?.whatsappClicks ?? 0}
+                          helper="Contatos iniciados"
+                          accent={colors.whatsapp}
+                        />
+                        <LawyerInsightCard
+                          icon="checkmark-circle-outline"
+                          label="Taxa de contato"
+                          value={formatContactRate(metrics?.conversionRate)}
+                          helper={metrics?.profileViews ? "Cliques / visitas" : "Aguardando visitas"}
+                        />
+                        <LawyerInsightCard
+                          icon="shield-checkmark-outline"
+                          label="Status"
+                          value={profileStatus.value}
+                          helper={profileStatus.helper}
+                        />
+                      </>
+                    );
+                  })()}
                 </View>
                 <PartnersFooter partners={partners} />
                 <StatusBox status={status} message={message} />
@@ -1202,25 +1382,7 @@ export function HomeScreen({ navigation }: Props) {
                 <Text style={styles.heroKicker}>Encontre o advogado mais próximo da sua localização.</Text>
               </View>
 
-              <SpecialtyMatchOrbit
-                areas={areas}
-                selectedAreaIds={selectedAreaIds}
-                status={status}
-                onToggle={toggleArea}
-                onMatch={handleMatch}
-              />
-
               <View style={styles.citySearchPanel}>
-                <Text style={styles.panelTitle}>Como deseja buscar?</Text>
-                <TouchableOpacity
-                  disabled={selectedAreaIds.length === 0 || status === "loading"}
-                  onPress={handleMatch}
-                  style={[styles.primaryButton, (selectedAreaIds.length === 0 || status === "loading") && styles.disabledButton]}
-                >
-                  <AppIcon color={colors.surfaceDeep} name="navigate-outline" size={18} />
-                  <Text style={styles.primaryButtonText}>Buscar perto de mim</Text>
-                </TouchableOpacity>
-                <Text style={styles.panelText}>Buscar por cidade nao solicita sua localizacao.</Text>
                 <TouchableOpacity
                   accessibilityRole="button"
                   accessibilityState={{ expanded: isStatePickerOpen }}
@@ -1302,10 +1464,52 @@ export function HomeScreen({ navigation }: Props) {
                     ) : null}
                   </>
                 ) : null}
-                <TouchableOpacity disabled={!selectedStateId || !selectedCityId || selectedAreaIds.length === 0} onPress={handleCityMatch} style={[styles.secondaryButton, (!selectedStateId || !selectedCityId || selectedAreaIds.length === 0) && styles.disabledButton]}>
-                  <AppIcon color={colors.goldBright} name="business-outline" size={18} />
-                  <Text style={styles.secondaryButtonText}>Buscar por cidade</Text>
-                </TouchableOpacity>
+              </View>
+
+              <SpecialtyMatchOrbit
+                areas={areas}
+                selectedAreaIds={selectedAreaIds}
+                onToggle={toggleArea}
+                onHelp={showSpecialtyHelp}
+              />
+
+              <View style={styles.searchActionsPanel}>
+                <View style={styles.searchDescriptions}>
+                  <View style={styles.searchModeInfo}>
+                    <AppIcon color={colors.goldBright} name="location-outline" size={18} />
+                    <Text style={styles.searchModeText}>Localização usa o GPS do aparelho para indicar o advogado mais próximo.</Text>
+                  </View>
+                  <View style={styles.searchModeInfo}>
+                    <AppIcon color={colors.goldBright} name="business-outline" size={18} />
+                    <Text style={styles.searchModeText}>Cidade não pede GPS; lista advogados da cidade escolhida.</Text>
+                  </View>
+                </View>
+                <View style={styles.searchButtonRow}>
+                  <TouchableOpacity
+                    disabled={selectedAreaIds.length === 0 || status === "loading"}
+                    onPress={handleMatch}
+                    style={[
+                      styles.primaryButton,
+                      styles.searchModeButton,
+                      (selectedAreaIds.length === 0 || status === "loading") && styles.disabledButton
+                    ]}
+                  >
+                    <AppIcon color={colors.surfaceDeep} name="navigate-outline" size={18} />
+                    <Text style={styles.primaryButtonText}>Por localização</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    disabled={!selectedStateId || !selectedCityId || selectedAreaIds.length === 0}
+                    onPress={handleCityMatch}
+                    style={[
+                      styles.secondaryButton,
+                      styles.searchModeButton,
+                      (!selectedStateId || !selectedCityId || selectedAreaIds.length === 0) && styles.disabledButton
+                    ]}
+                  >
+                    <AppIcon color={colors.goldBright} name="business-outline" size={18} />
+                    <Text style={styles.secondaryButtonText}>Por cidade</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
 
               <UrgentLawyerButton />
@@ -1399,9 +1603,9 @@ const styles = StyleSheet.create({
   },
   loginLogo: {
     aspectRatio: 1,
-    height: 188,
+    height: 242,
     resizeMode: "contain",
-    width: 188
+    width: 242
   },
   subtitle: {
     color: colors.textMuted,
@@ -1424,12 +1628,12 @@ const styles = StyleSheet.create({
     padding: spacing.lg
   },
   citySearchPanel: {
-    backgroundColor: colors.surface,
-    borderColor: colors.borderSubtle,
-    borderRadius: 12,
+    backgroundColor: "rgba(11,22,40,0.78)",
+    borderColor: "rgba(217,154,45,0.16)",
+    borderRadius: 10,
     borderWidth: 1,
-    gap: spacing.md,
-    padding: spacing.lg
+    gap: spacing.sm,
+    padding: spacing.md
   },
   locationSelectHeader: {
     alignItems: "center",
@@ -1517,9 +1721,9 @@ const styles = StyleSheet.create({
     paddingTop: spacing.sm
   },
   pageLogo: {
-    height: 136,
+    height: 184,
     resizeMode: "contain",
-    width: 136
+    width: 184
   },
   clientHero: {
     gap: spacing.sm
@@ -1601,88 +1805,112 @@ const styles = StyleSheet.create({
   orbitPanel: {
     backgroundColor: "#071931",
     borderColor: "rgba(217,154,45,0.2)",
-    borderRadius: 18,
+    borderRadius: 16,
     borderWidth: 1,
-    gap: spacing.md,
-    overflow: "hidden",
-    padding: spacing.md
+    alignItems: "center",
+    overflow: "visible",
+    paddingHorizontal: 10,
+    paddingVertical: 12
   },
-  orbitHeader: {
-    alignItems: "flex-start",
-    gap: 4
+  orbitStage: {
+    gap: SPECIALTY_ORBIT_GAP,
+    height: SPECIALTY_STAGE_HEIGHT,
+    position: "relative",
+    width: SPECIALTY_STAGE_WIDTH
   },
-  orbitTitle: {
-    color: colors.textPrimary,
-    fontSize: 27,
-    fontWeight: "900",
-    lineHeight: 33
+  orbitConnectorLayer: {
+    left: 0,
+    position: "absolute",
+    top: 0,
+    zIndex: 0
   },
-  orbitAction: {
-    color: colors.gold,
-    fontSize: 12,
-    fontWeight: "900",
-    textTransform: "uppercase"
+  orbitConnectorLine: {
+    opacity: 0.9
   },
   orbitTopRow: {
     flexDirection: "row",
-    gap: spacing.sm
+    gap: SPECIALTY_ORBIT_GAP,
+    justifyContent: "center",
+    zIndex: 2
   },
   orbitMiddleRow: {
     alignItems: "center",
     flexDirection: "row",
-    gap: spacing.sm,
-    justifyContent: "space-between"
+    gap: SPECIALTY_ORBIT_GAP,
+    justifyContent: "center",
+    minHeight: SPECIALTY_CENTER_SIZE,
+    zIndex: 3
   },
   orbitBottomRow: {
     flexDirection: "row",
-    gap: spacing.sm
+    gap: SPECIALTY_ORBIT_GAP,
+    justifyContent: "center",
+    zIndex: 2
   },
   orbitSideColumn: {
-    flex: 1,
-    minHeight: 104,
+    height: SPECIALTY_CARD_SIZE,
+    width: SPECIALTY_CARD_SIZE,
     zIndex: 1
   },
   orbitSpecialty: {
     alignItems: "center",
-    backgroundColor: "rgba(8,27,53,0.9)",
-    borderColor: "rgba(217,154,45,0.22)",
-    borderRadius: 12,
+    borderRadius: 8,
     borderWidth: 1,
-    flex: 1,
-    gap: 8,
+    elevation: 1,
+    flexShrink: 0,
+    gap: 5,
+    height: SPECIALTY_CARD_SIZE,
     justifyContent: "center",
-    minHeight: 96,
+    overflow: "visible",
     paddingHorizontal: spacing.xs,
-    paddingVertical: spacing.sm
+    paddingVertical: spacing.xs,
+    position: "relative",
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
+    width: SPECIALTY_CARD_SIZE
   },
   orbitSpecialtySelected: {
-    backgroundColor: "rgba(217,154,45,0.12)",
-    borderColor: colors.goldBright
+    borderWidth: 2,
+    elevation: 8,
+    shadowOpacity: 0.56,
+    shadowRadius: 15,
+    transform: [{ scale: 1.04 }]
+  },
+  orbitSelectedCheck: {
+    alignItems: "center",
+    backgroundColor: colors.surfaceDeep,
+    borderColor: colors.goldBright,
+    borderRadius: 999,
+    borderWidth: 1,
+    height: 20,
+    justifyContent: "center",
+    position: "absolute",
+    right: -5,
+    top: -5,
+    width: 20,
+    zIndex: 4
   },
   orbitIconBadge: {
     alignItems: "center",
-    backgroundColor: "rgba(217,154,45,0.1)",
-    borderColor: "rgba(244,190,83,0.58)",
-    borderRadius: 18,
+    borderRadius: 16,
     borderWidth: 1,
-    height: 48,
+    height: SPECIALTY_ICON_SIZE,
     justifyContent: "center",
     overflow: "hidden",
     position: "relative",
-    shadowColor: colors.goldBright,
-    shadowOpacity: 0.2,
+    shadowOpacity: 0.06,
     shadowRadius: 8,
-    width: 48,
-    elevation: 2
+    width: SPECIALTY_ICON_SIZE,
+    elevation: 1
   },
   orbitIconBadgeSelected: {
-    backgroundColor: colors.goldBright,
-    borderColor: colors.goldBright
+    elevation: 4,
+    shadowOpacity: 0.34,
+    shadowRadius: 11
   },
   orbitIconGlow: {
-    backgroundColor: "rgba(244,190,83,0.16)",
     borderRadius: 999,
-    height: 34,
+    height: 30,
     position: "absolute",
     transform: [{ rotate: "18deg" }],
     width: 20
@@ -1695,65 +1923,87 @@ const styles = StyleSheet.create({
     borderColor: "#071931",
     borderRadius: 999,
     borderWidth: 2,
-    height: 9,
+    height: 7,
     position: "absolute",
-    right: 3,
-    top: 3,
-    width: 9
+    right: 2,
+    top: 2,
+    width: 7
   },
   orbitIconAccentSelected: {
     backgroundColor: colors.surfaceDeep,
     borderColor: colors.goldBright
   },
   orbitSpecialtyText: {
-    color: colors.textPrimary,
-    fontSize: 11,
+    color: colors.textMuted,
+    fontSize: 9.5,
     fontWeight: "900",
-    lineHeight: 14,
+    lineHeight: 12,
     textAlign: "center",
     width: "100%"
   },
   orbitSpecialtyTextSelected: {
-    color: colors.goldBright
+    color: colors.surfaceDeep
   },
-  orbitMatchButton: {
+  orbitMascotCenter: {
+    alignItems: "center",
+    height: SPECIALTY_CENTER_SIZE,
+    justifyContent: "center",
+    overflow: "visible",
+    position: "relative",
+    width: SPECIALTY_CENTER_SIZE,
+    zIndex: 4
+  },
+  mascotHaloOuter: {
+    backgroundColor: "rgba(255,211,77,0.08)",
+    borderColor: "rgba(255,211,77,0.26)",
+    borderRadius: 999,
+    borderWidth: 1,
+    height: 116,
+    position: "absolute",
+    width: 116
+  },
+  mascotHaloInner: {
+    backgroundColor: "rgba(2,102,255,0.08)",
+    borderColor: "rgba(255,211,77,0.34)",
+    borderRadius: 999,
+    borderWidth: 1,
+    height: 82,
+    position: "absolute",
+    width: 82
+  },
+  mascotImage: {
+    height: 154,
+    left: -15,
+    position: "absolute",
+    resizeMode: "contain",
+    top: -19,
+    width: 154
+  },
+  orbitHelpAnchor: {
+    bottom: 15,
+    position: "absolute",
+    right: 16,
+    zIndex: 8
+  },
+  mascotHelpTouchTarget: {
+    alignItems: "center",
+    height: 44,
+    justifyContent: "center",
+    width: 44
+  },
+  mascotHelpButton: {
     alignItems: "center",
     backgroundColor: colors.goldBright,
-    borderColor: colors.goldDeep,
+    borderColor: "rgba(255,255,255,0.58)",
     borderRadius: 999,
-    borderWidth: 2,
-    gap: 4,
-    height: 88,
+    borderWidth: 1.5,
+    height: SPECIALTY_HELP_BUTTON_SIZE,
     justifyContent: "center",
-    paddingHorizontal: spacing.sm,
     shadowColor: colors.goldBright,
     shadowOpacity: 0.28,
-    shadowRadius: 14,
-    width: 88,
-    zIndex: 4,
+    shadowRadius: 7,
+    width: SPECIALTY_HELP_BUTTON_SIZE,
     elevation: 4
-  },
-  orbitMatchTapZone: {
-    alignItems: "center",
-    height: 104,
-    justifyContent: "center",
-    width: 104,
-    zIndex: 5,
-    elevation: 5
-  },
-  orbitMatchText: {
-    color: colors.surfaceDeep,
-    fontSize: 11,
-    fontWeight: "900",
-    lineHeight: 14,
-    textAlign: "center",
-    textTransform: "uppercase"
-  },
-  orbitHint: {
-    color: colors.textMuted,
-    fontSize: 13,
-    lineHeight: 19,
-    textAlign: "center"
   },
   areaGrid: {
     flexDirection: "row",
@@ -2003,7 +2253,10 @@ const styles = StyleSheet.create({
     borderColor: colors.borderSubtle,
     borderRadius: 16,
     borderWidth: 1,
+    flexBasis: "47%",
+    flexGrow: 1,
     gap: spacing.md,
+    minHeight: 142,
     padding: spacing.lg
   },
   metricHeader: {
@@ -2035,6 +2288,12 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
     fontSize: 22,
     fontWeight: "900"
+  },
+  metricHelper: {
+    color: colors.textMuted,
+    fontSize: 12,
+    fontWeight: "700",
+    lineHeight: 17
   },
   matchMeta: {
     color: colors.textMuted,
@@ -2140,6 +2399,36 @@ const styles = StyleSheet.create({
   secondaryButtonText: {
     color: colors.goldBright,
     fontWeight: "900"
+  },
+  searchActionsPanel: {
+    backgroundColor: "rgba(11,22,40,0.78)",
+    borderColor: colors.borderSubtle,
+    borderRadius: 10,
+    borderWidth: 1,
+    gap: spacing.md,
+    padding: spacing.md
+  },
+  searchDescriptions: {
+    gap: spacing.sm
+  },
+  searchModeInfo: {
+    alignItems: "flex-start",
+    flexDirection: "row",
+    gap: spacing.sm
+  },
+  searchModeText: {
+    color: colors.textMuted,
+    flex: 1,
+    fontSize: 13,
+    lineHeight: 18
+  },
+  searchButtonRow: {
+    flexDirection: "row",
+    gap: spacing.sm
+  },
+  searchModeButton: {
+    flex: 1,
+    paddingHorizontal: spacing.sm
   },
   whatsButton: {
     alignItems: "center",
@@ -2428,6 +2717,7 @@ const styles = StyleSheet.create({
   },
   metricsGrid: {
     flexDirection: "row",
+    flexWrap: "wrap",
     gap: spacing.md
   },
   partnersFooter: {

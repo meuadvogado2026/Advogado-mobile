@@ -22,8 +22,8 @@ async function main() {
     exitCode,
     result: exitCode === 0 ? "OK" : "FALHOU",
     gaps: [
-      "Smoke visual em Android/emulador nao executado neste ciclo.",
-      "Login real depende de EXPO_PUBLIC_SUPABASE_ANON_KEY em runtime; teste unitario usa Auth controlado sem expor credenciais."
+      "Este comando nao automatiza smoke visual Android; a evidencia deve ser registrada separadamente.",
+      "O Harness estrutural usa Auth controlado; login real pertence ao smoke:runtime e nao expoe credenciais."
     ],
     steps
   };

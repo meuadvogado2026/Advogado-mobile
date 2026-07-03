@@ -30,7 +30,13 @@ Solicitar somente em contexto, apos tela explicar:
 
 - por que e necessaria;
 - como sera usada;
+- que a coordenada e enviada ao backend;
+- por quanto tempo pode ser retida em `match_events`, se essa persistencia continuar;
 - como tentar novamente se negar.
+
+Para uma busca transacional, avaliar coarse location e planejar Android Location Button
+antes de target API 37. A permissao precisa padrao deve permanecer apenas se houver
+justificativa tecnica documentada.
 
 ## Auth
 

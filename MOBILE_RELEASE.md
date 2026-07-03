@@ -2,7 +2,53 @@
 
 **Estado:** nao pronto para release  
 **Canal inicial:** internal testing Android
-**Ultimo diagnostico:** 2026-06-03 - `SPEC003_DEPENDENCIAS_RELEASE_OK / QUESTIONAR_CREDENCIAIS_PLAY_CONSOLE`
+**Ultimo diagnostico:** 2026-07-02 - `DOCS_LEGAIS_ATUALIZADOS_COM_LACUNAS_CLIENTE`
+
+## Client Test Preview APK - 2026-07-02
+
+APK interno para teste do cliente gerado via EAS Build `preview`, sem Play Store:
+
+- Build ID: `2ea104ab-6433-4310-b213-78e23b996af3`
+- Build page: `https://expo.dev/accounts/advogado2.0/projects/meu-advogado-20/builds/2ea104ab-6433-4310-b213-78e23b996af3`
+- APK: `https://expo.dev/artifacts/eas/jrPm4l5y8q5i1Ci-s7QVz1PL5UpUrNn-_nugrloOs1s.apk`
+- Local: `harness-results/client-test-preview-sdk56-vc3-2026-07-02.apk`
+- SHA-256: `CD4EC11EB2736688C3922406A02AE74B006A7DEA8BB89AAFCA64D4F871A48AC9`
+
+Pre-build alinhou patches Expo SDK 56 e passou em `expo-doctor`, install-check,
+audit de producao, typecheck, testes, smoke e harness. O APK passou em manifest,
+ZIP 16 KB e assinatura v2. Smoke de instalacao no AVD local ficou pendente por
+espaco insuficiente/travamento do emulador.
+
+## Atualizacao Pre-Builder - 2026-07-02
+
+O DOCX `INFORMAÇÕES-ADVOGADO 2.0.docx` complementou as informacoes legais e de loja:
+responsavel ELO PERFORMANCE PROFISSIONAL LTDA, CNPJ `65.999.860/0001-26`, endereco
+em Taguatinga Norte/DF, WhatsApp de suporte `+55 61 99357-4056`, app adulto para o
+Brasil, sem anuncios, com assinatura mensal, dados coletados confirmados, advogados
+iniciais autorizados e declaracao de que o app nao promete exito, preco, desconto ou
+resultado.
+
+Arquivos locais atualizados: `../advogado-legal/privacidade.html`,
+`../advogado-legal/termos.html`, `../advogado-legal/exclusao-de-dados.html`,
+`../DATA_SAFETY_DRAFT.md`, `../PLAYSTORE_CLIENTE_DOCUMENTOS_CHECKLIST.md` e
+`../PLAYSTORE_READINESS.md`.
+
+Nao gerar novo builder antes de:
+
+- alinhar os pacotes Expo SDK 56 apontados por `expo-doctor`/`expo install --check`;
+- publicar/validar por HTTP as paginas legais atualizadas;
+- decidir a retencao final entre 5 anos geral e 90 dias para eventos sensiveis;
+- detalhar assinatura mensal e impactos de Google Play Billing;
+- confirmar Play Console, keystore/EAS, maior `versionCode` e conta de teste.
+
+## Auditoria 2026-06-14
+
+- Nao gerar/submeter AAB antes de migrar a base Expo/RN.
+- APK atual: ZIP 16 KB aprovado, ELF ARM64 reprovado em 13/14 bibliotecas.
+- Politica publica, Data Safety, App access, store listing e `versionCode` continuam
+  abertos.
+- Preview Expo Go disponivel em `exp://9cifmnw-advogado20-8083.exp.direct`.
+- Fonte de verdade: `../PLAYSTORE_AUDIT_2026-06-14.md`.
 
 ## Configuracoes Necessarias
 

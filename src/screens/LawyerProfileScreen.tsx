@@ -6,6 +6,7 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { RootStackParamList } from "../../App";
 import { ApiClientError, createApiClient } from "../services/apiClient";
 import { createAuthService } from "../services/authService";
+import { createLawyerEventService } from "../services/lawyerEventService";
 import { createLawyerProfileService, type PublicLawyerProfile } from "../services/lawyerProfileService";
 import { secureSessionStorage } from "../services/secureSessionStorage";
 import { colors, spacing } from "../theme/tokens";
@@ -19,6 +20,8 @@ const legalUrls = {
   terms: "https://meuadvogado2026.github.io/meu-advogado-legal/termos.html",
   deletion: "https://meuadvogado2026.github.io/meu-advogado-legal/exclusao-de-dados.html"
 };
+const LAWYER_WHATSAPP_MESSAGE =
+  "Olá, encontrei seu perfil no Advogado 2.0 e gostaria de receber orientação jurídica. Pode me ajudar?";
 
 function normalizeWhatsApp(rawNumber?: string | null) {
   const digits = rawNumber?.replace(/\D/g, "") ?? "";
@@ -34,6 +37,10 @@ function safeImageUrl(url?: string | null) {
 
 function safeExternalUrl(url?: string | null) {
   return typeof url === "string" && url.startsWith("https://") ? url : null;
+}
+
+function buildWhatsAppUrl(whatsapp: string) {
+  return `https://wa.me/${whatsapp}?text=${encodeURIComponent(LAWYER_WHATSAPP_MESSAGE)}`;
 }
 
 function getAreaIcon(areaName: string): AppIconName {
@@ -74,8 +81,10 @@ function LegalLinks() {
 export function LawyerProfileScreen({ navigation, route }: Props) {
   const [profile, setProfile] = useState<PublicLawyerProfile | null>(null);
   const [status, setStatus] = useState<ProfileStatus>("loading");
+  const [openingWhatsapp, setOpeningWhatsapp] = useState(false);
   const authService = useMemo(() => createAuthService({ storage: secureSessionStorage }), []);
   const apiClient = useMemo(() => createApiClient({ getSession: authService.getSession }), [authService]);
+  const events = useMemo(() => createLawyerEventService(apiClient), [apiClient]);
   const profiles = useMemo(() => createLawyerProfileService(apiClient), [apiClient]);
 
   useEffect(() => {
@@ -86,6 +95,7 @@ export function LawyerProfileScreen({ navigation, route }: Props) {
         if (!active) return;
         setProfile(response.lawyer);
         setStatus("ready");
+        void events.record(route.params.lawyerId, { eventType: "profile_view", source: "mobile" }).catch(() => undefined);
       })
       .catch((error: unknown) => {
         if (!active) return;
@@ -94,7 +104,7 @@ export function LawyerProfileScreen({ navigation, route }: Props) {
     return () => {
       active = false;
     };
-  }, [profiles, route.params.lawyerId]);
+  }, [events, profiles, route.params.lawyerId]);
 
   const whatsapp = normalizeWhatsApp(profile?.whatsapp);
   const avatarUrl = safeImageUrl(profile?.avatarUrl);
@@ -103,6 +113,26 @@ export function LawyerProfileScreen({ navigation, route }: Props) {
   const place = [profile?.city, profile?.state].filter(Boolean).join(", ");
   const distance =
     typeof route.params.distanceKm === "number" ? `A ${route.params.distanceKm.toFixed(1)} km de você` : null;
+
+  async function handleWhatsappPress() {
+    if (!whatsapp || openingWhatsapp) return;
+    setOpeningWhatsapp(true);
+    try {
+      await Promise.race([
+        events
+          .record(route.params.lawyerId, {
+            eventType: "whatsapp_click",
+            source: "mobile",
+            dedupeKey: `whatsapp:${route.params.lawyerId}:${Date.now()}`
+          })
+          .catch(() => undefined),
+        new Promise((resolve) => setTimeout(resolve, 1200))
+      ]);
+    } finally {
+      setOpeningWhatsapp(false);
+      void Linking.openURL(buildWhatsAppUrl(whatsapp));
+    }
+  }
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -263,11 +293,12 @@ export function LawyerProfileScreen({ navigation, route }: Props) {
           {whatsapp ? (
             <TouchableOpacity
               accessibilityRole="button"
-              onPress={() => Linking.openURL(`https://wa.me/${whatsapp}`)}
-              style={styles.whatsButton}
+              accessibilityState={{ disabled: openingWhatsapp }}
+              onPress={handleWhatsappPress}
+              style={[styles.whatsButton, openingWhatsapp && styles.whatsButtonDisabled]}
             >
               <AppIcon color={colors.surfaceDeep} name="logo-whatsapp" size={22} />
-              <Text style={styles.whatsButtonText}>WhatsApp VIP</Text>
+              <Text style={styles.whatsButtonText}>{openingWhatsapp ? "Abrindo WhatsApp" : "WhatsApp VIP"}</Text>
             </TouchableOpacity>
           ) : (
             <View style={styles.unavailableContact}>
@@ -491,6 +522,7 @@ const styles = StyleSheet.create({
     minHeight: 58,
     justifyContent: "center"
   },
+  whatsButtonDisabled: { opacity: 0.72 },
   whatsButtonText: { color: colors.surfaceDeep, fontSize: 16, fontWeight: "900" },
   unavailableContact: {
     alignItems: "center",

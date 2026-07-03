@@ -11,28 +11,29 @@
     "test": "vitest run",
     "smoke": "tsx scripts/smoke.ts",
     "smoke:runtime": "tsx scripts/runtime-smoke.ts",
-    "harness": "tsx scripts/harness.ts",
-    "postinstall": "node scripts/patch-expo-cli-tar-interop.cjs"
+    "harness": "tsx scripts/harness.ts"
   },
   "dependencies": {
-    "@react-navigation/native": "7.0.14",
+    "@react-navigation/native": "7.3.1",
     "@react-navigation/native-stack": "7.2.0",
-    "expo": "^52.0.25",
-    "expo-asset": "~11.0.5",
-    "expo-constants": "~17.0.8",
-    "expo-location": "~18.0.10",
-    "expo-secure-store": "~14.0.1",
-    "expo-status-bar": "~2.0.1",
-    "react": "18.3.1",
-    "react-native": "0.76.9",
-    "react-native-safe-area-context": "4.12.0",
-    "react-native-screens": "4.4.0",
-    "react-native-svg": "15.8.0"
+    "expo": "~56.0.13",
+    "expo-asset": "~56.0.18",
+    "expo-build-properties": "~56.0.20",
+    "expo-constants": "~56.0.19",
+    "expo-location": "~56.0.19",
+    "expo-secure-store": "~56.0.4",
+    "expo-status-bar": "~56.0.4",
+    "expo-system-ui": "~56.0.5",
+    "react": "19.2.3",
+    "react-native": "0.85.3",
+    "react-native-safe-area-context": "~5.7.0",
+    "react-native-screens": "4.25.2",
+    "react-native-svg": "15.15.4"
   },
   "devDependencies": {
-    "@types/react": "^18.3.18",
+    "@types/react": "~19.2.10",
     "tsx": "^4.19.2",
-    "typescript": "^5.7.2",
+    "typescript": "~6.0.3",
     "vitest": "^2.1.8"
   },
   "overrides": {

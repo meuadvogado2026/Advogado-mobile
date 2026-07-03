@@ -53,7 +53,8 @@ Backlog visual fora da spec 005 sem contrato proprio:
 - Bottom navigation do cliente: somente `Home` e `Perfil`.
 - Busca, areas juridicas, advogado indicado, pedido de oracao e `Como funciona?` vivem dentro da Home.
 - Bottom navigation, areas juridicas e `Como funciona?` devem exibir icones visiveis, com contraste dourado no fundo escuro.
-- Areas juridicas devem usar cards quadrados em scroll horizontal, com icone forte e texto legivel em ate duas linhas.
+- Areas juridicas devem usar cards quadrados, com estado inativo discreto, texto legivel em ate duas linhas e estado selecionado com cor/brilho claramente mais fortes.
+- Na Home cliente atual, Estado/Cidade ficam acima das areas, o mascote local fica no centro do hub de especialidades e os botoes de busca ficam abaixo das areas em dois modos: localizacao e cidade.
 - Permissao de localizacao deve ser explicada antes do prompt nativo, mas como nota discreta no fim da Home, sem card pesado, sem borda e sem negrito.
 - Topo autenticado do cliente deve manter somente a logo centralizada com cantos arredondados, sem bloco de texto de marca/sessao.
 - CTA WhatsApp sempre verde.
@@ -73,4 +74,4 @@ Antes de fechar telas:
 
 ## Implementacao Inicial
 
-`src/components/AppIcon.tsx` renderiza icones reais por `react-native-svg`, sem depender de fonte runtime, `Ionicons` ou `@expo/vector-icons`. `src/screens/HomeScreen.tsx` implementa login, estado autenticado, topo com logo centralizada, bottom navigation `Home`/`Perfil` com icones, busca na Home, areas juridicas horizontais com icones/labels legiveis, nota discreta de localizacao no fim da Home, card "Advogado indicado" com match real e pedido de oracao acoplado a Home com `assets/prayer-bible-cross.png`. `src/screens/LawyerProfileScreen.tsx` fecha perfil completo com hero/capa/avatar/chips/bio/areas, redes sociais e WhatsApp externo, preservando allowlist segura. As specs 005/008 nao reintroduzem mensagens, agenda ou plantao como funcionalidades internas.
+`src/components/AppIcon.tsx` renderiza icones reais por `react-native-svg`, sem depender de fonte runtime, `Ionicons` ou `@expo/vector-icons`. `src/screens/HomeScreen.tsx` implementa login, estado autenticado, topo com logo centralizada, bottom navigation `Home`/`Perfil` com icones, seletores Estado/Cidade acima das areas, hub de areas com `assets/mascot-lawyer.png`, botoes finais para busca por localizacao e por cidade, nota discreta de localizacao no fim da Home e pedido de oracao acoplado a Home com `assets/prayer-bible-cross.png`. `src/screens/LawyerProfileScreen.tsx` fecha perfil completo com hero/capa/avatar/chips/bio/areas, redes sociais e WhatsApp externo com mensagem padrao segura, preservando allowlist segura. As specs 005/008 nao reintroduzem mensagens, agenda ou plantao como funcionalidades internas.

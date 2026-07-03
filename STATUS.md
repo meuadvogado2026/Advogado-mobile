@@ -1,5 +1,510 @@
 # Mobile Status - Advogado 2.0
 
+## Lawyer Insights - 2026-07-03
+
+Status: `LAWYER_INSIGHTS_EVENTS_LOCAL_OK_COM_LACUNA_MIGRATION_SUPABASE`.
+
+O app passou a registrar eventos de insight pelo backend: `profile_view` ao
+carregar `LawyerProfileScreen` com sucesso e `whatsapp_click` antes de abrir o
+WhatsApp. Se o registro falhar ou demorar, o WhatsApp continua abrindo. O painel
+do advogado ganhou cards de visitas, WhatsApp, taxa de contato e status do perfil.
+
+Gates: teste focado falhou antes por ausencia de `lawyerEventService` e passou
+apos o diff; `npm run typecheck`, `npm run test` (19), `npm run smoke` e
+`npm run harness` OK. Lacuna operacional: producao so contabiliza apos backend
+publicado e migration `0015_lawyer_events.sql` aplicada no Supabase remoto.
+
+## Client Test Preview APK - 2026-07-02
+
+Status: `CLIENT_TEST_PREVIEW_APK_SDK56_VC3_GERADO_COM_LACUNA_SMOKE_AVD`.
+
+Build EAS `preview` Android gerado para teste do cliente, sem Play Store e sem
+`production AAB`. Build ID `2ea104ab-6433-4310-b213-78e23b996af3`, distribution
+`internal`, SDK `56.0.0`, app version `0.1.0`, versionCode `3`, package
+`com.advogado20.app`. Link do build:
+`https://expo.dev/accounts/advogado2.0/projects/meu-advogado-20/builds/2ea104ab-6433-4310-b213-78e23b996af3`.
+APK remoto:
+`https://expo.dev/artifacts/eas/jrPm4l5y8q5i1Ci-s7QVz1PL5UpUrNn-_nugrloOs1s.apk`.
+
+Artefato local baixado em
+`harness-results/client-test-preview-sdk56-vc3-2026-07-02.apk`, tamanho
+`85267578` bytes, SHA-256
+`CD4EC11EB2736688C3922406A02AE74B006A7DEA8BB89AAFCA64D4F871A48AC9`.
+
+Antes do build foram alinhados patches Expo SDK 56 exigidos por `expo-doctor`:
+`expo ~56.0.13`, `expo-asset ~56.0.18`, `expo-build-properties ~56.0.20`,
+`expo-constants ~56.0.19` e `expo-location ~56.0.19`. Gates: `expo-doctor`
+21/21, `expo install --check`, `npm audit --omit=dev`, typecheck, 18 testes,
+smoke e harness OK. Auditoria do APK: `aapt dump badging` confirmou package/API/
+permissoes, `zipalign -P 16` aprovado e `apksigner` v2 aprovado.
+
+Lacuna: smoke de instalacao/abertura no AVD local nao fechou porque o `Pixel_9`
+estava com `/data` 92% usado; `adb install` travou apos erro inicial
+`INSTALL_FAILED_INSUFFICIENT_STORAGE`. Validar instalacao no device do cliente ou em
+AVD limpo. Cota EAS apos build: Android `1/15`, total `1/30` no ciclo iniciado em
+2026-07-01.
+
+Evidencia:
+`harness-results/client-test-preview-sdk56-vc3-2026-07-02.md`.
+
+## Docs Legais Play Store - 2026-07-02
+
+Status: `DOCS_LEGAIS_PLAYSTORE_ATUALIZADOS_COM_LACUNAS_CLIENTE`.
+
+O DOCX `../INFORMAÇÕES-ADVOGADO 2.0.docx` foi processado sem gerar builder, APK ou
+AAB. Dados incorporados: ELO PERFORMANCE PROFISSIONAL LTDA, CNPJ
+`65.999.860/0001-26`, endereco em Taguatinga Norte/DF, WhatsApp de suporte
+`+55 61 99357-4056`, nome final `Advogado 2.0`, categoria juridico, Brasil, publico
+adulto, sem anuncios, assinatura mensal, dados coletados confirmados, advogados
+iniciais autorizados e declaracao de que o app nao promete exito, preco, desconto ou
+resultado.
+
+Arquivos atualizados: `../advogado-legal/privacidade.html`,
+`../advogado-legal/termos.html`, `../advogado-legal/exclusao-de-dados.html`,
+`../advogado-legal/index.html`, `../DATA_SAFETY_DRAFT.md`,
+`../PLAYSTORE_CLIENTE_DOCUMENTOS_CHECKLIST.md`, `../PLAYSTORE_READINESS.md`,
+`MOBILE_RELEASE.md` e `../STATUS.md`.
+
+Bloqueios antes de novo builder de loja: publicar/validar as paginas legais
+atualizadas na URL publica, confirmar email/dominio oficiais, detalhar operadores e
+terceiros, definir regra/prazo de exclusao, detalhar assinatura mensal e impacto de
+Google Play Billing, harmonizar retencao de 5 anos informada no DOCX com rotinas
+tecnicas de 90 dias para eventos sensiveis, confirmar Play Console/keystore/EAS,
+maior `versionCode`, conta de teste e alinhar os patches Expo SDK 56 apontados por
+`expo-doctor`.
+
+## Geo Catalogo Independente De Area - 2026-06-25
+
+Status: `GEO_CATALOG_INDEPENDENTE_AREA_OK`.
+
+Home cliente ajustada em `src/screens/HomeScreen.tsx`: Estado e Cidade carregam
+quando o usuario cliente esta autenticado, sem depender de area juridica selecionada
+e sem recarregar o catalogo a cada troca de area. `src/services/geographyService.ts`
+passou a chamar `/v1/states` e `/v1/states/:stateId/cities` sem `areaIds`.
+
+A area juridica continua obrigatoria para executar `POST /v1/match` e
+`POST /v1/match/by-city`, preservando a compatibilidade do resultado de advogados.
+Regressao em `tests/contracts.test.ts` cobre catalogo sem query de area e match por
+cidade ainda com `areaIds`; `scripts/smoke.ts` valida estruturalmente essa separacao.
+
+Gates: TDD focado falhou antes e passou depois, `npm run typecheck`, teste focado,
+`npm run smoke` e `npm run harness` OK. Sem alteracao de permissao, SDK, APK/AAB ou
+Play Console.
+
+## Home Orbit Layout - 2026-06-25
+
+Status: `MOBILE_HOME_ORBIT_LAYOUT_VISUAL_ANDROID_OK`.
+
+Home cliente ajustada em `src/screens/HomeScreen.tsx`: os cards nao selecionados
+ficaram mais discretos, e a area selecionada passa a ter fundo dourado solido,
+texto/icone escuros, borda clara, sombra mais forte e marcador com check. O mascote
+ganhou um centro maior no orbit, com halo e linhas conectoras sutis inspiradas na
+referencia visual holografica, sem alterar handlers de area, ajuda, busca por
+localizacao ou busca por cidade.
+
+Regressao em `tests/contracts.test.ts` e `scripts/smoke.ts`: o layout agora exige
+`SPECIALTY_CENTER_SIZE`, `SPECIALTY_LINE_COLOR`, halo, conector e marcador de
+selecao. TDD proporcional: o teste focado falhou antes por ausencia de
+`SPECIALTY_CENTER_SIZE` e passou apos o diff.
+
+Gates: teste focado OK, `npm run typecheck` OK, `npm run smoke` OK e `npm run
+harness` OK. Smoke visual Android no AVD `Pixel_9` via Expo Go/tunnel confirmou a
+Home autenticada com Familia selecionada bem destacada e robô com mais respiro.
+Evidencia: `harness-results/layout-orbit-final-no-toast-2026-06-25.png`. Sem
+backend, admin, schema, permissao, dependencia, EAS build, APK/AAB ou Play Console.
+
+## Home Areas Palette And Generic WhatsApp - 2026-06-19
+
+Status: `MOBILE_HOME_AREAS_GOLD_COPY_VISUAL_ANDROID_OK`.
+
+Home cliente ajustada em `src/screens/HomeScreen.tsx`: todos os cards do hub de
+areas juridicas agora compartilham a mesma paleta amarela do Civil via
+`SPECIALTY_AREA_COLOR = "#FFD34D"` e `SPECIALTY_AREA_RGB = "255,211,77"`, mantendo
+os icones especificos de cada area. O alerta de duvida e as mensagens de WhatsApp
+foram alterados para copy generica do canal de atendimento, sem nome proprio.
+
+Regressao em `tests/contracts.test.ts`: o teste focado passou a exigir a paleta
+unica, bloquear as cores antigas por area e impedir retorno do nome no arquivo da
+Home. TDD proporcional: o teste focado falhou antes da implementacao e passou depois
+com 17 testes.
+
+Gates: `npm run test -- --run tests/contracts.test.ts` OK, `npm run harness` OK
+(typecheck, 17 testes e smoke estrutural) e busca global pelo nome solicitado sem
+resultados. Smoke visual Android fechado no AVD `Pixel_9` via Expo Go/Metro local
+na porta `8092`; evidencia em `harness-results/home-gold-auth-final.png`. Sem EAS
+build, APK/AAB, Play Console, permissao, SDK, dependencia, API ou schema novo.
+
+## Spec 003 - Production AAB Local - 2026-06-16
+
+Veredito:
+`AAB_LOCAL_GRADLE_SDK56_16KB_ESTATICO_OK_COM_LACUNA_EAS_CLOUD_PLAY_RUNTIME_16KB`.
+
+O passo recomendado (`production AAB`) foi autorizado. `android.versionCode` foi
+alterado de `2` para `3` em `app.config.ts`, preservando package
+`com.advogado20.app`, version `0.1.0`, compile/target API 36 e workflow managed na
+arvore principal. `scripts/smoke.ts` passou a exigir `versionCode: 3`.
+
+Gates locais pre-build passaram: config production redigida confirmou
+`usesCleartextTraffic=false`, `npx expo-doctor@latest` 21/21, `npx expo install
+--check`, `npm audit --omit=dev`, typecheck, 17 testes, smoke, Harness e
+`git diff --check`.
+
+EAS Build cloud `production` foi tentado e bloqueado por cota Android Free da conta
+Expo ate `2026-07-01`. EAS local Android tambem foi tentado e bloqueado porque o modo
+local exige macOS ou Linux. Como alternativa nao-cloud, foi gerado AAB local via Gradle
+em copia temporaria curta, sem criar pasta `android/` neste repo.
+
+Artefato:
+`harness-results/spec003-sdk56-vc3-local-gradle-release.aab`.
+
+- Tamanho: `57509366` bytes.
+- SHA-256: `08165B17F183B5695FA5B067DAB91929FEF02A187FC2627A0C987BF8BA530D5A`.
+- Manifest: package `com.advogado20.app`, versionCode `3`, versionName `0.1.0`,
+  minSdk `24`, targetSdk `36`.
+- BundleConfig: `PAGE_ALIGNMENT_16K`.
+- ZIP: `zipalign -P 16` aprovado.
+- ELF: 36 bibliotecas 64-bit auditadas, 18 ARM64 + 18 x86_64, 0 falhas, menor
+  `LOAD align=16384`.
+
+Lacunas: o AAB local usa assinatura debug padrao do prebuild e nao substitui AAB EAS
+com remote keystore; ainda faltam Play Console/App Bundle Explorer, runtime em page
+size 16 KB, Data Safety/App access/politica/disclosures, conta de teste, crash
+reporting ou adiamento formal e rollback.
+
+Evidencia:
+`../.codex/specs/changes/003-validacao-android-release-interno/build-gate-production-aab-local-2026-06-16.md`.
+
+## Spec 003 - Build Gate Preflight - 2026-06-16
+
+Veredito:
+`BUILD_GATE_PREFLIGHT_OK_SEM_BUILD_AGUARDA_ESCOLHA_EXPLICITA_PROFILE`.
+
+Preflight EAS executado sem iniciar build cloud. `eas-cli` disponivel, sessao
+autenticada e projeto remoto confirmado como `@advogado2.0/meu-advogado-20`
+com `projectId` `089e477d-8af2-4c3b-a9f6-47fe25886860`. Perfis redigidos:
+`preview=apk/internal` e `production=app-bundle/store`, ambos com envs publicas.
+Config publica Expo confirmou package `com.advogado20.app`, versionCode `2`,
+permissoes de localizacao e plugins esperados.
+
+Consulta aos ultimos builds Android remotos indicou apenas APKs `preview` de SDK 52,
+app version `0.1.0` e appBuildVersion/versionCode `2`; nenhum AAB SDK 56 foi
+encontrado. URLs temporarias/signed URLs de logs/artefatos nao foram copiadas para
+docs. `eas build:version:get --platform android --profile production` retornou exit
+`1` porque o projeto usa `appVersionSource=local`; o maior `versionCode` precisa ser
+confirmado no Play Console antes de build de loja.
+
+Decisao: aguardando confirmacao literal do artefato antes de build cloud:
+`production AAB` para gate de loja/16 KB ou `preview APK` para validacao interna.
+Sem AAB release SDK 56 novo e auditado, o veredito maximo permanece
+`APROVADO_LOCALMENTE_COM_LACUNA_AAB_RELEASE_RUNTIME_16KB`.
+
+Evidencia:
+`../.codex/specs/changes/003-validacao-android-release-interno/build-gate-preflight-2026-06-16.md`.
+
+## Home Layout Polish - 2026-06-15
+
+Status: `MOBILE_HOME_LAYOUT_POLISH_VISUAL_ANDROID_OK`.
+
+Refino visual aplicado somente em `HomeScreen.tsx`, com regressao em
+`tests/contracts.test.ts` e reforco em `scripts/smoke.ts`. Areas de atuacao inativas
+agora usam fundo/borda mais neutros e icones menos saturados; areas selecionadas usam
+cor viva, sombra/elevacao maior e texto destacado. A logo da tela de login e a logo do
+topo autenticado foram aumentadas de forma perceptivel. A interrogacao do mascote foi
+reduzida para `30x30`, com icone controlado por `SPECIALTY_HELP_ICON_SIZE` e alvo de
+toque acessivel `44x44`. Ao tocar, o usuario recebe uma orientacao em alerta
+nativo e so abre o WhatsApp do canal de atendimento ao confirmar `Falar no WhatsApp`, com mensagem
+padrao de duvida sobre qual area escolher.
+
+Gates: `npm run typecheck` OK, `npm run test` OK (17 testes), `npm run smoke` OK,
+`npm run harness` OK e `git diff --check` OK com avisos CRLF esperados no Windows.
+`npm run smoke:runtime` contra Railway confirmou `/health` e 8 areas, mas nao fechou
+login/match/perfil sem runtime completo. O smoke visual foi fechado no AVD `Pixel_9`
+com Expo Go `56.0.1`: a causa das falhas anteriores era Metro em `--localhost`
+ouvindo apenas em `::1`; com LAN/IPv4 e deep link `exp://10.0.2.2:8090`, o app
+carregou, fez login com anon key publica carregada sem imprimir valor, exibiu a Home,
+os cards de areas, o estado selecionado e o alerta da interrogacao. O botao
+`Falar no WhatsApp` nao foi acionado para evitar preservar URL/telefone em screenshot.
+Relatorio: `harness-results/home-layout-polish-2026-06-15.md`.
+
+Nao houve EAS build, APK/AAB, alteracao de Android package, permissao, SDK, backend,
+admin, schema ou contrato de API.
+
+## Spec 003 - State Build Gate - 2026-06-15
+
+Veredito:
+`SPEC003_STATE_BUILD_GATE_LOCAL_OK_AGUARDA_CONFIRMACAO_HUMANA_EAS_AAB`.
+
+A retomada da Spec 003 foi executada sem build e sem EAS cloud. Baseline mobile SDK 56:
+`npx expo-doctor@latest` 21/21, `npx expo install --check`, `npm audit --omit=dev`,
+`npm run typecheck`, `npm run test` 17/17, `npm run smoke`, `npm run harness` e
+`git diff --check` passaram com exit `0`. `npm audit` total segue com 5 achados em
+tooling dev (`vitest`/`vite`/`esbuild`), fora do gate de producao.
+
+Config confirmada: package `com.advogado20.app`, versionCode `2`, API 36, EAS
+`preview=apk/internal`, `production=app-bundle/store`, `appVersionSource=local`.
+Nenhum segredo privado versionado foi identificado no mobile; as envs publicas inline
+em `eas.json` seguem como risco de governanca/rotacao. Links legais publicados
+respondem HTTP 200, mas a politica publica ainda nao cobre oracao, retencao de 90 dias
+e localizacao precisa.
+
+Proximo passo bloqueado por confirmacao humana: Play Console/app, EAS/keystore, conta
+de teste/App access, Data Safety/Data deletion, politica atualizada, crash reporting
+ou adiamento formal, versionCode maior que o console e rollback. Sem AAB release SDK 56
+novo auditado, o gate 16 KB completo permanece aberto.
+
+Evidencia:
+`../.codex/specs/changes/003-validacao-android-release-interno/state-build-gate-2026-06-15.md`.
+
+## Spec 013 - Validacao Final SDK 52 -> 56 - 2026-06-15
+
+Veredito:
+`LINHA_CERTA_CONFIRMADA_PARA_SPEC003_BUILD_GATE_COM_LACUNA_AAB_RELEASE_RUNTIME_16KB`.
+
+A arvore mobile atual foi revalidada apos a transicao completa de Expo SDK 52 para
+SDK 56. Estado instalado: Expo `56.0.12`, React Native `0.85.3`, React `19.2.3`,
+TypeScript `6.0.3`, Android compile/target API 36, package `com.advogado20.app` e
+versionCode 2. `app.config.ts` preserva o workflow managed, sem pasta `android/`
+gerada ao final.
+
+Gates finais repetidos: `npx expo-doctor@latest` 21/21, `npx expo install --check`,
+`npm audit --omit=dev`, `npm run typecheck`, `npm run test` 17/17, `npm run smoke`,
+`npm run harness`, `npm run smoke:runtime` com backend/Auth locais controlados e
+`git diff --check`, todos com exit `0`. `npm audit` total conserva 5 achados apenas
+no tooling dev, cuja correcao exige major de Vitest.
+
+APKs debug SDK 56 x86_64 e ARM64 permanecem presentes com hashes esperados e ja
+auditados no checkpoint em assinatura v2, ZIP 16 KB e ELF `LOAD >= 2**14`. Sem AAB
+release novo, sem runtime em kernel 16 KB e sem Play Console, o gate 16 KB completo
+continua aberto. Nenhum EAS cloud foi usado.
+
+Evidencia:
+`../.codex/specs/changes/013-upgrade-expo-playstore-16kb/final-validation-sdk56-2026-06-15.md`.
+
+## Spec 013 - Checkpoint SDK 56 - 2026-06-15
+
+Veredito:
+`SDK56_APROVADO_LOCAL_COM_LACUNA_AAB_RELEASE_RUNTIME_16KB`.
+
+Mobile atualizado para Expo `56.0.12`, React Native `0.85.3`, React `19.2.3`
+e TypeScript `6.0.3`. Hermes v1 default do SDK 56 foi aceito e validado por
+build/smoke. New Architecture/Fabric e edge-to-edge permanecem obrigatorios.
+Android permanece em compile/target API 36. Package `com.advogado20.app` e
+versionCode 2 foram preservados. `expo-status-bar` foi adicionado aos plugins
+porque o CLI nao escreve automaticamente em `app.config.ts` dinamico.
+
+Gates finais: `npm ci`, `npx expo-doctor@latest` 21/21,
+`npx expo install --check`, `npm audit --omit=dev` com 0 vulnerabilidades,
+typecheck, 17/17 testes, smoke, Harness, runtime local controlado e
+`git diff --check` em exit `0`. O audit total conserva 5 achados somente no
+tooling dev, sem aplicar update major por `--force`.
+
+Artefatos locais:
+
+- `harness-results/sdk56-debug-x86_64.apk`: `57155454` bytes, SHA-256
+  `9DDDDA0F741F5C54E4573BAD7FDADA1CF9937A6C814C6A1BCAA6BE42FB6B790D`.
+- `harness-results/sdk56-debug-arm64-v8a.apk`: `57480412` bytes, SHA-256
+  `10DBD8F16D6826B3EA61A72B72EFC0426A611820784806AA5213A8E199B76F9E`.
+
+Ambos passaram assinatura v2, package/versionCode/API 36, ZIP 16 KB e ELF
+`LOAD >= 2**14` em 18/18 bibliotecas por ABI. O AVD usa page size 4096;
+AAB release ARM64, runtime em kernel 16 KB e Play Console continuam pendentes.
+Nenhum EAS cloud foi usado.
+
+Smoke visual autenticado confirmou prompt nativo de localizacao, listagem por
+cidade e perfil profissional. O runtime local deterministico validou Auth, 8 areas,
+match `matched` e perfil publico seguro.
+
+Evidencia:
+`../.codex/specs/changes/013-upgrade-expo-playstore-16kb/checkpoint-sdk56-2026-06-15.md`.
+
+## Spec 013 - Checkpoint SDK 55 - 2026-06-15
+
+Veredito:
+`SDK55_APROVADO_LOCAL_PRONTO_PARA_SDK56_COM_LACUNA_AAB_RELEASE_RUNTIME_16KB`.
+
+Mobile atualizado para Expo `55.0.26`, React Native `0.83.6`, React `19.2.0`
+e TypeScript `5.9.3`. New Architecture/Fabric e edge-to-edge sao obrigatorios
+no SDK 55; as chaves obsoletas de opt-out foram removidas. Android permanece em
+compile/target API 36. Package `com.advogado20.app` e versionCode 2 foram
+preservados.
+
+Gates finais: `npm ci`, `npx expo-doctor@latest` 19/19,
+`npx expo install --check`, `npm audit --omit=dev` com 0 vulnerabilidades,
+typecheck, 17/17 testes, smoke, Harness, runtime local controlado e
+`git diff --check` em exit `0`. O audit total conserva 5 achados somente no
+tooling dev, sem aplicar update major por `--force`.
+
+Artefatos locais:
+
+- `harness-results/sdk55-debug-x86_64.apk`: `52320526` bytes, SHA-256
+  `6C3ACBAA26B8591AB1B1ADE66D8EFCF8107A85938D4E490162BD306EF7619892`.
+- `harness-results/sdk55-debug-arm64-v8a.apk`: `52572761` bytes, SHA-256
+  `6721E1A1D7F45007B6044F6B4C7E7D0BF3A3C228359EDAE650C58266B81F37DD`.
+
+Ambos passaram assinatura v2, package/versionCode/API 36, ZIP 16 KB e ELF
+`LOAD >= 2**14` em 17/17 bibliotecas por ABI. O AVD usa page size 4096;
+AAB release ARM64, runtime em kernel 16 KB e Play Console continuam pendentes.
+Nenhum EAS cloud foi usado.
+
+Smoke visual autenticado confirmou Login, Home cliente e Perfil com Fabric ativa.
+O runtime staging retornou match `empty`, mas o runtime local deterministico
+validou Auth, 8 areas, match `matched` e perfil publico seguro.
+
+Evidencia:
+`../.codex/specs/changes/013-upgrade-expo-playstore-16kb/checkpoint-sdk55-2026-06-15.md`.
+
+## Spec 013 - Checkpoint SDK 54 - 2026-06-15
+
+Veredito:
+`SDK54_APROVADO_LOCAL_PRONTO_PARA_SDK55_COM_LACUNA_AAB_ARM64_RUNTIME_16KB`.
+
+Mobile atualizado para Expo `54.0.35`, React Native `0.81.5`, React `19.1.0`
+e TypeScript `5.9.3`. New Architecture/Fabric permaneceu ativa. Android passou
+para compile/target API 36 e `edgeToEdgeEnabled=true`. O package
+`com.advogado20.app` e o versionCode 2 foram preservados.
+
+Gates finais: `npm ci`, `npx expo-doctor` 18/18, `npx expo install --check`,
+`npm audit --omit=dev` com 0 vulnerabilidades, typecheck, 17/17 testes, smoke,
+Harness e runtime local controlado em exit `0`. O audit total conserva 5 achados
+somente no tooling dev (`vitest`/`vite`/`esbuild`), sem `--force`.
+
+Artefato local `harness-results/sdk54-debug-x86_64.apk`: `48736523` bytes,
+SHA-256 `0F5B9B71BF89E0617B1CF814AB8768187559E164C8A4666C9EABA033155FB3A5`.
+Assinatura v2, package/target 36, ZIP 16 KB e ELF `LOAD >= 2**14` em 17/17
+bibliotecas x86_64 passaram. O AVD usa page size 4096; AAB release ARM64,
+runtime 16 KB e Play Console continuam pendentes. Nenhum EAS cloud foi usado.
+
+Smoke visual autenticado confirmou login, Home cliente e Perfil sem sobreposicao
+edge-to-edge. O runtime staging retornou match `empty`, mas o runtime local
+deterministico validou match `matched` e perfil publico seguro.
+
+Evidencia:
+`../.codex/specs/changes/013-upgrade-expo-playstore-16kb/checkpoint-sdk54-2026-06-15.md`.
+
+## Spec 013 - Checkpoint SDK 53 - 2026-06-14
+
+Veredito:
+`SDK53_APROVADO_LOCAL_PRONTO_PARA_SDK54_COM_LACUNA_AAB_ARM64_RUNTIME_16KB`.
+
+Mobile atualizado para Expo `53.0.27`, React Native `0.79.6`, React `19.0.0`
+e TypeScript `5.8.3`. New Architecture ficou ativa pelo default do SDK 53 e o
+AVD confirmou `fabric:true`. O package `com.advogado20.app`, target 35 e
+versionCode 2 foram preservados. `edgeToEdgeEnabled=false` ficou explicito para
+evitar mudanca visual silenciosa neste checkpoint.
+
+Gates finais: `npm ci`, `npx expo-doctor` 18/18, `npx expo install --check`,
+`npm audit --omit=dev` com 0 vulnerabilidades, typecheck, 17/17 testes, smoke,
+Harness e runtime local controlado em exit `0`. O APK debug x86_64 abriu no
+AVD e o login renderizou completo.
+
+Artefato local `harness-results/sdk53-debug-x86_64.apk`: `52712727` bytes,
+SHA-256 `82D4CA40ED25093E9E1A72509964BB23CDB3B844A22E352D56585CB3D9E1B971`.
+Assinatura v2, package/target, ZIP 16 KB e ELF `LOAD >= 2**14` em 17/17
+bibliotecas x86_64 passaram. O AVD usa page size 4096; AAB release ARM64,
+runtime 16 KB e Play Console continuam pendentes. Nenhum EAS cloud foi usado.
+
+Evidencia:
+`../.codex/specs/changes/013-upgrade-expo-playstore-16kb/checkpoint-sdk53-2026-06-14.md`.
+
+## Spec 013 - Baseline SDK 52 - 2026-06-14
+
+Veredito: `PRONTO_PARA_UPGRADE_INCREMENTAL_COM_LACUNA_16KB_BINARIO`.
+
+Antes de qualquer alteracao de dependencia, a arvore atual passou em
+`npx expo-doctor` (18/18), `npx expo install --check`, `npm audit --omit=dev`
+(0 vulnerabilidades), `npm run typecheck`, `npm run test` (17/17),
+`npm run smoke`, `npm run harness` e `git diff --check`.
+
+O primeiro `npm run smoke:runtime` falhou com exit `1` porque o backend local nao
+estava iniciado, a env publica nao foi passada ao processo e nao havia device
+bootado. A repeticao totalmente local com backend `NODE_ENV=test` e Auth de fixture
+passou com exit `0`: health, 8 areas, Auth, match `matched` e perfil publico seguro.
+Nenhuma credencial externa, Railway, Supabase de producao ou EAS foi usada.
+
+Expo SDK 56 foi confirmado como estavel atual em fonte oficial. O plano aprovado e
+subir um checkpoint por vez: `52 -> 53 -> 54 -> 55 -> 56`, com parada no primeiro
+gate vermelho. O proximo ciclo deve alterar somente para SDK 53. Package
+`com.advogado20.app`, `versionCode=2`, `app.config.ts` e `eas.json` permanecem
+preservados. Nenhum APK/AAB novo foi gerado, portanto o gate 16 KB segue pendente.
+
+Evidencia:
+`../.codex/specs/changes/013-upgrade-expo-playstore-16kb/baseline-2026-06-14.md`.
+
+## Spec 013 - Upgrade Expo SDK E 16 KB - 2026-06-14
+
+Spec criada em `../.codex/specs/changes/013-upgrade-expo-playstore-16kb/` para
+controlar, via SDD/Harness, o upgrade do Expo SDK 52/RN 0.76.9 ate uma base nativa
+atual e apta a cumprir Google Play 16 KB page size. Escopo inicial: mobile somente,
+sem backend/admin, sem build EAS cloud sem confirmacao explicita e sem marcar 16 KB
+como aprovado sem APK/AAB novo auditado.
+
+Baseline real lida: package `com.advogado20.app`, `versionCode=2`,
+`compileSdkVersion=35`, `targetSdkVersion=35`, perfil `preview` APK e perfil
+`production` AAB. A spec preserva Home/fluxos das Specs 011/012 e desbloqueia o
+requisito tecnico pendente da Spec 003.
+
+## Auditoria Play Store E Expo Go - 2026-06-14
+
+Veredito: `REPROVADO_PARA_SUBMISSAO / PREVIEW_EXPO_GO_OK_COM_RESSALVAS`.
+
+O APK release de 2026-06-10 passou no ZIP alignment de 16 KB, mas falhou no ELF:
+13/14 bibliotecas ARM64 usam segmentos `LOAD` de 4 KB. Antes de qualquer AAB, migrar
+Expo SDK 52/RN 0.76 ate uma base nativa atual, recompilar e exigir ELF/AAB/smoke 16 KB.
+
+Outros bloqueios: politica publica desatualizada, Data Safety nao enviado, conta/fixture
+de revisor nao deterministica, AAB final inexistente, `versionCode` nao confirmado e
+artefatos existentes anteriores a UI de 2026-06-14. Plano completo em
+`../PLAYSTORE_AUDIT_2026-06-14.md`.
+
+A arvore atual abriu no Expo Go SDK 52 em
+`exp://9cifmnw-advogado20-8083.exp.direct`. Evidencias:
+`harness-results/expo-go-qr-2026-06-14.png` e
+`harness-results/expo-go-login-clean-2026-06-14.png`. O tunnel local e temporario.
+
+## Ajuste Visual Home/Mascote/WhatsApp - 2026-06-14
+
+Home cliente ajustada sem backend/schema/permissao/dependencia nova: logo do login
+aumentada, logo das areas autenticadas aumentada, estados/cidades movidos para cima
+das areas, hub de areas sem titulo/copy antiga e com icones menores, mascote
+`assets/mascot-lawyer.png` no centro do hub, botao de duvida do mascote abrindo o
+WhatsApp do canal de atendimento com mensagem propria, e dois botoes finais lado a lado para busca
+por localizacao e por cidade. O botao urgente usa o mesmo numero do canal de atendimento com texto
+urgente distinto. O WhatsApp dos advogados agora abre com mensagem padrao cordial
+vinda do perfil publico.
+
+Gates locais: `npm run typecheck` OK, `npm run smoke` OK, `npm run harness` OK
+(16 testes), `npm audit --omit=dev` OK, `npx expo install --check` OK e
+`git diff --check` OK. AVD `Pixel_9` bootou e Expo Go foi acionado, mas o deep link
+ficou em carregamento/retornou para a launcher antes da tela pronta; portanto o smoke
+visual completo desta UI ficou como lacuna e deve ser repetido em Expo Go funcional,
+APK local ou device fisico antes de fechar como visualmente aprovado.
+
+Refino de layout no mesmo dia: cards do hub de areas padronizados em `86x86` com
+gap unico de `6`, icones SVG com cores vivas por especialidade e CTA de duvida
+transformado em botao circular de interrogacao posicionado a direita do mascote.
+O texto longo do CTA saiu da area abaixo do mascote para liberar espaco visual.
+Foi adicionado o icone `help-circle-outline` no `AppIcon` standalone e uma regressao
+estatica para impedir retorno do layout desalinhado. Gates: teste focado falhou
+antes do diff e passou apos a implementacao, `npm run typecheck` OK, `npm run test`
+OK (17 testes), `npm run smoke` OK, `npm run harness` OK e `git diff --check` OK.
+Smoke AVD autenticado foi fechado no `Pixel_9` usando Metro limpo na porta `8084`
+com backend Railway e anon key publica redigida: a Home mostrou cards alinhados,
+cores vivas e o botao circular `?` ao lado direito do mascote. Evidencia final:
+`harness-results/home-layout-auth-final-aligned.png`. O ciclo nao capturou
+senha/token/coordenada/telefone. O harness generico ainda registra a lacuna padrao
+de smoke visual porque seu script nao controla AVD, mas a prova visual proporcional
+foi executada separadamente neste ciclo.
+
+Segundo refino solicitado no mesmo ciclo: a interrogacao foi reduzida para botao
+compacto de `34x34` com icone `help-circle-outline` em `23`, preservando a posicao
+abaixo do braco esquerdo levantado do mascote. Evidencia final atualizada:
+`harness-results/home-layout-help-small-final.png`. Gates repetidos: teste focado
+do orbit cliente OK, `npm run typecheck` OK, `npm run test` OK (17 testes),
+`npm run smoke` OK, `npm run harness` OK e `git diff --check` OK. Diagnostico
+runtime Railway confirmou `/health`, areas e Auth real com token redigido, mas o
+match automatizado retornou `empty`, entao perfil runtime completo segue fora do
+escopo deste ajuste visual.
+
 ## Busca Por Cidade - 2026-06-10
 
 Home cliente ajustada para mostrar `ESTADO` no singular, campo digitavel de busca
@@ -145,7 +650,7 @@ Android e build atualizado seguem como gate.
 - [x] Gates Spec 008 Parte 1R: `npm run harness` exit 0; `npm run smoke:runtime` contra Railway exit 0 com envs publicas carregadas sem imprimir valores, 6 areas, Auth real com token redigido, match `matched` e perfil seguro.
 - [x] Gate visual Android da Spec 008 Parte 1R fechado no AVD `Pixel_9`: Home cliente, bottom nav somente `Home`/`Perfil`, areas quadradas horizontais, bloco de oracao com Biblia/cruz, `Buscar match`, card de advogado indicado, perfil completo premium e retorno para Home.
 - [x] Polimento visual mobile da Spec 008 Parte 1R implementado localmente em 2026-06-03: `Ionicons.font` passou a ser carregada no App, topo autenticado virou logo centralizada sem textos de marca/sessao, bottom nav/areas/`Como funciona?` ganharam icones visiveis com badges dourados, cards de areas ficaram maiores e legiveis, aviso de localizacao saiu do topo e virou nota discreta no fim da Home. Gates: `npm run harness` exit 0, `npm run smoke:runtime` contra Railway exit 0 (`OK_COM_RESSALVAS`) e `git diff --check` exit 0. Resultado: `SPEC008_PARTE1R_POLIMENTO_VISUAL_MOBILE_OK`.
-- [x] Home cliente recebeu CTA vermelho `Advogado urgente` com icone de alerta e abertura externa para WhatsApp `5561993574056`, sem backend/schema novo.
+- [x] Home cliente recebeu CTA vermelho `Advogado urgente` com icone de alerta e abertura externa para WhatsApp de suporte redigido, sem backend/schema novo.
 - [x] UX solicitada em 2026-06-03 implementada localmente: copy `A justica ao alcance de um toque` menor e sem negrito; cadastro cliente na tela de login; logo autenticada maior e rolavel. Gates: mobile `npm run harness` exit 0; backend `npm run harness` exit 0; `npm run smoke:runtime` mobile contra Railway exit 0 (`OK_COM_RESSALVAS`) com login real redigido, 6 areas, match `matched` e perfil seguro.
 - [x] Bloqueio de dependencias de producao da Spec 003 tratado: `npm audit --omit=dev` zerou apos overrides transitivos documentados para `@expo/plist/@xmldom`, `postcss`, `tar` e `uuid`, preservando Expo SDK 52 e sem `npm audit fix --force`.
 - [x] Spec 011 implementada localmente em 2026-06-10: Home cliente removeu busca textual, parceiros e card de advogado indicado; novo hub de especialidades fica ao redor do botao de match; `Buscar match agora` preserva localizacao real e o runtime smoke confirmou match `matched` com perfil seguro; login/Home/painel usam `assets/logo-gold.png`; copy de boas-vindas usa nome quando disponivel; advogado ganhou menus `Home`, `Oracao`, `Perfil`, beneficios no topo e parceiros apenas no painel advogado. Gates: `npm run typecheck`, teste focado, smoke, harness, runtime e `git diff --check` passaram.

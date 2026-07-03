@@ -3,7 +3,6 @@ import { apiContracts } from "../src/config/contracts";
 
 const requiredFiles = [
   "App.tsx",
-  "app.json",
   "app.config.ts",
   "src/components/AppIcon.tsx",
   "src/screens/HomeScreen.tsx",
@@ -12,9 +11,11 @@ const requiredFiles = [
   "src/services/clientSignupService.ts",
   "src/services/apiClient.ts",
   "src/services/areasService.ts",
+  "src/services/geographyService.ts",
   "src/services/matchService.ts",
   "src/services/lawyerProfileService.ts",
   "src/services/lawyerDashboardService.ts",
+  "src/services/lawyerEventService.ts",
   "src/services/prayerRequestService.ts",
   "src/services/partnerLogoService.ts",
   "src/services/meService.ts",
@@ -44,6 +45,9 @@ if (apiContracts.lawyerProfile !== "/v1/lawyers/:id") {
 if (apiContracts.lawyerDashboard !== "/v1/lawyer/me/dashboard") {
   throw new Error("Smoke mobile falhou. Contrato de dashboard do advogado divergente.");
 }
+if (apiContracts.lawyerEvents !== "/v1/lawyers/:id/events") {
+  throw new Error("Smoke mobile falhou. Contrato de eventos do advogado divergente.");
+}
 if (apiContracts.prayerRequests !== "/v1/prayer-requests") {
   throw new Error("Smoke mobile falhou. Contrato de pedido de oracao divergente.");
 }
@@ -52,21 +56,21 @@ if (apiContracts.partnerLogos !== "/v1/partner-logos") {
 }
 
 const appConfig = readFileSync("app.config.ts", "utf8");
-const appJson = readFileSync("app.json", "utf8");
 const packageJson = readFileSync("package.json", "utf8");
 const home = readFileSync("src/screens/HomeScreen.tsx", "utf8");
 const app = readFileSync("App.tsx", "utf8");
 const appIcon = readFileSync("src/components/AppIcon.tsx", "utf8");
 const lawyerProfile = readFileSync("src/screens/LawyerProfileScreen.tsx", "utf8");
 const locationService = readFileSync("src/services/locationService.ts", "utf8");
+const geographyService = readFileSync("src/services/geographyService.ts", "utf8");
 const clientSignupService = readFileSync("src/services/clientSignupService.ts", "utf8");
 const lawyerDashboardService = readFileSync("src/services/lawyerDashboardService.ts", "utf8");
+const lawyerEventService = readFileSync("src/services/lawyerEventService.ts", "utf8");
 const prayerRequestService = readFileSync("src/services/prayerRequestService.ts", "utf8");
 const partnerLogoService = readFileSync("src/services/partnerLogoService.ts", "utf8");
-const parsedAppJson = JSON.parse(appJson);
 const parsedPackageJson = JSON.parse(packageJson);
 
-if (/SERVICE_ROLE|service_role/i.test(`${appConfig}\n${appJson}`)) {
+if (/SERVICE_ROLE|service_role/i.test(appConfig)) {
   throw new Error("Smoke mobile falhou. Service role nao pode aparecer na configuracao mobile.");
 }
 
@@ -85,7 +89,7 @@ if (
 
 if (
   /EXPO_PUBLIC_ENABLE_DEV_LOCATION_FALLBACK|enableDevLocationFallback|devFallback/.test(
-    `${appConfig}\n${appJson}\n${locationService}`
+    `${appConfig}\n${locationService}`
   )
 ) {
   throw new Error("Smoke mobile falhou. Fallback sintetico de localizacao nao pode existir no app.");
@@ -109,8 +113,7 @@ if (
   /@expo\/vector-icons|Ionicons/.test(`${home}\n${lawyerProfile}\n${appConfig}\n${packageJson}`) ||
   /expo-font/.test(`${appConfig}\n${packageJson}`) ||
   app.includes("useFonts") ||
-  !appJson.includes('"assetBundlePatterns"') ||
-  !appJson.includes('"assets/**/*"') ||
+  !appConfig.includes('assetBundlePatterns: ["assets/**/*"]') ||
   app.includes("fontFallbackReady") ||
   !app.includes("LawyerProfile") ||
   !home.includes('navigate("LawyerProfile"') ||
@@ -121,6 +124,22 @@ if (
   !lawyerProfile.includes("WhatsApp VIP")
 ) {
   throw new Error("Smoke mobile falhou. Fluxo Home -> LawyerProfile -> WhatsApp ou estados seguros ausentes.");
+}
+
+if (
+  !appConfig.includes('package: "com.advogado20.app"') ||
+  !appConfig.includes("versionCode: 3") ||
+  !appConfig.includes("compileSdkVersion: 36") ||
+  !appConfig.includes("targetSdkVersion: 36") ||
+  appConfig.includes("edgeToEdgeEnabled") ||
+  appConfig.includes("newArchEnabled") ||
+  !appConfig.includes('usesCleartextTraffic: !apiBaseUrl.startsWith("https://")') ||
+  !appConfig.includes('"android.permission.READ_EXTERNAL_STORAGE"') ||
+  !appConfig.includes('"android.permission.WRITE_EXTERNAL_STORAGE"') ||
+  !appConfig.includes('"android.permission.SYSTEM_ALERT_WINDOW"') ||
+  !appConfig.includes('"android.permission.VIBRATE"')
+) {
+  throw new Error("Smoke mobile falhou. Configuracao Android de release divergente.");
 }
 
 if (
@@ -153,11 +172,11 @@ if (
   !existsSync("assets/logo-blue.png") ||
   !existsSync("assets/logo-gold.png") ||
   !existsSync("assets/logo-white.png") ||
-  parsedAppJson.expo.icon !== "./assets/logo-blue.png" ||
-  parsedAppJson.expo.splash?.image !== "./assets/logo-blue.png" ||
-  parsedAppJson.expo.splash?.backgroundColor !== "#071426" ||
-  parsedAppJson.expo.android?.adaptiveIcon?.foregroundImage !== "./assets/logo-blue.png" ||
-  parsedAppJson.expo.android?.adaptiveIcon?.backgroundColor !== "#071426"
+  !existsSync("assets/mascot-lawyer.png") ||
+  !appConfig.includes('icon: "./assets/logo-blue.png"') ||
+  !appConfig.includes('image: "./assets/logo-blue.png"') ||
+  !appConfig.includes('backgroundColor: "#071426"') ||
+  !appConfig.includes('foregroundImage: "./assets/logo-blue.png"')
 ) {
   throw new Error("Smoke mobile falhou. Assets oficiais de logo/app icon/splash Android estao ausentes ou divergentes.");
 }
@@ -201,8 +220,21 @@ if (
   home.includes("searchBar") ||
   home.includes("AreaCarousel") ||
   !home.includes("SpecialtyMatchOrbit") ||
-  !home.includes("orbitMatchButton") ||
+  !home.includes("SPECIALTY_CENTER_SIZE") ||
+  !home.includes("SPECIALTY_LINE_COLOR") ||
+  !home.includes("mascot-lawyer.png") ||
+  !home.includes("mascotHelpButton") ||
+  !home.includes("mascotHaloOuter") ||
+  !home.includes("orbitConnectorLayer") ||
+  !home.includes("orbitSelectedCheck") ||
   !home.includes("orbitSpecialty") ||
+  !home.includes("searchActionsPanel") ||
+  !home.includes("Por localização") ||
+  !home.includes("Por cidade") ||
+  home.includes("Como deseja buscar?") ||
+  home.includes("Buscar perto de mim") ||
+  home.includes("orbitTitle") ||
+  home.includes("orbitHint") ||
   home.includes("MatchActionButton") ||
   home.includes("Atualizar perfil") ||
   home.includes("Atualizar painel") ||
@@ -226,6 +258,14 @@ if (/Mensagens|Agenda|Plant[aã]o|Favoritos|avalia[cç][oõ]es|24h/i.test(home))
 
 if (
   !home.includes("URGENT_LAWYER_WHATSAPP") ||
+  !home.includes("URGENT_LAWYER_MESSAGE") ||
+  !home.includes("SPECIALTY_HELP_MESSAGE") ||
+  !home.includes("SPECIALTY_HELP_ICON_SIZE") ||
+  !home.includes("showSpecialtyHelp") ||
+  !home.includes("mascotHelpTouchTarget") ||
+  !home.includes("Alert.alert") ||
+  !home.includes("Falar no WhatsApp") ||
+  !home.includes("encodeURIComponent(message)") ||
   !home.includes('"5561993574056"') ||
   !home.includes("UrgentLawyerButton") ||
   !home.includes("Advogado urgente") ||
@@ -233,6 +273,14 @@ if (
   !home.includes("urgentButton")
 ) {
   throw new Error("Smoke mobile falhou. CTA de advogado urgente na Home cliente ausente.");
+}
+
+if (
+  !lawyerProfile.includes("LAWYER_WHATSAPP_MESSAGE") ||
+  !lawyerProfile.includes("buildWhatsAppUrl") ||
+  !lawyerProfile.includes("encodeURIComponent(LAWYER_WHATSAPP_MESSAGE)")
+) {
+  throw new Error("Smoke mobile falhou. Mensagem padrao de WhatsApp para advogados ausente.");
 }
 
 if (
@@ -248,11 +296,17 @@ if (
 
 if (
   !lawyerDashboardService.includes("apiContracts.lawyerDashboard") ||
+  !lawyerEventService.includes("apiContracts.lawyerEvents") ||
+  !lawyerProfile.includes("createLawyerEventService") ||
+  !lawyerProfile.includes('eventType: "profile_view"') ||
+  !lawyerProfile.includes('eventType: "whatsapp_click"') ||
   !prayerRequestService.includes("apiContracts.prayerRequests") ||
   !home.includes("handleSubmitPrayer") ||
   !home.includes("Enviar como anônimo") ||
   !home.includes('tab: "prayer"') ||
   !home.includes("LawyerVipCard dashboard={lawyerDashboard}") ||
+  !home.includes("Taxa de contato") ||
+  !home.includes("getProfileStatus") ||
   !home.includes("benefitCards") ||
   home.includes("ciclo futuro com admin e backend")
 ) {
@@ -271,6 +325,11 @@ if (
 if (
   !home.includes("isStatePickerOpen") ||
   !home.includes("isCityPickerOpen") ||
+  !home.includes("geographies.listStates()") ||
+  !home.includes("geographies.listCities(selectedStateId)") ||
+  home.includes("geographies.listStates(selectedAreaIds)") ||
+  home.includes("geographies.listCities(selectedStateId, selectedAreaIds)") ||
+  geographyService.includes("areaIds=") ||
   !home.includes(">ESTADO</Text>") ||
   !home.includes(">CIDADE</Text>") ||
   !home.includes("Digite para buscar estado") ||

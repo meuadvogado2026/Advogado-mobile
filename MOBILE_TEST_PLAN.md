@@ -1,5 +1,34 @@
 # Mobile Test Plan - Advogado 2.0
 
+## Home Layout Polish - 2026-06-15
+
+- Gate local executado: `npm run typecheck`, `npm run test`, `npm run smoke`,
+  `npm run harness` e `git diff --check`.
+- Regressao estatica cobre hub de areas, interrogacao menor, `Alert.alert` e CTA
+  `Falar no WhatsApp`.
+- Smoke runtime com Railway pode validar `/health` e areas sem segredo, mas match/perfil
+  dependem de anon key publica e device/runtime completo.
+- Smoke visual fechado no AVD `Pixel_9` com Expo Go `56.0.1`, Metro em LAN/IPv4 e
+  deep link `exp://10.0.2.2:8090`.
+- Evidencias: `layout-polish-login-env.png`, `layout-polish-home-auth.png`,
+  `layout-polish-home-touchfix.png` e `layout-polish-help-alert-final.png`.
+- O CTA `Falar no WhatsApp` do alerta nao foi acionado no AVD para evitar preservar
+  URL/telefone em screenshot; o direcionamento segue coberto por smoke estrutural.
+
+## Gate Play Store 16 KB - 2026-06-14
+
+Todo candidato AAB deve passar, alem do Harness:
+
+- `llvm-readelf -lW`: nenhum segmento `LOAD` abaixo de `2**14`.
+- `zipalign -c -P 16 -v 4`: sucesso.
+- `bundletool dump config`: `PAGE_ALIGNMENT_16K`.
+- Smoke em Android com `adb shell getconf PAGE_SIZE` retornando `16384`.
+- Login, cidade, GPS, match vazio/cheio, perfil, WhatsApp, painel advogado, exclusao,
+  sessao expirada e permissao negada.
+
+Baseline atual: reprovada no ELF ARM64 em 13/14 bibliotecas. O preview Expo Go prova
+somente renderizacao da arvore atual, nao conformidade do binario de loja.
+
 ## Spec 012
 
 - Validar visualmente o seletor recolhivel de estados.

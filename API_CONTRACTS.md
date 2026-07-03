@@ -48,6 +48,12 @@ e perfil do advogado ficam bloqueados ate a resposta confirmar `mustChangePasswo
 ## Catalogo
 
 - `GET /v1/areas`
+- `GET /v1/states`
+- `GET /v1/states/:stateId/cities`
+
+Estados e cidades aparecem quando ha ao menos um advogado elegivel naquela localidade,
+independente de area juridica selecionada. A area juridica continua sendo enviada
+somente nos fluxos de match (`POST /v1/match` e `POST /v1/match/by-city`).
 
 ## Match
 
@@ -154,7 +160,9 @@ dado do perfil.
 ## Advogado Logado
 
 - `GET /v1/lawyer/me/dashboard`
-- O dashboard retorna o cartao VIP e beneficios ativos cadastrados pelo admin no backend.
+- `POST /v1/lawyers/:id/events`
+- O dashboard retorna o cartao VIP, beneficios ativos cadastrados pelo admin e insights agregados pelo backend.
+- O app registra `profile_view` ao carregar perfil profissional e `whatsapp_click` antes de abrir WhatsApp. Falha no registro nao bloqueia o contato.
 
 Resposta do dashboard:
 
@@ -168,12 +176,12 @@ Resposta do dashboard:
     "planLabel": "MVP interno",
     "verified": true
   },
-  "metrics": { "profileViews": 0, "whatsappClicks": 0, "contacts": 0 },
+  "metrics": { "profileViews": 0, "whatsappClicks": 0, "contacts": 0, "conversionRate": 0 },
   "benefits": [{ "id": "uuid", "title": "Desconto em software", "description": "...", "badge": "VIP", "redemptionUrl": "https://..." }]
 }
 ```
 
-Metricas sao placeholder seguro no MVP. Beneficios sao geridos no painel admin e exibidos somente quando ativos.
+Metricas sao agregadas no backend; o mobile nunca acessa Supabase diretamente para insights. Beneficios sao geridos no painel admin e exibidos somente quando ativos.
 
 ## Oracao
 
