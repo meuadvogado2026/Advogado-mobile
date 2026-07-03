@@ -1,5 +1,15 @@
 # Mobile Status - Advogado 2.0
 
+## Lawyer Insights Production - 2026-07-03
+
+Status: `LAWYER_INSIGHTS_PRODUCAO_OK`.
+
+Migration `0015_lawyer_events.sql` aplicada no Supabase remoto pelo SQL Editor e
+validada contra backend Railway. Eventos reais de `profile_view` e
+`whatsapp_click` retornaram `201 recorded=true`, dedupe retornou
+`200 duplicate=true` e o dashboard agregou visitas, WhatsApp, contatos e taxa de
+contato. Eventos de verificacao foram limpos. `npm run prod:smoke` do backend OK.
+
 ## Lawyer Insights - 2026-07-03
 
 Status: `LAWYER_INSIGHTS_EVENTS_LOCAL_OK_COM_LACUNA_MIGRATION_SUPABASE`.
