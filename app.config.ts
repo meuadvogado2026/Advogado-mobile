@@ -1,3 +1,4 @@
+const isEasBuild = Boolean(process.env.EAS_BUILD_PROFILE);
 const isProductionBuild = process.env.EAS_BUILD_PROFILE === "production";
 const apiBaseUrl = process.env.EXPO_PUBLIC_API_BASE_URL ?? "http://10.0.2.2:3333";
 const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL ?? "https://qpemxkiowiiklztgumqy.supabase.co";
@@ -7,8 +8,12 @@ if (isProductionBuild && !apiBaseUrl.startsWith("https://")) {
   throw new Error("EXPO_PUBLIC_API_BASE_URL deve usar HTTPS no build production.");
 }
 
-if (isProductionBuild && (!supabaseUrl.startsWith("https://") || !supabaseAnonKey)) {
-  throw new Error("Configuracao publica do Supabase e obrigatoria no build production.");
+// A anon key publica nao fica mais versionada no eas.json; deve chegar por
+// variavel de ambiente do EAS (EXPO_PUBLIC_SUPABASE_ANON_KEY) em qualquer build.
+if (isEasBuild && (!supabaseUrl.startsWith("https://") || !supabaseAnonKey)) {
+  throw new Error(
+    "EXPO_PUBLIC_SUPABASE_ANON_KEY ausente. Defina a variavel de ambiente no EAS antes do build (eas env:create)."
+  );
 }
 
 export default {

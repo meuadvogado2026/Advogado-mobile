@@ -1,5 +1,75 @@
 # Mobile Status - Advogado 2.0
 
+## Play Store Validation Detalhada - 2026-07-04
+
+Status: `NAO_ENVIAR_PRODUCAO_AINDA_COM_BASE_TECNICA_OK`.
+
+Gates mobile aprovados: `npm run harness`, `npm audit --omit=dev`,
+`npx expo install --check`, `npx expo-doctor@latest` 21/21 e config production
+com package `com.advogado20.app`, `versionCode=3`, API 36 e
+`usesCleartextTraffic=false`. `smoke:runtime` autenticou usuario real e validou
+backend/areas, mas ficou `FALHOU` por nao haver Android bootado e porque o fluxo
+GPS automatico retornou `empty`; para revisao Google, usar roteiro por
+cidade/regiao. Validacao autenticada em producao confirmou `Taguatinga/DF` e
+`Cruzeiro/DF` com `Direito Civil`.
+
+Lacunas antes de AAB/Play: identidade/telefone Console, closed testing da conta
+pessoal, AAB production EAS/remote keystore, decisao Railway vs OceanDriver,
+forms Play Console, screenshots finais, e-mails definitivos, e limpeza
+preventiva de copy/link externo na landing para evitar ambiguidade com pagamento.
+Relatorio raiz: `../PLAYSTORE_VALIDATION_DETAILED_2026-07-04.md`.
+
+## Copy Play Store Sem Ambiguidade De Pagamento - 2026-07-04
+
+Status: `COPY_PLAYSTORE_OK_COM_LACUNA_BUILD_REAL_SCREENSHOTS`.
+
+Painel mobile removeu copy publica `VIP`, `WhatsApp VIP` e `Acessar resgate`.
+Beneficios seguem disponiveis para advogados aprovados como `ADVOGADO 2.0 CLUBE`
+e `BENEFICIOS PARA ADVOGADOS`, sem compra ou assinatura dentro do app. Smoke
+estrutural foi atualizado para exigir `Falar no WhatsApp` e
+`LawyerBenefitsCard`; `npm run harness` passou com 19 testes.
+
+Lacuna: ainda nao foi gerado APK/AAB novo depois dessa limpeza, portanto
+screenshots finais da Play nao devem ser capturadas do APK preview antigo.
+
+## Play Store Validation - 2026-07-03
+
+Status: `APROVADO_TECNICAMENTE_COM_LACUNAS_DE_PLAY_CONSOLE`.
+
+Linha mobile revalidada para Play Store: `targetSdkVersion=36`,
+`compileSdkVersion=36`, `versionCode=3`, package `com.advogado20.app`,
+`usesCleartextTraffic=false`, permissao apenas de localizacao foreground e
+paginas legais publicadas em `https://advogado20.vercel.app/`.
+
+Patches Expo SDK 56 alinhados para `expo ~56.0.14`,
+`expo-build-properties ~56.0.21` e `expo-constants ~56.0.20`. Gates aprovados:
+`npm run harness`, `npm audit --omit=dev`, `npx expo install --check` e
+`npx expo-doctor@latest`. Backend de producao tambem passou em smoke/harness.
+
+Lacunas antes do AAB final: Play Console precisa concluir identidade/telefone,
+conta pessoal precisa de closed testing com 12 testers por 14 dias, `eas.json`
+ainda aponta para Railway apesar da decisao futura por OceanDriver, falta AAB
+production via EAS/remote keystore, screenshots reais, forms do Play Console e
+App access. Para revisor, usar cidade/regiao `Taguatinga/DF` ou `Cruzeiro/DF`
+com area `Direito Civil`; nao depender do GPS real do avaliador.
+
+## Legal Pages Vercel + Expo Go - 2026-07-03
+
+Status: `LEGAL_URLS_OFICIAIS_NO_APP_COM_DOMINIO_BLOQUEADO`.
+
+Links legais do mobile foram atualizados para
+`https://advogado20.vercel.app/privacidade.html`,
+`https://advogado20.vercel.app/termos.html` e
+`https://advogado20.vercel.app/exclusao-de-dados.html` em
+`HomeScreen` e `LawyerProfileScreen`. O dominio oficial
+`advogado20.vercel.app` esta ocupado em outro projeto/deploy e retornou 404
+para as paginas legais em 2026-07-04. Nao gerar AAB final nem enviar para Play
+ate publicar a landing limpa e validar HTTP 200 nesse dominio.
+
+Gates: `npm run smoke`, `npm test -- --run tests/contracts.test.ts` com 19
+testes e `npm run typecheck` OK. Metro/Expo Go iniciado em LAN na porta `8082`
+para reload imediato.
+
 ## Lawyer Dashboard Cards - 2026-07-03
 
 Status: `LAWYER_DASHBOARD_CARDS_SIMPLIFICADOS_EXPO_GO_OK`.

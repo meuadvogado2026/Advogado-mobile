@@ -1,8 +1,38 @@
 # Mobile Release - Advogado 2.0
 
-**Estado:** nao pronto para release  
+**Estado:** pronto tecnicamente para Play Console/closed testing, nao pronto para producao
 **Canal inicial:** internal testing Android
-**Ultimo diagnostico:** 2026-07-02 - `DOCS_LEGAIS_ATUALIZADOS_COM_LACUNAS_CLIENTE`
+**Ultimo diagnostico:** 2026-07-03 - `APROVADO_TECNICAMENTE_COM_LACUNAS_DE_PLAY_CONSOLE`
+
+## Validacao Play Store - 2026-07-03
+
+Diagnostico geral em `../PLAYSTORE_VALIDATION_2026-07-03.md`.
+
+Pontos tecnicos aprovados:
+
+- `targetSdkVersion=36`, `compileSdkVersion=36`, package `com.advogado20.app`,
+  `versionCode=3` e `usesCleartextTraffic=false` em config de producao.
+- Patches Expo SDK 56 alinhados: `expo ~56.0.14`,
+  `expo-build-properties ~56.0.21` e `expo-constants ~56.0.20`.
+- `npm run harness`, `npm audit --omit=dev`, `npx expo install --check` e
+  `npx expo-doctor@latest` OK.
+- Links legais configurados para o dominio oficial
+  `https://advogado20.vercel.app/`, com envio para Play bloqueado ate esse
+  dominio responder HTTP 200 nas paginas legais.
+- Roteiro de revisor por cidade/regiao validado em producao para
+  `Taguatinga/DF` e `Cruzeiro/DF` com area `Direito Civil`.
+
+Pendencias antes do AAB final/closed test:
+
+- Play Console ainda depende de validacao de identidade/telefone.
+- Conta pessoal nova deve passar por teste fechado com 12 testers optados por
+  14 dias continuos antes da producao.
+- `eas.json` ainda aponta para Railway; decidir se o AAB final usa Railway no
+  primeiro teste fechado ou se aguardamos a migracao para OceanDriver.
+- Gerar AAB `production` via EAS/remote keystore, subir em track de teste e
+  capturar screenshots da build real.
+- Preencher Data Safety, Data deletion, App access, classificacao etaria,
+  publico-alvo, anuncios, Store Listing e confirmar `versionCode` livre.
 
 ## Client Test Preview APK - 2026-07-02
 
@@ -96,7 +126,7 @@ Nao gerar novo builder antes de:
 - Em 2026-05-31, o rebuild preview EAS da UX corrigida foi concluido (`4352f306-53b9-4989-8eed-02bd71518dd3`). O smoke automatizado contra Railway passou; a validacao fisica posterior foi fechada pela spec 004 via APK preview e confirmacao manual do usuario em device com WhatsApp.
 - Em 2026-05-31/2026-06-01, a spec 004 adicionou e validou `Home -> LawyerProfile -> WhatsApp`. Harness, runtime Railway, smoke visual Android no AVD `Pixel_9`, APK preview e direcionamento real para WhatsApp em device fisico foram fechados.
 - Em 2026-06-01, a spec 005 implementou shell/header e bottom navigation MVP `Inicio`, `Buscar`, `Conta`, com harness, runtime Railway e smoke visual proporcional. No mesmo dia foi gerado o novo APK preview `5c9741f9-ecac-44bb-b9ae-c1e2c6f25200`, instalado e aberto no AVD `Pixel_9`; a Home autenticada com shell renderizou, mas o AVD nao entregou localizacao nativa com fallback dev desligado. Na rechecagem de 2026-06-02, o APK local foi confirmado com `66185270` bytes e SHA-256 `61D2DF3D1D76D8AEB8397FCA9C5FBB2BE118CBD625BB6C048620EFCD59C249EC`; `npm run harness` e `npm run smoke:runtime` contra Railway passaram, mas ADB nao listou device fisico conectado. O caminho manual assistido foi usado e o usuario confirmou o fluxo completo em device fisico com GPS real/WhatsApp: `Login -> Home com shell -> match -> Ver perfil -> LawyerProfile -> Voltar -> Falar no WhatsApp`. Resultado: `SPEC005_DEVICE_FISICO_OK`.
-- Politica, termos e canal de exclusao foram publicados em `https://meuadvogado2026.github.io/meu-advogado-legal/` e linkados no mobile. Data Safety ainda precisa ser preenchido no Play Console com base em `../DATA_SAFETY_DRAFT.md`.
+- Politica, termos e canal de exclusao estao linkados no mobile pelo dominio oficial `https://advogado20.vercel.app/`. Em 2026-07-04, o dominio oficial ainda retornava 404 nas paginas legais; publicar a landing limpa antes de preencher/submeter a Play Store. Data Safety ainda precisa ser preenchido no Play Console com base em `../DATA_SAFETY_DRAFT.md`.
 - Em 2026-06-02, a retomada da Spec 003 foi diagnosticada sem codigo/build novo. Resultado: `QUESTIONAR_COMPLIANCE_RELEASE`. Evidencias reaproveitaveis: APK preview da Spec 005, package `com.advogado20.app`, `versionCode=2`, permissoes de localizacao declaradas, links legais publicados e perfil EAS de `production` configurado como `app-bundle`. Bloqueios: Data Safety no Play Console, conta de teste, AAB assinado, crash reporting ou decisao explicita de adiamento, auditoria PII/logs/secrets, credenciais/keystore e rollback operacional.
 - Em 2026-06-03, o package gate da Spec 003 gerou `QUESTIONAR_CREDENCIAIS_PLAY_CONSOLE`. O pacote operacional documentou checklist Data Safety, conta de teste, matriz PII/logs/secrets, recomendacao de adiar crash reporting, runbook de rollback internal testing e criterios para liberar o ciclo de AAB. O proximo passo exige humano presente para confirmar Play Console/EAS/keystore e conta de teste antes de gerar AAB.
 - Em 2026-06-03, o gate assistido da Spec 003 manteve `QUESTIONAR_CREDENCIAIS_PLAY_CONSOLE`. Docs/configs/APK e referencias oficiais Google Play foram reconfirmados, mas nao houve confirmacao humana explicita de Play Console/app `com.advogado20.app`, EAS/keystore, conta de teste ou Data Safety no console. AAB segue bloqueado ate essa confirmacao.

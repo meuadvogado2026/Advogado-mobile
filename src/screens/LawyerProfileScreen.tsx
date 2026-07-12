@@ -16,9 +16,9 @@ type ProfileStatus = "loading" | "ready" | "error" | "unavailable";
 type SocialLink = { key: string; label: string; icon: AppIconName; url: string };
 
 const legalUrls = {
-  privacy: "https://meuadvogado2026.github.io/meu-advogado-legal/privacidade.html",
-  terms: "https://meuadvogado2026.github.io/meu-advogado-legal/termos.html",
-  deletion: "https://meuadvogado2026.github.io/meu-advogado-legal/exclusao-de-dados.html"
+  privacy: "https://advogado20.vercel.app/privacidade.html",
+  terms: "https://advogado20.vercel.app/termos.html",
+  deletion: "https://advogado20.vercel.app/exclusao-de-dados.html"
 };
 const LAWYER_WHATSAPP_MESSAGE =
   "Olá, encontrei seu perfil no Advogado 2.0 e gostaria de receber orientação jurídica. Pode me ajudar?";
@@ -298,7 +298,7 @@ export function LawyerProfileScreen({ navigation, route }: Props) {
               style={[styles.whatsButton, openingWhatsapp && styles.whatsButtonDisabled]}
             >
               <AppIcon color={colors.surfaceDeep} name="logo-whatsapp" size={22} />
-              <Text style={styles.whatsButtonText}>{openingWhatsapp ? "Abrindo WhatsApp" : "WhatsApp VIP"}</Text>
+              <Text style={styles.whatsButtonText}>{openingWhatsapp ? "Abrindo WhatsApp" : "Falar no WhatsApp"}</Text>
             </TouchableOpacity>
           ) : (
             <View style={styles.unavailableContact}>
