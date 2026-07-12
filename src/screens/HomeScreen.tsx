@@ -4,6 +4,7 @@ import {
   Alert,
   Image,
   Linking,
+  Modal,
   ScrollView,
   StyleSheet,
   Text,
@@ -25,10 +26,12 @@ import { createLawyerDashboardService, type LawyerDashboardResponse } from "../s
 import { createLawyerProfileService, type PublicLawyerProfile } from "../services/lawyerProfileService";
 import { createGeographyService, type PublicCity, type PublicState } from "../services/geographyService";
 import { requestDeviceLocation } from "../services/locationService";
+import { locationConsentStorage } from "../services/locationConsentStorage";
 import { createMatchService, type MatchResponse } from "../services/matchService";
 import { createMeService, type CurrentUser } from "../services/meService";
 import { createPartnerLogoService, type PartnerLogo } from "../services/partnerLogoService";
 import { createPrayerRequestService } from "../services/prayerRequestService";
+import { createAccountDeletionService } from "../services/accountDeletionService";
 import { secureSessionStorage } from "../services/secureSessionStorage";
 import type { Session } from "../services/sessionStorage";
 import { colors, spacing } from "../theme/tokens";
@@ -46,9 +49,9 @@ const logo = require("../../assets/logo-gold.png");
 const mascot = require("../../assets/mascot-lawyer.png");
 const prayerArt = require("../../assets/prayer-bible-cross.png");
 const legalUrls = {
-  privacy: "https://meuadvogado2026.github.io/meu-advogado-legal/privacidade.html",
-  terms: "https://meuadvogado2026.github.io/meu-advogado-legal/termos.html",
-  deletion: "https://meuadvogado2026.github.io/meu-advogado-legal/exclusao-de-dados.html"
+  privacy: "https://advogado20.vercel.app/privacidade.html",
+  terms: "https://advogado20.vercel.app/termos.html",
+  deletion: "https://advogado20.vercel.app/exclusao-de-dados.html"
 };
 const URGENT_LAWYER_WHATSAPP = "5561993574056";
 const URGENT_LAWYER_MESSAGE = "Preciso de advogado urgente. Vim pelo Advogado 2.0 e preciso falar com um advogado agora.";
@@ -158,7 +161,7 @@ function LegalLinks() {
   );
 }
 
-function AccountDeletionRequest() {
+function AccountDeletionRequest({ onRequest }: { onRequest: () => void }) {
   return (
     <View style={styles.accountDeletionBox}>
       <View style={styles.accountDeletionHeader}>
@@ -170,11 +173,11 @@ function AccountDeletionRequest() {
       </Text>
       <TouchableOpacity
         accessibilityLabel="Solicitar exclusao de conta e dados"
-        accessibilityRole="link"
-        onPress={() => Linking.openURL(legalUrls.deletion)}
+        accessibilityRole="button"
+        onPress={onRequest}
         style={styles.accountDeletionButton}
       >
-        <Text style={styles.secondaryButtonText}>Solicitar exclusao</Text>
+        <Text style={styles.secondaryButtonText}>Solicitar exclusao em ate 15 dias</Text>
       </TouchableOpacity>
     </View>
   );
@@ -590,8 +593,8 @@ function LawyerInsightCard({
   );
 }
 
-function LawyerVipCard({ dashboard }: { dashboard: LawyerDashboardResponse | null }) {
-  const name = dashboard?.lawyer.name ?? "Membro Exclusivo";
+function LawyerBenefitsCard({ dashboard }: { dashboard: LawyerDashboardResponse | null }) {
+  const name = dashboard?.lawyer.name ?? "Advogado participante";
   const oab = dashboard?.lawyer.oabNumber
     ? `${dashboard.lawyer.oabNumber}/${dashboard.lawyer.oabState}`
     : "Verificado";
@@ -602,8 +605,8 @@ function LawyerVipCard({ dashboard }: { dashboard: LawyerDashboardResponse | nul
       <View style={styles.vipPhysicalCard}>
         <View style={styles.vipTopRow}>
           <View>
-            <Text style={styles.vipKicker}>ADVOGADO 2.0 VIP</Text>
-            <Text style={styles.vipSubKicker}>BENEFITS CLUB MEMBER</Text>
+            <Text style={styles.vipKicker}>ADVOGADO 2.0 CLUBE</Text>
+            <Text style={styles.vipSubKicker}>BENEFICIOS PARA ADVOGADOS</Text>
           </View>
           <AppIcon color={colors.gold} name="ribbon-outline" size={28} />
         </View>
@@ -647,12 +650,12 @@ function LawyerVipCard({ dashboard }: { dashboard: LawyerDashboardResponse | nul
                 <Text style={styles.benefitDescription}>{benefit.description}</Text>
                 {benefit.redemptionUrl ? (
                   <TouchableOpacity
-                    accessibilityLabel={`Abrir resgate do beneficio ${benefit.title}`}
+                    accessibilityLabel={`Abrir beneficio ${benefit.title}`}
                     accessibilityRole="link"
                     onPress={() => benefit.redemptionUrl && Linking.openURL(benefit.redemptionUrl)}
                     style={styles.benefitLink}
                   >
-                    <Text style={styles.secondaryButtonText}>Acessar resgate</Text>
+                    <Text style={styles.secondaryButtonText}>Ver beneficio</Text>
                     <AppIcon color={colors.goldBright} name="globe-outline" size={16} />
                   </TouchableOpacity>
                 ) : null}
@@ -668,11 +671,13 @@ function LawyerVipCard({ dashboard }: { dashboard: LawyerDashboardResponse | nul
 function LawyerReadonlyProfile({
   dashboard,
   profile,
-  onSignOut
+  onSignOut,
+  onAccountDeletionRequest
 }: {
   dashboard: LawyerDashboardResponse | null;
   profile: PublicLawyerProfile | null;
   onSignOut: () => void;
+  onAccountDeletionRequest: () => void;
 }) {
   const name = profile?.name ?? dashboard?.lawyer.name ?? "Advogado 2.0";
   const avatarUrl = safeImageUrl(profile?.avatarUrl ?? dashboard?.lawyer.avatarUrl);
@@ -729,7 +734,7 @@ function LawyerReadonlyProfile({
       <View style={styles.accountPanel}>
         <Text style={styles.panelTitle}>Conta</Text>
         <Text style={styles.panelText}>Perfil somente leitura. Edições são feitas pelo administrador.</Text>
-        <AccountDeletionRequest />
+        <AccountDeletionRequest onRequest={onAccountDeletionRequest} />
         <LegalLinks />
         <TouchableOpacity style={styles.signOutButton} accessibilityRole="button" onPress={onSignOut}>
           <AppIcon color={colors.gold} name="log-out-outline" size={18} />
@@ -737,6 +742,56 @@ function LawyerReadonlyProfile({
         </TouchableOpacity>
       </View>
     </>
+  );
+}
+
+function LocationConsentModal({
+  visible,
+  onAccept,
+  onDismiss
+}: {
+  visible: boolean;
+  onAccept: () => void;
+  onDismiss: () => void;
+}) {
+  return (
+    <Modal
+      animationType="fade"
+      transparent
+      visible={visible}
+      onRequestClose={onDismiss}
+      statusBarTranslucent
+    >
+      <View style={styles.consentBackdrop}>
+        <View style={styles.consentCard}>
+          <View style={styles.consentIconBadge}>
+            <AppIcon color={colors.goldBright} name="location-outline" size={26} />
+          </View>
+          <Text style={styles.consentTitle}>Uso da sua localização</Text>
+          <Text style={styles.consentText}>
+            Para encontrar o advogado mais próximo, o Advogado 2.0 coleta a sua localização precisa (GPS)
+            apenas no momento da busca e envia essa coordenada aos nossos servidores para calcular a
+            proximidade.
+          </Text>
+          <Text style={styles.consentText}>
+            Não usamos localização em segundo plano. Você pode recusar agora e usar a busca por cidade.
+          </Text>
+          <Text
+            accessibilityRole="link"
+            onPress={() => Linking.openURL(legalUrls.privacy)}
+            style={styles.consentLink}
+          >
+            Ler a Política de Privacidade
+          </Text>
+          <TouchableOpacity accessibilityRole="button" onPress={onAccept} style={styles.consentAcceptButton}>
+            <Text style={styles.primaryButtonText}>Concordar e continuar</Text>
+          </TouchableOpacity>
+          <TouchableOpacity accessibilityRole="button" onPress={onDismiss} style={styles.consentDismissButton}>
+            <Text style={styles.secondaryButtonText}>Agora não</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </Modal>
   );
 }
 
@@ -770,10 +825,12 @@ export function HomeScreen({ navigation }: Props) {
   const [prayerReceipt, setPrayerReceipt] = useState<string | null>(null);
   const [status, setStatus] = useState<ViewStatus>("loading");
   const [message, setMessage] = useState("Carregando sessao segura.");
+  const [locationConsentVisible, setLocationConsentVisible] = useState(false);
 
   const authService = useMemo(() => createAuthService({ storage: secureSessionStorage }), []);
   const apiClient = useMemo(() => createApiClient({ getSession: authService.getSession }), [authService]);
   const clientSignups = useMemo(() => createClientSignupService(apiClient), [apiClient]);
+  const accountDeletion = useMemo(() => createAccountDeletionService(apiClient), [apiClient]);
   const legalAreas = useMemo(() => createAreasService(apiClient), [apiClient]);
   const matches = useMemo(() => createMatchService(apiClient), [apiClient]);
   const geographies = useMemo(() => createGeographyService(apiClient), [apiClient]);
@@ -1014,6 +1071,13 @@ export function HomeScreen({ navigation }: Props) {
     setMessage("Sessão encerrada.");
   }
 
+  function handleAccountDeletionRequest() {
+    Alert.alert("Solicitar exclusao da conta", "Seu pedido sera enviado agora e concluido em ate 15 dias corridos.", [
+      { text: "Cancelar", style: "cancel" },
+      { text: "Solicitar exclusao", style: "destructive", onPress: () => void accountDeletion.create().then((response) => Alert.alert("Pedido registrado", `Prazo final: ${new Date(response.request.dueAt).toLocaleDateString("pt-BR")}.`)).catch((error) => Alert.alert("Nao foi possivel registrar", getFriendlyError(error))) }
+    ]);
+  }
+
   async function handleChangePassword() {
     if (newPassword.length < 8) {
       setStatus("error");
@@ -1048,6 +1112,24 @@ export function HomeScreen({ navigation }: Props) {
       return;
     }
 
+    // Divulgacao proeminente (Play Store: User Data / Location). O consentimento
+    // e obrigatorio ANTES do primeiro pedido de permissao do sistema.
+    const consented = await locationConsentStorage.hasConsented();
+    if (!consented) {
+      setLocationConsentVisible(true);
+      return;
+    }
+
+    await runLocationMatch();
+  }
+
+  async function handleAcceptLocationConsent() {
+    await locationConsentStorage.grant();
+    setLocationConsentVisible(false);
+    await runLocationMatch();
+  }
+
+  async function runLocationMatch() {
     setStatus("loading");
     setMessage("Obtendo sua localização atual para a busca.");
     const result = await requestDeviceLocation();
@@ -1284,7 +1366,7 @@ export function HomeScreen({ navigation }: Props) {
                     Acompanhe sua presença no Advogado 2.0 e mantenha seu perfil pronto para novos atendimentos.
                   </Text>
                 </View>
-                <LawyerVipCard dashboard={lawyerDashboard} />
+                <LawyerBenefitsCard dashboard={lawyerDashboard} />
                 <View style={styles.metricsGrid}>
                   {(() => {
                     const metrics = lawyerDashboard?.metrics;
@@ -1332,6 +1414,7 @@ export function HomeScreen({ navigation }: Props) {
                 dashboard={lawyerDashboard}
                 profile={lawyerProfile}
                 onSignOut={handleSignOut}
+                onAccountDeletionRequest={handleAccountDeletionRequest}
               />
             ) : null}
           </ScrollView>
@@ -1536,7 +1619,7 @@ export function HomeScreen({ navigation }: Props) {
             <View style={styles.accountPanel}>
               <Text style={styles.panelTitle}>Perfil do cliente</Text>
               <Text style={styles.panelText}>Sessão autenticada com segurança.</Text>
-              <AccountDeletionRequest />
+              <AccountDeletionRequest onRequest={handleAccountDeletionRequest} />
               <LegalLinks />
               <TouchableOpacity style={styles.signOutButton} accessibilityRole="button" onPress={handleSignOut}>
                 <AppIcon color={colors.gold} name="log-out-outline" size={18} />
@@ -1547,6 +1630,11 @@ export function HomeScreen({ navigation }: Props) {
         </ScrollView>
         <BottomNavigation activeTab={clientTab} items={clientNavItems} onSelect={setClientTab} />
       </View>
+      <LocationConsentModal
+        visible={locationConsentVisible}
+        onAccept={handleAcceptLocationConsent}
+        onDismiss={() => setLocationConsentVisible(false)}
+      />
     </SafeAreaView>
   );
 }
@@ -1567,6 +1655,62 @@ const styles = StyleSheet.create({
     gap: 28,
     padding: 20,
     paddingBottom: 124
+  },
+  consentBackdrop: {
+    alignItems: "center",
+    backgroundColor: "rgba(4,10,20,0.78)",
+    flex: 1,
+    justifyContent: "center",
+    padding: 24
+  },
+  consentCard: {
+    backgroundColor: colors.surface,
+    borderColor: colors.borderSubtle,
+    borderRadius: 18,
+    borderWidth: 1,
+    gap: spacing.md,
+    maxWidth: 420,
+    padding: spacing.lg,
+    width: "100%"
+  },
+  consentIconBadge: {
+    alignItems: "center",
+    backgroundColor: "rgba(217,154,45,0.12)",
+    borderColor: "rgba(217,154,45,0.28)",
+    borderRadius: 999,
+    borderWidth: 1,
+    height: 52,
+    justifyContent: "center",
+    width: 52
+  },
+  consentTitle: {
+    color: colors.textPrimary,
+    fontSize: 20,
+    fontWeight: "800"
+  },
+  consentText: {
+    color: colors.textMuted,
+    fontSize: 14,
+    lineHeight: 21
+  },
+  consentLink: {
+    color: colors.goldBright,
+    fontSize: 14,
+    fontWeight: "700",
+    textDecorationLine: "underline"
+  },
+  consentAcceptButton: {
+    alignItems: "center",
+    backgroundColor: colors.gold,
+    borderRadius: 14,
+    marginTop: spacing.sm,
+    minHeight: 52,
+    justifyContent: "center"
+  },
+  consentDismissButton: {
+    alignItems: "center",
+    minHeight: 44,
+    justifyContent: "center"
   },
   loginHeader: {
     alignItems: "center",

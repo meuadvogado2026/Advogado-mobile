@@ -121,7 +121,7 @@ if (
   !lawyerProfile.includes("Carregando perfil profissional.") ||
   !lawyerProfile.includes("Este perfil não está disponível no momento. Busque outro advogado.") ||
   !lawyerProfile.includes("WhatsApp indisponível para este profissional.") ||
-  !lawyerProfile.includes("WhatsApp VIP")
+  !lawyerProfile.includes("Falar no WhatsApp")
 ) {
   throw new Error("Smoke mobile falhou. Fluxo Home -> LawyerProfile -> WhatsApp ou estados seguros ausentes.");
 }
@@ -182,9 +182,12 @@ if (
 }
 
 if (
-  !home.includes("/privacidade.html") ||
-  !home.includes("/termos.html") ||
-  !home.includes("/exclusao-de-dados.html")
+  !home.includes("https://advogado20.vercel.app/privacidade.html") ||
+  !home.includes("https://advogado20.vercel.app/termos.html") ||
+  !home.includes("https://advogado20.vercel.app/exclusao-de-dados.html") ||
+  !lawyerProfile.includes("https://advogado20.vercel.app/privacidade.html") ||
+  !lawyerProfile.includes("https://advogado20.vercel.app/termos.html") ||
+  !lawyerProfile.includes("https://advogado20.vercel.app/exclusao-de-dados.html")
 ) {
   throw new Error("Smoke mobile falhou. Links legais publicos nao estao acessiveis na Home.");
 }
@@ -192,7 +195,10 @@ if (
 if (
   !home.includes("function AccountDeletionRequest") ||
   !home.includes("Solicitar exclusao de conta e dados") ||
-  home.split("<AccountDeletionRequest />").length - 1 !== 2
+  !home.includes("createAccountDeletionService") ||
+  !home.includes("accountDeletion.create()") ||
+  !home.includes('onAccountDeletionRequest={handleAccountDeletionRequest}') ||
+  home.split("<AccountDeletionRequest onRequest={handleAccountDeletionRequest} />").length - 1 !== 1
 ) {
   throw new Error("Smoke mobile falhou. Caminho in-app de exclusao de conta/dados ausente nas areas autenticadas.");
 }
@@ -304,7 +310,7 @@ if (
   !home.includes("handleSubmitPrayer") ||
   !home.includes("Enviar como anônimo") ||
   !home.includes('tab: "prayer"') ||
-  !home.includes("LawyerVipCard dashboard={lawyerDashboard}") ||
+  !home.includes("LawyerBenefitsCard dashboard={lawyerDashboard}") ||
   home.includes("Taxa de contato") ||
   home.includes("getProfileStatus") ||
   home.includes('label="Status"') ||

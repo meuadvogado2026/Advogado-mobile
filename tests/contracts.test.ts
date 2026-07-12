@@ -83,8 +83,10 @@ describe("mobile foundation contracts", () => {
 
     expect(home).toContain("function AccountDeletionRequest");
     expect(home).toContain("Solicitar exclusao de conta e dados");
-    expect(home).toContain("/exclusao-de-dados.html");
-    expect(home.split("<AccountDeletionRequest />").length - 1).toBe(2);
+    expect(home).toContain("https://advogado20.vercel.app/exclusao-de-dados.html");
+    expect(home.split("<AccountDeletionRequest onRequest={handleAccountDeletionRequest} />").length - 1).toBe(1);
+    expect(home).toContain("onAccountDeletionRequest={handleAccountDeletionRequest}");
+    expect(home).toContain("accountDeletion.create()");
   });
 
   it("keeps the client specialty orbit aligned with unified gold palette and generic help", () => {
