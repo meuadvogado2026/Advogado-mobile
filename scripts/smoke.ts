@@ -182,14 +182,16 @@ if (
 }
 
 if (
-  !home.includes("https://advogado20.vercel.app/privacidade.html") ||
-  !home.includes("https://advogado20.vercel.app/termos.html") ||
-  !home.includes("https://advogado20.vercel.app/exclusao-de-dados.html") ||
-  !lawyerProfile.includes("https://advogado20.vercel.app/privacidade.html") ||
-  !lawyerProfile.includes("https://advogado20.vercel.app/termos.html") ||
-  !lawyerProfile.includes("https://advogado20.vercel.app/exclusao-de-dados.html")
+  !home.includes("https://advogado20.com.br/privacidade.html") ||
+  !home.includes("https://advogado20.com.br/termos.html") ||
+  !home.includes("https://advogado20.com.br/exclusao-de-dados.html") ||
+  !lawyerProfile.includes("https://advogado20.com.br/privacidade.html") ||
+  !lawyerProfile.includes("https://advogado20.com.br/termos.html") ||
+  !lawyerProfile.includes("https://advogado20.com.br/exclusao-de-dados.html") ||
+  home.includes("https://advogado20.vercel.app/") ||
+  lawyerProfile.includes("https://advogado20.vercel.app/")
 ) {
-  throw new Error("Smoke mobile falhou. Links legais publicos nao estao acessiveis na Home.");
+  throw new Error("Smoke mobile falhou. Links legais publicos nao usam exclusivamente o dominio oficial.");
 }
 
 if (

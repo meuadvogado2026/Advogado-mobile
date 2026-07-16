@@ -83,7 +83,10 @@ describe("mobile foundation contracts", () => {
 
     expect(home).toContain("function AccountDeletionRequest");
     expect(home).toContain("Solicitar exclusao de conta e dados");
-    expect(home).toContain("https://advogado20.vercel.app/exclusao-de-dados.html");
+    expect(home).toContain("https://advogado20.com.br/privacidade.html");
+    expect(home).toContain("https://advogado20.com.br/termos.html");
+    expect(home).toContain("https://advogado20.com.br/exclusao-de-dados.html");
+    expect(home).not.toContain("https://advogado20.vercel.app/");
     expect(home.split("<AccountDeletionRequest onRequest={handleAccountDeletionRequest} />").length - 1).toBe(1);
     expect(home).toContain("onAccountDeletionRequest={handleAccountDeletionRequest}");
     expect(home).toContain("accountDeletion.create()");

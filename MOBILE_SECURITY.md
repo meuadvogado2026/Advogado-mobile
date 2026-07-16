@@ -64,7 +64,7 @@ O mobile possui services de Auth, API, areas, match, perfil profissional, dashbo
 
 Spec 008 Parte 3: o bloco de pedido de oracao na Home envia texto livre para o backend com Bearer token e opcao de anonimato. Como o texto pode conter dado sensivel espontaneo, ele nao deve aparecer em logs, screenshots, harness ou docs. A tela orienta o usuario a nao incluir senha, documento, endereco completo, telefone ou detalhes juridicos sensiveis. O dashboard/cartao do advogado consome apenas dados seguros do backend e beneficios estaticos, sem pagamento, parceiro real, chat ou agenda. No backend, `prayer_requests` tem retencao operacional de 90 dias via dry-run/apply controlado; o mobile nao executa expurgo nem acessa Supabase diretamente.
 
-Politica, termos e canal de exclusao estao configurados no app para `https://advogado20.vercel.app/`. Em 2026-07-04, o dominio oficial ainda retornava 404 nas paginas legais; publicar a landing limpa antes do AAB final/Play Store. O canal provisorio para solicitacoes de dados e `meuadvogado2026@gmail.com`; antes do envio final, substituir pelo e-mail permanente de suporte/privacidade que o cliente criar.
+Politica, termos e canal de exclusao estao configurados no app para `https://advogado20.com.br/`. Em 2026-07-15, home e paginas legais responderam HTTPS 200 com certificado valido. O canal provisorio para solicitacoes de dados e `meuadvogado2026@gmail.com`; antes do envio final, substituir pelo e-mail permanente de suporte/privacidade que o cliente criar.
 
 Validacao Play Store em 2026-07-03: audit de producao mobile/backend zerado com
 `npm audit --omit=dev`, `expo-doctor` 21/21, producao sem cleartext e sem

@@ -49,9 +49,9 @@ const logo = require("../../assets/logo-gold.png");
 const mascot = require("../../assets/mascot-lawyer.png");
 const prayerArt = require("../../assets/prayer-bible-cross.png");
 const legalUrls = {
-  privacy: "https://advogado20.vercel.app/privacidade.html",
-  terms: "https://advogado20.vercel.app/termos.html",
-  deletion: "https://advogado20.vercel.app/exclusao-de-dados.html"
+  privacy: "https://advogado20.com.br/privacidade.html",
+  terms: "https://advogado20.com.br/termos.html",
+  deletion: "https://advogado20.com.br/exclusao-de-dados.html"
 };
 const URGENT_LAWYER_WHATSAPP = "5561993574056";
 const URGENT_LAWYER_MESSAGE = "Preciso de advogado urgente. Vim pelo Advogado 2.0 e preciso falar com um advogado agora.";

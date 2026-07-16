@@ -39,7 +39,7 @@ Status: `APROVADO_TECNICAMENTE_COM_LACUNAS_DE_PLAY_CONSOLE`.
 Linha mobile revalidada para Play Store: `targetSdkVersion=36`,
 `compileSdkVersion=36`, `versionCode=3`, package `com.advogado20.app`,
 `usesCleartextTraffic=false`, permissao apenas de localizacao foreground e
-paginas legais publicadas em `https://advogado20.vercel.app/`.
+paginas legais publicadas em `https://advogado20.com.br/`.
 
 Patches Expo SDK 56 alinhados para `expo ~56.0.14`,
 `expo-build-properties ~56.0.21` e `expo-constants ~56.0.20`. Gates aprovados:
@@ -55,16 +55,15 @@ com area `Direito Civil`; nao depender do GPS real do avaliador.
 
 ## Legal Pages Vercel + Expo Go - 2026-07-03
 
-Status: `LEGAL_URLS_OFICIAIS_NO_APP_COM_DOMINIO_BLOQUEADO`.
+Status: `LEGAL_URLS_DOMINIO_CUSTOMIZADO_OK`.
 
 Links legais do mobile foram atualizados para
-`https://advogado20.vercel.app/privacidade.html`,
-`https://advogado20.vercel.app/termos.html` e
-`https://advogado20.vercel.app/exclusao-de-dados.html` em
-`HomeScreen` e `LawyerProfileScreen`. O dominio oficial
-`advogado20.vercel.app` esta ocupado em outro projeto/deploy e retornou 404
-para as paginas legais em 2026-07-04. Nao gerar AAB final nem enviar para Play
-ate publicar a landing limpa e validar HTTP 200 nesse dominio.
+`https://advogado20.com.br/privacidade.html`,
+`https://advogado20.com.br/termos.html` e
+`https://advogado20.com.br/exclusao-de-dados.html` em
+`HomeScreen` e `LawyerProfileScreen`. Em 2026-07-15, o dominio customizado e as
+tres paginas legais responderam HTTPS 200. O alias antigo permanece ativo para
+compatibilidade de builds ja instaladas.
 
 Gates: `npm run smoke`, `npm test -- --run tests/contracts.test.ts` com 19
 testes e `npm run typecheck` OK. Metro/Expo Go iniciado em LAN na porta `8082`
