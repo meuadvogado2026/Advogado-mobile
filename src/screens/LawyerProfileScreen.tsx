@@ -16,9 +16,9 @@ type ProfileStatus = "loading" | "ready" | "error" | "unavailable";
 type SocialLink = { key: string; label: string; icon: AppIconName; url: string };
 
 const legalUrls = {
-  privacy: "https://advogado20.vercel.app/privacidade.html",
-  terms: "https://advogado20.vercel.app/termos.html",
-  deletion: "https://advogado20.vercel.app/exclusao-de-dados.html"
+  privacy: "https://advogado20.com.br/privacidade.html",
+  terms: "https://advogado20.com.br/termos.html",
+  deletion: "https://advogado20.com.br/exclusao-de-dados.html"
 };
 const LAWYER_WHATSAPP_MESSAGE =
   "Olá, encontrei seu perfil no Advogado 2.0 e gostaria de receber orientação jurídica. Pode me ajudar?";
