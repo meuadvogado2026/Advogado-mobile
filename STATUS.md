@@ -48,6 +48,18 @@ APK baixado em `harness-results/advogado20-preview-vc4-11e07d42.apk`, tamanho
 `86071529` bytes, SHA-256
 `9AF49E8AD8C4CA52414EC5C1788D8FEBBD3B1DC6080645726467B2194216DF25`.
 
+## Google OAuth Body Fix - 2026-07-24
+
+Status: `GOOGLE_OAUTH_BODY_FIX_LOCAL_OK_AGUARDA_APK`.
+
+Erro observado no APK preview `11e07d42`: apos retorno do Google, a tela exibia
+`Nao foi possivel concluir seu perfil com Google agora.`. Causa provavel
+identificada: `signInWithGoogle` enviava `Content-Type: application/json` para
+`POST /v1/auth/oauth-client/complete`, mas sem `body`, podendo ser rejeitado
+pelo Fastify antes da rota. Mobile agora envia `body: JSON.stringify({})`.
+Gates: `npm run test` 20/20, `npm run harness` exit 0, `npx -y expo-doctor`
+21/21 e `npm audit --omit=dev --audit-level=high` 0 vulnerabilidades.
+
 ## Play Store Validation Detalhada - 2026-07-04
 
 Status: `NAO_ENVIAR_PRODUCAO_AINDA_COM_BASE_TECNICA_OK`.

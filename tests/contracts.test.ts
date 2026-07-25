@@ -196,6 +196,7 @@ describe("mobile foundation contracts", () => {
             Authorization: "Bearer jwt-google-redacted"
           })
         );
+        expect(init?.body).toBe("{}");
         expect(String(init?.body ?? "")).not.toContain("client_secret");
         return new Response(
           JSON.stringify({
