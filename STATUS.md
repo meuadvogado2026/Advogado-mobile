@@ -29,6 +29,19 @@ Status: `RAILWAY_BACKEND_NOVO_OK`.
 mostrando que o backend novo esta online e tem o endpoint do Google OAuth.
 Gate mobile: `npm run harness` exit 0.
 
+## EAS Preview Build - 2026-07-24
+
+Status: `EAS_PREVIEW_RETRY_APOS_DEDUPE`.
+
+Build EAS preview `170b31c0-1b7e-4548-a7ef-039b117fb487` iniciou com a conta
+`advogado2.0`, commit `fa367bb`, `versionCode=4`, backend Railway novo e
+`EXPO_PUBLIC_SUPABASE_ANON_KEY` carregada do ambiente `preview`, mas falhou no
+`expo doctor` por dependencias nativas duplicadas: SDK 56 direto e SDK 57
+transitivo em `node_modules/expo/node_modules/expo`. `npm dedupe` removeu a
+duplicidade no lockfile. Gates apos correcao: `npx -y expo-doctor` 21/21,
+`npm ls` sem Expo SDK 57 duplicado, `npm audit --omit=dev --audit-level=high`
+0 vulnerabilidades e `npm run harness` exit 0.
+
 ## Play Store Validation Detalhada - 2026-07-04
 
 Status: `NAO_ENVIAR_PRODUCAO_AINDA_COM_BASE_TECNICA_OK`.
