@@ -32,6 +32,10 @@ type OAuthCompleteResponse = {
   };
 };
 
+type GoogleSignInOptions = {
+  createProfile?: boolean;
+};
+
 type SupabaseOAuthParams = {
   access_token?: string;
   refresh_token?: string;
@@ -109,7 +113,7 @@ export function createAuthService({
     return session;
   }
 
-  async function signInWithGoogle() {
+  async function signInWithGoogle(options: GoogleSignInOptions = {}) {
     validatePublicConfig(config);
 
     const authorizeUrl = new URL(`${config.supabaseUrl}/auth/v1/authorize`);
@@ -135,7 +139,7 @@ export function createAuthService({
         Authorization: `Bearer ${params.access_token}`,
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({})
+      body: JSON.stringify({ createProfile: options.createProfile ?? false })
     });
     const body = (await response.json()) as OAuthCompleteResponse;
     if (!response.ok && body.error?.code === "PROFILE_NOT_FOUND") {
