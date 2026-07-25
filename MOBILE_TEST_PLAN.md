@@ -94,7 +94,7 @@ Evidencias:
 - `npm run test -- --run tests/contracts.test.ts`: exit code 0, 14 testes.
 - `npm run smoke`: exit code 0, validando a nova UX estrutural.
 - `npm run harness`: exit code 0.
-- `npm run smoke:runtime` com `EXPO_PUBLIC_API_BASE_URL=https://advogado-back-production.up.railway.app` e `EXPO_PUBLIC_*` carregadas da `.env` raiz sem imprimir segredo: exit code 0, `OK_COM_RESSALVAS`, 6 areas, login real redigido, match `matched` e perfil seguro.
+- `npm run smoke:runtime` com `EXPO_PUBLIC_API_BASE_URL=https://advogado-back-production-0be1.up.railway.app` e `EXPO_PUBLIC_*` carregadas da `.env` raiz sem imprimir segredo: exit code 0, `OK_COM_RESSALVAS`, 6 areas, login real redigido, match `matched` e perfil seguro.
 - `git diff --check`: exit code 0.
 - Smoke visual Android parcial no AVD `Pixel_9` com Expo Go/Metro local: login renderizou com nova logo; Home cliente renderizou saudacao, hub de especialidades, sem busca textual, sem card de advogado, sem parceiros; `Advogado urgente` mostrou exemplos curtos; pedido de oracao mostrou copy segura sem o texto antigo.
 
@@ -171,7 +171,7 @@ Em 2026-06-01, a Home autenticada recebeu shell/header e bottom navigation MVP `
 Gates:
 
 - `npm run harness`; exit code 0; typecheck, 9 testes e smoke estrutural passaram.
-- `npm run smoke:runtime` com `EXPO_PUBLIC_API_BASE_URL=https://advogado-back-production.up.railway.app` e anon key publica carregada da `.env` raiz somente no processo; exit code 0; ADB/AVD OK, Railway health OK, 6 areas, login real com token redigido, match `matched`, perfil `verified=true`, duas areas e `hasForbiddenField=false`.
+- `npm run smoke:runtime` com `EXPO_PUBLIC_API_BASE_URL=https://advogado-back-production-0be1.up.railway.app` e anon key publica carregada da `.env` raiz somente no processo; exit code 0; ADB/AVD OK, Railway health OK, 6 areas, login real com token redigido, match `matched`, perfil `verified=true`, duas areas e `hasForbiddenField=false`.
 - `git diff --check`; exit code 0, apenas avisos de CRLF esperados do Git no Windows.
 - Smoke visual proporcional no AVD `Pixel_9` via Metro/Expo Go: login renderizou sem bottom navigation; apos login real por ADB, shell autenticado renderizou header `ADVOGADO 2.0`, contexto de localizacao, atalho `Buscar por area juridica` e bottom navigation `Inicio`, `Buscar`, `Conta`.
 
@@ -280,7 +280,7 @@ Evidencia:
 Em 2026-06-03, o gate visual Android proporcional da Parte 3 foi executado sem
 Play Console, sem AAB, sem APK novo e sem feature nova. `npm run harness`
 passou com exit code 0. `npm run smoke:runtime` contra
-`https://advogado-back-production.up.railway.app`, carregando somente envs
+`https://advogado-back-production-0be1.up.railway.app`, carregando somente envs
 publicas necessarias sem imprimir valores, passou com exit code 0 e resultado
 `OK_COM_RESSALVAS`.
 
