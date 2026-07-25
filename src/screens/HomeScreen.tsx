@@ -13,6 +13,7 @@ import {
   View
 } from "react-native";
 import { AppIcon, type AppIconName } from "../components/AppIcon";
+import { GoogleLogo } from "../components/GoogleLogo";
 import Svg, { Line } from "react-native-svg";
 import { SafeAreaView } from "react-native-safe-area-context";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
@@ -1312,9 +1313,7 @@ export function HomeScreen({ navigation }: Props) {
               onPress={handleGoogleSignIn}
               style={[styles.googleButton, status === "loading" && styles.disabledButton]}
             >
-              <View style={styles.googleMark}>
-                <Text style={styles.googleMarkText}>G</Text>
-              </View>
+              <GoogleLogo size={22} />
               <Text style={styles.googleButtonText}>Continuar com Google</Text>
             </TouchableOpacity>
             <TouchableOpacity
@@ -1884,19 +1883,6 @@ const styles = StyleSheet.create({
   },
   googleButtonText: {
     color: colors.surfaceDeep,
-    fontWeight: "900"
-  },
-  googleMark: {
-    alignItems: "center",
-    backgroundColor: colors.surfaceDeep,
-    borderRadius: 999,
-    height: 24,
-    justifyContent: "center",
-    width: 24
-  },
-  googleMarkText: {
-    color: colors.goldBright,
-    fontSize: 14,
     fontWeight: "900"
   },
   authenticatedShell: {

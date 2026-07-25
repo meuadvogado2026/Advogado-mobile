@@ -151,6 +151,20 @@ describe("mobile foundation contracts", () => {
     expect(appIcon).toContain('"help-circle-outline"');
   });
 
+  it("uses a real Google logo on the Google auth button", () => {
+    const home = readFileSync("src/screens/HomeScreen.tsx", "utf8");
+    const googleLogo = readFileSync("src/components/GoogleLogo.tsx", "utf8");
+
+    expect(home).toContain("GoogleLogo");
+    expect(home).toContain("Continuar com Google");
+    expect(home).not.toContain("googleMarkText");
+    expect(googleLogo).toContain("react-native-svg");
+    expect(googleLogo).toContain("#4285F4");
+    expect(googleLogo).toContain("#34A853");
+    expect(googleLogo).toContain("#FBBC05");
+    expect(googleLogo).toContain("#EA4335");
+  });
+
   it("stores only the returned session after controlled Supabase Auth login", async () => {
     const storage = memoryStorage();
     const calls: string[] = [];

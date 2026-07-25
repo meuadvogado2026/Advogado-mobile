@@ -5,6 +5,7 @@ const requiredFiles = [
   "App.tsx",
   "app.config.ts",
   "src/components/AppIcon.tsx",
+  "src/components/GoogleLogo.tsx",
   "src/screens/HomeScreen.tsx",
   "src/theme/tokens.ts",
   "src/services/authService.ts",
@@ -60,6 +61,7 @@ const packageJson = readFileSync("package.json", "utf8");
 const home = readFileSync("src/screens/HomeScreen.tsx", "utf8");
 const app = readFileSync("App.tsx", "utf8");
 const appIcon = readFileSync("src/components/AppIcon.tsx", "utf8");
+const googleLogo = readFileSync("src/components/GoogleLogo.tsx", "utf8");
 const lawyerProfile = readFileSync("src/screens/LawyerProfileScreen.tsx", "utf8");
 const locationService = readFileSync("src/services/locationService.ts", "utf8");
 const geographyService = readFileSync("src/services/geographyService.ts", "utf8");
@@ -105,8 +107,12 @@ if (!home.includes("Obtendo sua localização atual") || home.includes("let acti
 
 if (
   !home.includes("AppIcon") ||
+  !home.includes("GoogleLogo") ||
   !lawyerProfile.includes("AppIcon") ||
   !appIcon.includes("react-native-svg") ||
+  !googleLogo.includes("react-native-svg") ||
+  !googleLogo.includes("#4285F4") ||
+  home.includes("googleMarkText") ||
   !appIcon.includes("iconRenderers") ||
   appIcon.includes("glyphs") ||
   /<Text|from "react-native"|logo-whatsapp": "W"|logo-instagram": "IG"|logo-linkedin": "in"/.test(appIcon) ||
@@ -128,7 +134,7 @@ if (
 
 if (
   !appConfig.includes('package: "com.advogado20.app"') ||
-  !appConfig.includes("versionCode: 4") ||
+  !appConfig.includes("versionCode: 5") ||
   !appConfig.includes("compileSdkVersion: 36") ||
   !appConfig.includes("targetSdkVersion: 36") ||
   appConfig.includes("edgeToEdgeEnabled") ||
