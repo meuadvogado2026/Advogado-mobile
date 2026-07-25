@@ -31,7 +31,7 @@ Gate mobile: `npm run harness` exit 0.
 
 ## EAS Preview Build - 2026-07-24
 
-Status: `EAS_PREVIEW_RETRY_APOS_DEDUPE`.
+Status: `EAS_PREVIEW_APK_VC4_GERADO`.
 
 Build EAS preview `170b31c0-1b7e-4548-a7ef-039b117fb487` iniciou com a conta
 `advogado2.0`, commit `fa367bb`, `versionCode=4`, backend Railway novo e
@@ -40,7 +40,13 @@ Build EAS preview `170b31c0-1b7e-4548-a7ef-039b117fb487` iniciou com a conta
 transitivo em `node_modules/expo/node_modules/expo`. `npm dedupe` removeu a
 duplicidade no lockfile. Gates apos correcao: `npx -y expo-doctor` 21/21,
 `npm ls` sem Expo SDK 57 duplicado, `npm audit --omit=dev --audit-level=high`
-0 vulnerabilidades e `npm run harness` exit 0.
+0 vulnerabilidades e `npm run harness` exit 0. Build EAS preview final
+`11e07d42-62e9-40ee-a1f8-72d41f607d16` concluiu com `FINISHED` no commit
+`54c5e4b`, `versionCode=4`, perfil `preview`/APK/internal. Link instalavel:
+`https://expo.dev/accounts/advogado2.0/projects/meu-advogado-20/builds/11e07d42-62e9-40ee-a1f8-72d41f607d16`.
+APK baixado em `harness-results/advogado20-preview-vc4-11e07d42.apk`, tamanho
+`86071529` bytes, SHA-256
+`9AF49E8AD8C4CA52414EC5C1788D8FEBBD3B1DC6080645726467B2194216DF25`.
 
 ## Play Store Validation Detalhada - 2026-07-04
 
