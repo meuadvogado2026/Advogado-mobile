@@ -19,6 +19,16 @@ pelo CLI e o override de `postcss` subiu para versao corrigida. Lacuna: smoke re
 de Google no Android/browser ainda precisa ser executado com app rodando/build apos
 a configuracao Supabase/Google salva pelo usuario.
 
+## Railway Backend URL - 2026-07-24
+
+Status: `RAILWAY_BACKEND_NOVO_OK`.
+
+`eas.json` preview/production agora aponta para
+`https://advogado-back-production-0be1.up.railway.app`. Smoke remoto confirmou
+`/health` 200, `/v1/areas` 200 e `/v1/auth/oauth-client/complete` 401 sem Bearer,
+mostrando que o backend novo esta online e tem o endpoint do Google OAuth.
+Gate mobile: `npm run harness` exit 0.
+
 ## Play Store Validation Detalhada - 2026-07-04
 
 Status: `NAO_ENVIAR_PRODUCAO_AINDA_COM_BASE_TECNICA_OK`.
@@ -692,7 +702,7 @@ Android e build atualizado seguem como gate.
 - [x] Rebuild preview EAS do cadastro cliente destravado: commits `ab9553d` (`Fix EAS Android prebuild tar interop`) e `eeb42c0` (`Avoid blank APK while icon font loads`) publicados em `meuadvogado2026/Advogado-mobile`.
 - [x] APK preview final gerado no EAS Build `baa5caed-27fd-4e2d-be06-39ff52678b85`, commit `eeb42c0a994ec34784096f025e69a6385a190d29`, perfil `preview`, APK/internal, sem AAB e sem Play Console.
 - [x] APK baixado em `harness-results/client-signup-preview-eeb42c0-baa5caed.apk`, tamanho `68163546` bytes, SHA-256 `B5A6EDFC29507652290360C29735EC0B6F489418EB4F945E172FF298E6459A30`.
-- [x] Conteudo do APK validado: bundle contem `Criar novo usuario`, `/v1/auth/signup-client`, Railway `https://advogado-back-production.up.railway.app` e fallback dev nao esta `true`.
+- [x] Conteudo do APK validado: bundle contem `Criar novo usuario`, `/v1/auth/signup-client`, Railway `https://advogado-back-production-0be1.up.railway.app` e fallback dev nao esta `true`.
 - [x] Smoke visual do APK instalado no AVD `Pixel_9` passou por `Login -> Criar novo usuario -> cadastro descartavel -> Home`; login Supabase e `GET /v1/me` retornaram `role=client`, com cleanup de Auth/profile concluido.
 - [x] Sessao/JWT guardado em SecureStore.
 - [x] `GET /v1/areas` consumido via backend.
