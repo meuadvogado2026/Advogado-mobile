@@ -1059,15 +1059,17 @@ export function HomeScreen({ navigation }: Props) {
   }
 
   async function handleGoogleSignIn() {
+    const createProfile = authMode === "signUp";
     setStatus("loading");
-    setMessage("Abrindo login seguro do Google.");
+    setMessage(createProfile ? "Abrindo cadastro seguro do Google." : "Abrindo login seguro do Google.");
     try {
-      const signedSession = await authService.signInWithGoogle();
+      const signedSession = await authService.signInWithGoogle({ createProfile });
       await hydrateUser(signedSession);
       setSignupName("");
       setPassword("");
+      setAuthMode("signIn");
       setStatus("idle");
-      setMessage("Sessao iniciada com Google.");
+      setMessage(createProfile ? "Usuario criado e sessao iniciada com Google." : "Sessao iniciada com Google.");
     } catch (error) {
       setStatus("error");
       setMessage(getFriendlyError(error));

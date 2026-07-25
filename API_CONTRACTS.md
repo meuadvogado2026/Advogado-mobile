@@ -40,6 +40,18 @@ Chamado apos o Supabase Auth retornar sessao via Google OAuth no deep link
 backend recuperar o profile de dominio. Usuario sem cadastro no app recebe
 `PROFILE_NOT_FOUND`; usuarios existentes preservam `role`.
 
+No modo `Entrar`, o app envia:
+
+```json
+{ "createProfile": false }
+```
+
+No modo `Criar novo usuario`, o botao Google envia:
+
+```json
+{ "createProfile": true }
+```
+
 Response:
 
 ```json

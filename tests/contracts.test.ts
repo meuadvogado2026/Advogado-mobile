@@ -196,7 +196,7 @@ describe("mobile foundation contracts", () => {
             Authorization: "Bearer jwt-google-redacted"
           })
         );
-        expect(init?.body).toBe("{}");
+        expect(JSON.parse(String(init?.body))).toEqual({ createProfile: false });
         expect(String(init?.body ?? "")).not.toContain("client_secret");
         return new Response(
           JSON.stringify({
@@ -249,6 +249,40 @@ describe("mobile foundation contracts", () => {
 
     await expect(auth.signInWithGoogle()).rejects.toThrow("LOGIN_GOOGLE_CADASTRO_NAO_ENCONTRADO");
     await expect(storage.get()).resolves.toBeNull();
+  });
+
+  it("asks the backend to create a client profile when Google OAuth starts from signup", async () => {
+    const storage = memoryStorage();
+    const calls: Array<{ url: string; init?: RequestInit }> = [];
+    webBrowserMock.openAuthSessionAsync.mockResolvedValueOnce({
+      type: "success",
+      url: "advogado20://auth/callback#access_token=jwt-google-signup&refresh_token=refresh-redacted&expires_in=3600"
+    });
+    const auth = createAuthService({
+      config: publicTestConfig,
+      storage,
+      fetchImpl: (async (url, init) => {
+        calls.push({ url: String(url), init });
+        expect(JSON.parse(String(init?.body))).toEqual({ createProfile: true });
+        return new Response(
+          JSON.stringify({
+            user: { id: "google-client-new", email: "google-signup@example.test", role: "client" },
+            persistence: "memory"
+          }),
+          { status: 201 }
+        );
+      }) as typeof fetch
+    });
+
+    const session = await auth.signInWithGoogle({ createProfile: true });
+
+    expect(calls[0]!.url).toBe("http://127.0.0.1:3333/v1/auth/oauth-client/complete");
+    expect(session).toMatchObject({
+      accessToken: "jwt-google-signup",
+      refreshToken: "refresh-redacted",
+      email: "google-signup@example.test"
+    });
+    expect(await storage.get()).toMatchObject({ email: "google-signup@example.test" });
   });
 
   it("creates a client user through the backend signup boundary", async () => {

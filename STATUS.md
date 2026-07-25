@@ -1,5 +1,19 @@
 # Mobile Status - Advogado 2.0
 
+## Google OAuth Cadastro Explicito - 2026-07-25
+
+Status: `GOOGLE_OAUTH_SIGNUP_INTENT_LOCAL_OK_SEM_BUILD`.
+
+Mobile passou a diferenciar a intencao do botao `Continuar com Google`:
+em `Entrar`, envia `{ createProfile: false }` para manter bloqueado login Google
+sem cadastro; em `Criar novo usuario`, envia `{ createProfile: true }` para o
+backend criar `profiles.role=client` quando o usuario Google ainda nao tem
+profile no app. A sessao so e salva apos resposta valida do backend. Gates:
+teste focado de Google OAuth passou, `npm run test` 22/22, `npm run harness`
+exit 0, `npx -y expo-doctor` 21/21 e
+`npm audit --omit=dev --audit-level=high` exit 0. Nao foi gerado build EAS;
+app instalado precisa de build futuro para receber esta UX.
+
 ## Google OAuth Cliente - 2026-07-24
 
 Status: `GOOGLE_OAUTH_LOCAL_OK_COM_LACUNA_SMOKE_ANDROID_REAL`.
