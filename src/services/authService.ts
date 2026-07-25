@@ -130,7 +130,8 @@ export function createAuthService({
       headers: {
         Authorization: `Bearer ${params.access_token}`,
         "Content-Type": "application/json"
-      }
+      },
+      body: JSON.stringify({})
     });
     const body = (await response.json()) as OAuthCompleteResponse;
     if (!response.ok || !body.user?.email) {
