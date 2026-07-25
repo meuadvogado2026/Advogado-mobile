@@ -37,8 +37,8 @@ existente para iniciar sessao.
 
 Chamado apos o Supabase Auth retornar sessao via Google OAuth no deep link
 `advogado20://auth/callback`. O app envia o access token como Bearer para o
-backend criar/recuperar o profile de dominio. Usuario novo vira `client`;
-usuarios existentes preservam `role`.
+backend recuperar o profile de dominio. Usuario sem cadastro no app recebe
+`PROFILE_NOT_FOUND`; usuarios existentes preservam `role`.
 
 Response:
 
@@ -47,7 +47,9 @@ Response:
 ```
 
 O app salva somente a sessao Supabase retornada pelo provedor. A resposta do
-backend nao retorna token, senha, refresh token ou segredo Google.
+backend nao retorna token, senha, refresh token ou segredo Google. Se o backend
+retornar `PROFILE_NOT_FOUND`, o app nao salva sessao e informa que o usuario
+ainda nao tem cadastro no Advogado 2.0.
 
 ### Primeiro acesso do advogado
 

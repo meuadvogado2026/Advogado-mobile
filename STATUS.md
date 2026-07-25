@@ -60,6 +60,18 @@ pelo Fastify antes da rota. Mobile agora envia `body: JSON.stringify({})`.
 Gates: `npm run test` 20/20, `npm run harness` exit 0, `npx -y expo-doctor`
 21/21 e `npm audit --omit=dev --audit-level=high` 0 vulnerabilidades.
 
+## Google OAuth Sem Cadastro Automatico - 2026-07-24
+
+Status: `GOOGLE_OAUTH_PROFILE_REQUIRED_LOCAL_OK_SEM_BUILD`.
+
+Mobile passou a tratar `PROFILE_NOT_FOUND` do backend como
+`LOGIN_GOOGLE_CADASTRO_NAO_ENCONTRADO` e exibe `Voce ainda nao tem cadastro no
+Advogado 2.0.`. A sessao Google nao e salva quando o profile de dominio nao
+existe. Gates: `npm run test` 21/21, `npm run harness` exit 0,
+`npx -y expo-doctor` 21/21 e `npm audit --omit=dev --audit-level=high` 0
+vulnerabilidades. Nao foi gerado APK/EAS neste ciclo para preservar cota; a UX
+nova exige build futuro.
+
 ## Play Store Validation Detalhada - 2026-07-04
 
 Status: `NAO_ENVIAR_PRODUCAO_AINDA_COM_BASE_TECNICA_OK`.
