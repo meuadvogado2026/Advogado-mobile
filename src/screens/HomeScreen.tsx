@@ -146,6 +146,9 @@ function getFriendlyError(error: unknown) {
     if (error.message === "LOGIN_GOOGLE_SEM_SESSAO") {
       return "O Google nao retornou uma sessao valida. Tente novamente.";
     }
+    if (error.message === "LOGIN_GOOGLE_CADASTRO_NAO_ENCONTRADO") {
+      return "Voce ainda nao tem cadastro no Advogado 2.0.";
+    }
     if (error.message === "LOGIN_GOOGLE_PERFIL_INDISPONIVEL") {
       return "Nao foi possivel concluir seu perfil com Google agora.";
     }

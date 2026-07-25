@@ -23,8 +23,12 @@ type SupabasePasswordResponse = {
 };
 
 type OAuthCompleteResponse = {
-  user: {
+  user?: {
     email?: string;
+  };
+  error?: {
+    code?: string;
+    message?: string;
   };
 };
 
@@ -134,6 +138,9 @@ export function createAuthService({
       body: JSON.stringify({})
     });
     const body = (await response.json()) as OAuthCompleteResponse;
+    if (!response.ok && body.error?.code === "PROFILE_NOT_FOUND") {
+      throw authError("LOGIN_GOOGLE_CADASTRO_NAO_ENCONTRADO");
+    }
     if (!response.ok || !body.user?.email) {
       throw authError("LOGIN_GOOGLE_PERFIL_INDISPONIVEL");
     }

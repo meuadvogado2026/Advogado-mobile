@@ -226,6 +226,31 @@ describe("mobile foundation contracts", () => {
     expect(await storage.get()).toMatchObject({ email: "google-client@example.test" });
   });
 
+  it("does not store a Google session when the application profile does not exist", async () => {
+    const storage = memoryStorage();
+    webBrowserMock.openAuthSessionAsync.mockResolvedValueOnce({
+      type: "success",
+      url: "advogado20://auth/callback#access_token=jwt-google-sem-cadastro&refresh_token=refresh-redacted&expires_in=3600"
+    });
+    const auth = createAuthService({
+      config: publicTestConfig,
+      storage,
+      fetchImpl: (async () =>
+        new Response(
+          JSON.stringify({
+            error: {
+              code: "PROFILE_NOT_FOUND",
+              message: "Cadastro nao encontrado para este login Google."
+            }
+          }),
+          { status: 404 }
+        )) as typeof fetch
+    });
+
+    await expect(auth.signInWithGoogle()).rejects.toThrow("LOGIN_GOOGLE_CADASTRO_NAO_ENCONTRADO");
+    await expect(storage.get()).resolves.toBeNull();
+  });
+
   it("creates a client user through the backend signup boundary", async () => {
     const api = createApiClient({
       config: publicTestConfig,
