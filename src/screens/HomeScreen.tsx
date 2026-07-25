@@ -140,6 +140,15 @@ function getFriendlyError(error: unknown) {
     if (error.message === "SUPABASE_AUTH_PUBLICO_AUSENTE") {
       return "Configure a anon key pública do Supabase para entrar.";
     }
+    if (error.message === "LOGIN_GOOGLE_CANCELADO") {
+      return "Login com Google cancelado.";
+    }
+    if (error.message === "LOGIN_GOOGLE_SEM_SESSAO") {
+      return "O Google nao retornou uma sessao valida. Tente novamente.";
+    }
+    if (error.message === "LOGIN_GOOGLE_PERFIL_INDISPONIVEL") {
+      return "Nao foi possivel concluir seu perfil com Google agora.";
+    }
     return error.message;
   }
   return "Não foi possível concluir a ação.";
@@ -1046,6 +1055,22 @@ export function HomeScreen({ navigation }: Props) {
     }
   }
 
+  async function handleGoogleSignIn() {
+    setStatus("loading");
+    setMessage("Abrindo login seguro do Google.");
+    try {
+      const signedSession = await authService.signInWithGoogle();
+      await hydrateUser(signedSession);
+      setSignupName("");
+      setPassword("");
+      setStatus("idle");
+      setMessage("Sessao iniciada com Google.");
+    } catch (error) {
+      setStatus("error");
+      setMessage(getFriendlyError(error));
+    }
+  }
+
   async function handleSignOut() {
     await authService.signOut();
     setSession(null);
@@ -1274,6 +1299,18 @@ export function HomeScreen({ navigation }: Props) {
                 size={18}
               />
               <Text style={styles.primaryButtonText}>{authMode === "signIn" ? "Entrar" : "Criar usuário"}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              accessibilityLabel="Continuar com Google"
+              accessibilityRole="button"
+              disabled={status === "loading"}
+              onPress={handleGoogleSignIn}
+              style={[styles.googleButton, status === "loading" && styles.disabledButton]}
+            >
+              <View style={styles.googleMark}>
+                <Text style={styles.googleMarkText}>G</Text>
+              </View>
+              <Text style={styles.googleButtonText}>Continuar com Google</Text>
             </TouchableOpacity>
             <TouchableOpacity
               disabled={status === "loading"}
@@ -1827,6 +1864,35 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "800",
     textDecorationLine: "underline"
+  },
+  googleButton: {
+    alignItems: "center",
+    backgroundColor: colors.textPrimary,
+    borderColor: "rgba(255,255,255,0.32)",
+    borderRadius: 8,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: spacing.sm,
+    minHeight: 44,
+    justifyContent: "center",
+    paddingHorizontal: spacing.md
+  },
+  googleButtonText: {
+    color: colors.surfaceDeep,
+    fontWeight: "900"
+  },
+  googleMark: {
+    alignItems: "center",
+    backgroundColor: colors.surfaceDeep,
+    borderRadius: 999,
+    height: 24,
+    justifyContent: "center",
+    width: 24
+  },
+  googleMarkText: {
+    color: colors.goldBright,
+    fontSize: 14,
+    fontWeight: "900"
   },
   authenticatedShell: {
     flex: 1

@@ -35,6 +35,7 @@ export default {
     owner: "advogado2.0",
     plugins: [
       "expo-asset",
+      "expo-web-browser",
       "expo-secure-store",
       "expo-status-bar",
       [
@@ -50,7 +51,7 @@ export default {
     ],
     android: {
       package: "com.advogado20.app",
-      versionCode: 3,
+      versionCode: 4,
       adaptiveIcon: {
         foregroundImage: "./assets/logo-blue.png",
         backgroundColor: "#071426"

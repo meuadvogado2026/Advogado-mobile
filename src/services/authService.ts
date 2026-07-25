@@ -1,9 +1,12 @@
+import * as WebBrowser from "expo-web-browser";
+import { apiContracts } from "../config/contracts";
 import { publicConfig, validatePublicConfig, type PublicConfig } from "../config/env";
 import { isExpired, type Session, type SessionStorage } from "./sessionStorage";
 
 type AuthDependencies = {
   config?: PublicConfig;
   fetchImpl?: typeof fetch;
+  openAuthSessionAsync?: typeof WebBrowser.openAuthSessionAsync;
   storage?: SessionStorage;
 };
 
@@ -19,6 +22,46 @@ type SupabasePasswordResponse = {
   msg?: string;
 };
 
+type OAuthCompleteResponse = {
+  user: {
+    email?: string;
+  };
+};
+
+type SupabaseOAuthParams = {
+  access_token?: string;
+  refresh_token?: string;
+  expires_at?: string;
+  expires_in?: string;
+  error?: string;
+  error_description?: string;
+};
+
+const GOOGLE_REDIRECT_URI = "advogado20://auth/callback";
+
+function parseParamsFromUrl(url: string): SupabaseOAuthParams {
+  const pieces: string[] = [];
+  const queryIndex = url.indexOf("?");
+  const hashIndex = url.indexOf("#");
+
+  if (queryIndex >= 0) {
+    pieces.push(url.slice(queryIndex + 1, hashIndex >= 0 ? hashIndex : undefined));
+  }
+  if (hashIndex >= 0) {
+    pieces.push(url.slice(hashIndex + 1));
+  }
+
+  const params = new URLSearchParams(pieces.filter(Boolean).join("&"));
+  return {
+    access_token: params.get("access_token") ?? undefined,
+    refresh_token: params.get("refresh_token") ?? undefined,
+    expires_at: params.get("expires_at") ?? undefined,
+    expires_in: params.get("expires_in") ?? undefined,
+    error: params.get("error") ?? undefined,
+    error_description: params.get("error_description") ?? undefined
+  };
+}
+
 function authError(message: string) {
   return new Error(message);
 }
@@ -26,6 +69,7 @@ function authError(message: string) {
 export function createAuthService({
   config = publicConfig,
   fetchImpl = fetch,
+  openAuthSessionAsync = WebBrowser.openAuthSessionAsync,
   storage
 }: AuthDependencies = {}) {
   if (!storage) {
@@ -61,6 +105,51 @@ export function createAuthService({
     return session;
   }
 
+  async function signInWithGoogle() {
+    validatePublicConfig(config);
+
+    const authorizeUrl = new URL(`${config.supabaseUrl}/auth/v1/authorize`);
+    authorizeUrl.searchParams.set("provider", "google");
+    authorizeUrl.searchParams.set("redirect_to", GOOGLE_REDIRECT_URI);
+
+    const result = await openAuthSessionAsync(authorizeUrl.toString(), GOOGLE_REDIRECT_URI);
+    if (result.type !== "success" || !("url" in result)) {
+      throw authError("LOGIN_GOOGLE_CANCELADO");
+    }
+
+    const params = parseParamsFromUrl(result.url);
+    if (params.error) {
+      throw authError(params.error_description ?? params.error);
+    }
+    if (!params.access_token) {
+      throw authError("LOGIN_GOOGLE_SEM_SESSAO");
+    }
+
+    const response = await fetchImpl(`${config.apiBaseUrl}${apiContracts.oauthClientComplete}`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${params.access_token}`,
+        "Content-Type": "application/json"
+      }
+    });
+    const body = (await response.json()) as OAuthCompleteResponse;
+    if (!response.ok || !body.user?.email) {
+      throw authError("LOGIN_GOOGLE_PERFIL_INDISPONIVEL");
+    }
+
+    const session: Session = {
+      accessToken: params.access_token,
+      refreshToken: params.refresh_token,
+      expiresAt: params.expires_at
+        ? Number(params.expires_at)
+        : Math.floor(Date.now() / 1000) + Number(params.expires_in ?? 3600),
+      email: body.user.email
+    };
+
+    await sessionStorage.set(session);
+    return session;
+  }
+
   async function getSession() {
     const session = await sessionStorage.get();
     if (!session) {
@@ -79,5 +168,5 @@ export function createAuthService({
     await sessionStorage.clear();
   }
 
-  return { signIn, getSession, signOut };
+  return { signIn, signInWithGoogle, getSession, signOut };
 }

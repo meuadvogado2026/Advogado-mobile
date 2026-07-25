@@ -21,6 +21,10 @@ const locationMock = vi.hoisted(() => ({
   getCurrentPositionAsync: vi.fn()
 }));
 
+const webBrowserMock = vi.hoisted(() => ({
+  openAuthSessionAsync: vi.fn()
+}));
+
 vi.mock("expo-location", () => ({
   PermissionStatus: {
     GRANTED: "granted"
@@ -31,6 +35,10 @@ vi.mock("expo-location", () => ({
   },
   requestForegroundPermissionsAsync: locationMock.requestForegroundPermissionsAsync,
   getCurrentPositionAsync: locationMock.getCurrentPositionAsync
+}));
+
+vi.mock("expo-web-browser", () => ({
+  openAuthSessionAsync: webBrowserMock.openAuthSessionAsync
 }));
 
 function memoryStorage(): SessionStorage {
@@ -66,6 +74,7 @@ describe("mobile foundation contracts", () => {
     expect(apiContracts.matchByCity).toBe("/v1/match/by-city");
     expect(apiContracts.states).toBe("/v1/states");
     expect(apiContracts.clientSignup).toBe("/v1/auth/signup-client");
+    expect(apiContracts.oauthClientComplete).toBe("/v1/auth/oauth-client/complete");
     expect(apiContracts.me).toBe("/v1/me");
     expect(apiContracts.lawyerDashboard).toBe("/v1/lawyer/me/dashboard");
     expect(apiContracts.prayerRequests).toBe("/v1/prayer-requests");
@@ -168,6 +177,52 @@ describe("mobile foundation contracts", () => {
     expect(calls[0]).toBe("https://example.supabase.co/auth/v1/token?grant_type=password");
     expect(session.accessToken).toBe("jwt-redacted");
     expect(await storage.get()).toMatchObject({ email: "usuario@advogado20.com" });
+  });
+
+  it("completes Google OAuth through the backend before storing the session", async () => {
+    const storage = memoryStorage();
+    const calls: Array<{ url: string; init?: RequestInit }> = [];
+    webBrowserMock.openAuthSessionAsync.mockResolvedValueOnce({
+      type: "success",
+      url: "advogado20://auth/callback#access_token=jwt-google-redacted&refresh_token=refresh-redacted&expires_in=3600"
+    });
+    const auth = createAuthService({
+      config: publicTestConfig,
+      storage,
+      fetchImpl: (async (url, init) => {
+        calls.push({ url: String(url), init });
+        expect(init?.headers).toEqual(
+          expect.objectContaining({
+            Authorization: "Bearer jwt-google-redacted"
+          })
+        );
+        expect(String(init?.body ?? "")).not.toContain("client_secret");
+        return new Response(
+          JSON.stringify({
+            user: { id: "google-client", email: "google-client@example.test", role: "client" },
+            persistence: "memory"
+          }),
+          { status: 201 }
+        );
+      }) as typeof fetch
+    });
+
+    const session = await auth.signInWithGoogle();
+
+    expect(webBrowserMock.openAuthSessionAsync).toHaveBeenCalledWith(
+      expect.stringContaining("https://example.supabase.co/auth/v1/authorize"),
+      "advogado20://auth/callback"
+    );
+    const authUrl = String(webBrowserMock.openAuthSessionAsync.mock.calls[0]![0]);
+    expect(authUrl).toContain("provider=google");
+    expect(authUrl).toContain("redirect_to=advogado20%3A%2F%2Fauth%2Fcallback");
+    expect(calls[0]!.url).toBe("http://127.0.0.1:3333/v1/auth/oauth-client/complete");
+    expect(session).toMatchObject({
+      accessToken: "jwt-google-redacted",
+      refreshToken: "refresh-redacted",
+      email: "google-client@example.test"
+    });
+    expect(await storage.get()).toMatchObject({ email: "google-client@example.test" });
   });
 
   it("creates a client user through the backend signup boundary", async () => {

@@ -1,5 +1,24 @@
 # Mobile Status - Advogado 2.0
 
+## Google OAuth Cliente - 2026-07-24
+
+Status: `GOOGLE_OAUTH_LOCAL_OK_COM_LACUNA_SMOKE_ANDROID_REAL`.
+
+Mobile adicionou `expo-web-browser` e plugin no `app.config.ts`, manteve o scheme
+`advogado20`, abriu Supabase Google OAuth com redirect
+`advogado20://auth/callback`, finalizou o profile pelo backend em
+`POST /v1/auth/oauth-client/complete` e exibiu o botao `Continuar com Google`
+na tela de login/cadastro. Android `versionCode` subiu para 4 para atualizar APK
+instalado com previsibilidade. A sessao salva continua limitada a access token,
+refresh token, expiracao e e-mail; a resposta backend nao retorna segredo Google.
+
+Gates: `npm run test` passou com 20 testes, `npm run typecheck`, `npm run harness`,
+`npx expo install --check` e `npm audit --omit=dev --audit-level=high` passaram.
+Durante o ciclo, patches Expo SDK 56 foram alinhados para as versoes esperadas
+pelo CLI e o override de `postcss` subiu para versao corrigida. Lacuna: smoke real
+de Google no Android/browser ainda precisa ser executado com app rodando/build apos
+a configuracao Supabase/Google salva pelo usuario.
+
 ## Play Store Validation Detalhada - 2026-07-04
 
 Status: `NAO_ENVIAR_PRODUCAO_AINDA_COM_BASE_TECNICA_OK`.

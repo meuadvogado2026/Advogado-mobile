@@ -9,6 +9,7 @@ O mobile usa o backend para cadastro de cliente e Supabase Auth REST apenas para
 login/sessao:
 
 - `POST /v1/auth/signup-client`
+- `POST /v1/auth/oauth-client/complete`
 - `POST /v1/auth/change-password`
 - `GET /v1/me`
 - `POST {SUPABASE_URL}/auth/v1/token?grant_type=password`
@@ -31,6 +32,22 @@ Response:
 
 O app nao recebe senha/token nessa resposta; apos criar, usa o login Supabase Auth REST
 existente para iniciar sessao.
+
+### `POST /v1/auth/oauth-client/complete`
+
+Chamado apos o Supabase Auth retornar sessao via Google OAuth no deep link
+`advogado20://auth/callback`. O app envia o access token como Bearer para o
+backend criar/recuperar o profile de dominio. Usuario novo vira `client`;
+usuarios existentes preservam `role`.
+
+Response:
+
+```json
+{ "user": { "id": "uuid", "name": "Cliente Nome", "email": "cliente@example.com", "role": "client", "mustChangePassword": false, "firstLoginCompletedAt": null }, "persistence": "supabase" }
+```
+
+O app salva somente a sessao Supabase retornada pelo provedor. A resposta do
+backend nao retorna token, senha, refresh token ou segredo Google.
 
 ### Primeiro acesso do advogado
 
