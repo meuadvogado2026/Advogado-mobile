@@ -1,0 +1,11 @@
+node_modules/
+.git/
+.expo/
+dist/
+coverage/
+harness-results/
+.env
+.env.*
+*.log
+*.keystore
+credentials.json

@@ -509,6 +509,11 @@ function PrayerHomeBlock({
           Envie um pedido breve para receber apoio em oração. Não inclua senha, documento, endereço completo,
           telefone ou detalhes jurídicos sensíveis.
         </Text>
+        <Text style={styles.prayerText}>
+          O envio é opcional. O texto pode revelar crenças religiosas ou outros dados sensíveis;
+          será acessado pela equipe responsável para apoio em oração e excluído em até 90 dias.
+          Enviar como anônimo oculta o vínculo da conta no pedido, mas não remove informações que você escrever.
+        </Text>
         <TextInput
           multiline
           onChangeText={onMessageChange}
@@ -785,6 +790,9 @@ function LocationConsentModal({
             Para encontrar o advogado mais próximo, o Advogado 2.0 coleta a sua localização precisa (GPS)
             apenas no momento da busca e envia essa coordenada aos nossos servidores para calcular a
             proximidade.
+          </Text>
+          <Text style={styles.consentText}>
+            Após o cálculo, não gravamos sua coordenada, precisão do GPS ou distância no histórico da busca.
           </Text>
           <Text style={styles.consentText}>
             Não usamos localização em segundo plano. Você pode recusar agora e usar a busca por cidade.
@@ -1231,7 +1239,19 @@ export function HomeScreen({ navigation }: Props) {
     });
   }
 
-  async function handleSubmitPrayer() {
+  function handleSubmitPrayer() {
+    if (status === "loading") return;
+    Alert.alert(
+      "Confirmar envio do pedido",
+      "O texto pode conter crenças religiosas ou outros dados sensíveis. Você autoriza o envio à equipe responsável para apoio em oração, com exclusão em até 90 dias? O envio é opcional.",
+      [
+        { text: "Cancelar", style: "cancel" },
+        { text: "Autorizar e enviar", onPress: () => void submitPrayer() }
+      ]
+    );
+  }
+
+  async function submitPrayer() {
     setStatus("loading");
     setMessage("Enviando pedido de oração com segurança.");
     try {

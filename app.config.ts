@@ -20,7 +20,7 @@ export default {
   expo: {
     name: "Advogado 2.0",
     slug: "meu-advogado-20",
-    version: "0.1.0",
+    version: "0.1.1",
     orientation: "portrait",
     platforms: ["android"],
     scheme: "advogado20",
@@ -51,7 +51,7 @@ export default {
     ],
     android: {
       package: "com.advogado20.app",
-      versionCode: 5,
+      versionCode: 6,
       adaptiveIcon: {
         foregroundImage: "./assets/logo-blue.png",
         backgroundColor: "#071426"

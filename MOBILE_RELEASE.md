@@ -1,8 +1,34 @@
 # Mobile Release - Advogado 2.0
 
-**Estado:** pronto tecnicamente para Play Console/closed testing, nao pronto para producao
+**Estado:** pronto localmente para preflight Play Console, bloqueado para AAB/build ate backend publico voltar a 200
 **Canal inicial:** internal testing Android
-**Ultimo diagnostico:** 2026-07-03 - `APROVADO_TECNICAMENTE_COM_LACUNAS_DE_PLAY_CONSOLE`
+**Ultimo diagnostico:** 2026-08-25 - `REPROVADO_BACKEND_PUBLICO_404_SEM_AAB`
+
+## Preflight Mobile Release - 2026-08-25
+
+Diagnostico em `../harness-results/mobile-release-2026-08-25.md`.
+
+Baseline local aprovada: Expo SDK 57/RN 0.86.2, `expo install --check` OK,
+`expo-doctor` 21/21, `npm audit --audit-level=high` sem vulnerabilidades e
+`npm run harness` OK com 23 testes, typecheck e smoke estrutural. Config
+production redigida confirmou package `com.advogado20.app`, `versionCode=5`,
+`compileSdkVersion=36`, `targetSdkVersion=36`, permissoes foreground de
+localizacao, storage/overlay/vibrate bloqueados e `usesCleartextTraffic=false`.
+
+EAS esta autenticado na conta `@advogado2.0` e o projeto remoto confirmado e
+`@advogado2.0/meu-advogado-20` (`projectId`
+`089e477d-8af2-4c3b-a9f6-47fe25886860`). Nenhum build foi iniciado. O AAB
+segue bloqueado porque o backend publico documentado no `eas.json`
+(`https://advogado-back-production-0be1.up.railway.app`) retornou HTTP 404 em
+`/health` e `/v1/areas`; a URL Railway historica
+`https://advogado-back-production.up.railway.app` tambem retornou 404. O
+`prod:smoke` backend falhou nas duas URLs.
+
+Proximo passo antes de EAS build: restaurar/publicar a API publica com
+`GET /health` 200 e `GET /v1/areas` 200, repetir `prod:smoke`/`smoke:runtime`,
+confirmar `EXPO_PUBLIC_SUPABASE_ANON_KEY` no EAS sem expor valor, confirmar
+`versionCode` livre no Play Console e entao decidir `production AAB` ou
+`preview APK`.
 
 ## Validacao Play Store - 2026-07-03
 
@@ -27,8 +53,9 @@ Pendencias antes do AAB final/closed test:
 - Play Console ainda depende de validacao de identidade/telefone.
 - Conta pessoal nova deve passar por teste fechado com 12 testers optados por
   14 dias continuos antes da producao.
-- `eas.json` ainda aponta para Railway; decidir se o AAB final usa Railway no
-  primeiro teste fechado ou se aguardamos a migracao para OceanDriver.
+- RESOLVIDO em 2026-08-25 (ADR-014): Railway descontinuada; `eas.json` aponta para
+  `https://api.advogado20.com.br` (DigitalOcean). Falta provisionar a infra, publicar o
+  backend e confirmar 200 em `/health` e `/v1/areas` antes do AAB.
 - Gerar AAB `production` via EAS/remote keystore, subir em track de teste e
   capturar screenshots da build real.
 - Preencher Data Safety, Data deletion, App access, classificacao etaria,
@@ -134,3 +161,8 @@ Nao gerar novo builder antes de:
 - Em 2026-06-03, apos a Spec 008 Parte 1R fechar `SPEC008_CLIENTE_HOME_REPLICACAO_VISUAL_OK`, o pacote final de decisao da Spec 003 revalidou configs Android/EAS e evidencias do fluxo, mas ficou `QUESTIONAR_COMPLIANCE_RELEASE`: `npm audit --omit=dev` retornou 17 vulnerabilidades de producao (12 altas, 5 moderadas), todas ainda sem triagem/aceite. AAB segue bloqueado tambem por Play Console/EAS/keystore/conta de teste/Data Safety nao confirmados por humano.
 - Em 2026-06-03, o bloqueio de dependencias de producao da Spec 003 foi tratado sem `npm audit fix --force`, sem Expo SDK major, sem gerar APK/AAB e sem abrir Play Console. O audit automatico queria `expo@56.0.8` com semver major; em vez disso, foram aplicados overrides transitivos documentados para `@expo/plist/@xmldom`, `postcss`, `tar` e `uuid`. Gates: `npm audit --omit=dev` exit 0, `npx expo install --check` exit 0, `npm run harness` exit 0, `npm run smoke:runtime` contra Railway exit 0 e `git diff --check` exit 0. Resultado: `SPEC003_DEPENDENCIAS_RELEASE_OK`; AAB segue bloqueado por `QUESTIONAR_CREDENCIAIS_PLAY_CONSOLE`.
 - Em 2026-06-03, o gate humano final de AAB preparou checklist objetivo para Play Console/app `com.advogado20.app`, track internal testing, EAS/keystore, conta de teste, Data Safety/Data deletion, crash reporting adiado, versionCode/versionName e rollback. A parte local foi revalidada: package `com.advogado20.app`, version `0.1.0`, `versionCode=2`, production EAS `store/app-bundle`, fallback dev desligado, `npm audit --omit=dev` exit 0, `npm run harness` exit 0, `npm run smoke:runtime` contra Railway exit 0 e `git diff --check` exit 0. Resultado: `QUESTIONAR_CREDENCIAIS_PLAY_CONSOLE`, pois nenhuma confirmacao humana foi fornecida.
+
+
+## SPEC-019 - Preview DigitalOcean / 2026-11-14
+
+0.1.1/versionCode 6; EAS preview usa HTTPS da DigitalOcean independente da propagacao DNS. Supabase publishable via ambiente preview, sem chave secreta no bundle. Build 535b758a-5c73-462b-8086-af6d03ed72a1. Distribuicao direta do APK somente apos FINISHED, assinatura/manifest/bundle verificados e API atualizada. Teste fisico adiado pelo usuario; nao equivale a homologacao Play.
