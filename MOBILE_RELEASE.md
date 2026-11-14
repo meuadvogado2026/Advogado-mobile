@@ -166,3 +166,8 @@ Nao gerar novo builder antes de:
 ## SPEC-019 - Preview DigitalOcean / 2026-11-14
 
 0.1.1/versionCode 6; EAS preview usa HTTPS da DigitalOcean independente da propagacao DNS. Supabase publishable via ambiente preview, sem chave secreta no bundle. Build 535b758a-5c73-462b-8086-af6d03ed72a1. Distribuicao direta do APK somente apos FINISHED, assinatura/manifest/bundle verificados e API atualizada. Teste fisico adiado pelo usuario; nao equivale a homologacao Play.
+
+
+## SPEC-020 - Feedback de acoes (2026-11-14)
+
+Dialogos nativos confirmam envio de oracao e exibem busca vazia, selecao incompleta, falha de localizacao ou API. Busca encontrada segue para perfil. Busca por cidade alerta vazio/erro somente enquanto tela ativa. VersionCode 7 preparado para novo APK preview. Harness local: 33 testes, tipos e smoke estrutural OK. Teste Android fisico continua pendente; nao e liberacao Play.

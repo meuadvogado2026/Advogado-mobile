@@ -1144,10 +1144,16 @@ export function HomeScreen({ navigation }: Props) {
     }
   }
 
+  function showMatchError(message: string) {
+    setStatus("error");
+    setMessage(message);
+    Alert.alert("Busca não concluída", message, [{ text: "OK" }]);
+  }
+
   async function handleMatch() {
+    if (status === "loading") return;
     if (selectedAreaIds.length === 0) {
-      setStatus("error");
-      setMessage("Selecione pelo menos uma área jurídica antes de buscar.");
+      showMatchError("Selecione pelo menos uma área jurídica antes de buscar.");
       return;
     }
 
@@ -1169,23 +1175,21 @@ export function HomeScreen({ navigation }: Props) {
   }
 
   async function runLocationMatch() {
+    setMatch(null);
     setStatus("loading");
     setMessage("Obtendo sua localização atual para a busca.");
-    const result = await requestDeviceLocation();
-    if (result.status === "denied") {
-      setStatus("error");
-      setMessage("Localização negada. Permita o acesso para encontrar um advogado próximo.");
-      return;
-    }
-    if (result.status === "unavailable") {
-      setStatus("error");
-      setMessage("Não foi possível obter sua localização atual. Tente novamente.");
-      return;
-    }
-
-    setStatus("loading");
-    setMessage("Consultando match no backend.");
     try {
+      const result = await requestDeviceLocation();
+      if (result.status === "denied") {
+        showMatchError("Localização negada. Permita o acesso para encontrar um advogado próximo.");
+        return;
+      }
+      if (result.status === "unavailable") {
+        showMatchError("Não foi possível obter sua localização atual. Tente novamente.");
+        return;
+      }
+
+      setMessage("Consultando match no backend.");
       const response = await matches.requestMatch({
         lat: result.location.lat,
         lng: result.location.lng,
@@ -1202,10 +1206,11 @@ export function HomeScreen({ navigation }: Props) {
         });
         return;
       }
-      setMessage("Ainda não há advogado compatível para esta área.");
+      const message = "Não encontramos advogado disponível para a área selecionada na sua região. Tente outra área ou busque por cidade.";
+      setMessage(message);
+      Alert.alert("Nenhum advogado encontrado", message, [{ text: "OK" }]);
     } catch (error) {
-      setStatus("error");
-      setMessage(getFriendlyError(error));
+      showMatchError(getFriendlyError(error));
     }
   }
 
@@ -1220,14 +1225,13 @@ export function HomeScreen({ navigation }: Props) {
   }
 
   function handleCityMatch() {
+    if (status === "loading") return;
     if (selectedAreaIds.length === 0) {
-      setStatus("error");
-      setMessage("Selecione pelo menos uma area juridica antes de buscar.");
+      showMatchError("Selecione pelo menos uma área jurídica antes de buscar.");
       return;
     }
     if (!selectedStateId || !selectedCityId) {
-      setStatus("error");
-      setMessage("Selecione estado e cidade antes de buscar.");
+      showMatchError("Selecione estado e cidade antes de buscar.");
       return;
     }
     const city = cities.find((item) => item.id === selectedCityId);
@@ -1263,9 +1267,12 @@ export function HomeScreen({ navigation }: Props) {
       setPrayerMessage("");
       setStatus("idle");
       setMessage("Pedido de oração recebido.");
+      Alert.alert("Pedido de oração enviado", "Recebemos seu pedido de oração. Ele foi encaminhado à equipe responsável.", [{ text: "OK" }]);
     } catch (error) {
       setStatus("error");
-      setMessage(getFriendlyError(error));
+      const message = getFriendlyError(error);
+      setMessage(message);
+      Alert.alert("Pedido não enviado", message, [{ text: "OK" }]);
     }
   }
 
