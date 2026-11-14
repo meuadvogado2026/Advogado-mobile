@@ -231,7 +231,7 @@ async function main() {
   const report: RuntimeReport = {
     environment: "mobile-runtime",
     cwd: mobileRoot,
-    objective: "Smoke proporcional do fluxo mobile real: Android tooling, Railway, areas, Auth, match e perfil profissional seguro.",
+    objective: "Smoke proporcional do fluxo mobile real: Android tooling, API publica, areas, Auth, match e perfil profissional seguro.",
     exitCode,
     result: exitCode === 0 ? "OK_COM_RESSALVAS" : "FALHOU",
     gaps,

@@ -1,6 +1,6 @@
 # Mobile API Contracts - Advogado 2.0
 
-**Estado:** match e perfil profissional integrados pelo backend Railway
+**Estado:** match e perfil profissional integrados pelo backend proprio. Host alvo: DigitalOcean em `https://api.advogado20.com.br` (Railway descontinuada em 2026-08-25, ADR-014); host ainda nao provisionado.
 **Base path esperado:** `/v1`
 
 ## Auth
@@ -155,7 +155,7 @@ Response:
 
 ## Advogado
 
-- `GET /v1/lawyers/:id` - consumido pelo mobile com Bearer token pela API Railway; usado pelo cliente e pelo advogado em perfil readonly
+- `GET /v1/lawyers/:id` - consumido pelo mobile com Bearer token pela API propria; usado pelo cliente e pelo advogado em perfil readonly
 
 Resposta planejada:
 
@@ -245,3 +245,8 @@ o texto enviado.
 ## Estado Atual
 
 Os contratos vivem tambem em `src/config/contracts.ts`. O app possui chamadas HTTP para areas, match real com foto/capa, perfil profissional, parceiros publicos, dashboard do advogado e pedido de oracao via backend. A distancia do match segue apenas como contexto efemero da navegacao.
+
+
+## SPEC-018 / 2026-11-12 - Privacidade de novos eventos
+
+DTO HTTP de match preserva coordenadas de entrada e distancia efemera na resposta. Evento interno nao recebe geografia; adapter Supabase grava client_location/accuracy_m/distance_km NULL. Migration 0017 precede API. POST /v1/prayer-requests preserva payload, com aviso/confirmacao de dados sensiveis na UI e retencao de 90 dias existente. Deploy, agendamento, historico e smoke real permanecem pendentes.

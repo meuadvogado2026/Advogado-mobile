@@ -134,7 +134,7 @@ if (
 
 if (
   !appConfig.includes('package: "com.advogado20.app"') ||
-  !appConfig.includes("versionCode: 5") ||
+  !appConfig.includes("versionCode: 6") ||
   !appConfig.includes("compileSdkVersion: 36") ||
   !appConfig.includes("targetSdkVersion: 36") ||
   appConfig.includes("edgeToEdgeEnabled") ||

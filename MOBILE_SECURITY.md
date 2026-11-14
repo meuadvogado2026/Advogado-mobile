@@ -1,5 +1,9 @@
 # Mobile Security - Advogado 2.0
 
+## Atualizacao vigente local - SPEC-018 / 2026-11-12
+
+A nova API nao retém coordenadas, precisao nem distancia em novos eventos; localizacao continua transmitida ao backend/Supabase para calculo. Aviso mobile so deve ser distribuido apos migration 0017 + API minimizada. Oracao opcional recebe aviso de crencas religiosas/dados sensiveis, equipe destinataria e 90 dias, com Alert de autorizacao antes do envio. O texto anonimo ainda pode identificar pessoas pelo proprio conteudo. Agendamento de expurgo e saneamento legado nao comprovados. Emails oficiais pendentes. Trechos anteriores de retencao de coordenadas descrevem comportamento historico, superado para novas buscas apos rollout.
+
 **Estado:** integracao inicial validada estruturalmente
 
 ## Dados No Device
@@ -64,7 +68,7 @@ O mobile possui services de Auth, API, areas, match, perfil profissional, dashbo
 
 Spec 008 Parte 3: o bloco de pedido de oracao na Home envia texto livre para o backend com Bearer token e opcao de anonimato. Como o texto pode conter dado sensivel espontaneo, ele nao deve aparecer em logs, screenshots, harness ou docs. A tela orienta o usuario a nao incluir senha, documento, endereco completo, telefone ou detalhes juridicos sensiveis. O dashboard/cartao do advogado consome apenas dados seguros do backend e beneficios estaticos, sem pagamento, parceiro real, chat ou agenda. No backend, `prayer_requests` tem retencao operacional de 90 dias via dry-run/apply controlado; o mobile nao executa expurgo nem acessa Supabase diretamente.
 
-Politica, termos e canal de exclusao estao configurados no app para `https://advogado20.com.br/`. Em 2026-07-15, home e paginas legais responderam HTTPS 200 com certificado valido. O canal provisorio para solicitacoes de dados e `meuadvogado2026@gmail.com`; antes do envio final, substituir pelo e-mail permanente de suporte/privacidade que o cliente criar.
+Politica, termos e canal de exclusao estao configurados no app para `https://advogado20.com.br/`. Em 2026-07-15, home e paginas legais responderam HTTPS 200 com certificado valido. Em 2026-07-25, o canal de suporte/privacidade foi confirmado como `suporte-advogado20@hotmail.com` e as paginas publicas foram revalidadas sem o e-mail provisorio; esse canal foi SUPERADO em 2026-08-25 pelos e-mails Google Workspace `suporte@advogado20.com.br` (suporte), `privacidade@advogado20.com.br` (privacidade) e `lgpd@advogado20.com.br` (LGPD/exclusao de dados). As fontes locais em `advogado-legal/` e `advogado20-landing/` ja usam os e-mails novos; a republicacao publica em `https://advogado20.com.br/` ainda esta pendente.
 
 Validacao Play Store em 2026-07-03: audit de producao mobile/backend zerado com
 `npm audit --omit=dev`, `expo-doctor` 21/21, producao sem cleartext e sem

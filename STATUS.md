@@ -1,5 +1,66 @@
 # Mobile Status - Advogado 2.0
 
+## Release preview em andamento - 2026-11-14 / SPEC-019
+
+APK EAS 535b758a-5c73-462b-8086-af6d03ed72a1 iniciado com 0.1.1/versionCode 6, Expo SDK 57 e API https://advogado20-app-wlrbq.ondigitalocean.app. Production continua api.advogado20.com.br. Assinatura Android remota existente reutilizada. Usuario adiou explicitamente teste em aparelho e autorizou link direto na landing apos build. .easignore exclui envs/logs/keystores. Publicacao API e landing dependem de GitHub autenticado; contatos corretos @advogado20.com.br, emails ainda em ativacao.
+
+## Atualizacao corrente - 2026-11-12 / SPEC-018
+
+Aviso local de localizacao informa ausencia de persistencia geografica no historico de novas buscas; habilitar publicacao somente junto da API minimizada e migration 0017. Oracao opcional avisa dados sensiveis/crencas, equipe destinataria, anonimato limitado ao vinculo da conta e 90 dias; confirmacao afirmativa antes de enviar. Harness local nao substitui smoke Android da UI, AAB/16 KB nem Google OAuth real. Conta pessoal criada apos 13/11/2023, sem app publicado; teste fechado 12 testers/14 dias. Emails pendentes. Veredito de release: QUESTIONAR.
+
+## Hospedagem - Migracao Railway -> DigitalOcean - 2026-08-25
+
+Status: `EAS_APONTA_PARA_DIGITALOCEAN_NAO_PROVISIONADA`.
+
+- ADR-014 descontinuou a Railway. `eas.json` (perfis `preview` e `production`)
+  passou a usar `EXPO_PUBLIC_API_BASE_URL=https://api.advogado20.com.br`.
+- `API_CONTRACTS.md`, `MOBILE_TEST_PLAN.md`, `MOBILE_RELEASE.md` e
+  `scripts/runtime-smoke.ts` deixaram de tratar Railway como alvo ativo; as
+  execucoes historicas contra Railway ficam como registro nao reproduzivel.
+- `MOBILE_SECURITY.md` passou a registrar os e-mails oficiais Google Workspace
+  `suporte@advogado20.com.br`, `privacidade@advogado20.com.br` e `lgpd@advogado20.com.br`.
+- A infra DigitalOcean nao existe: sem conta/app, DNS, certificado ou deploy.
+  `npm run smoke:runtime` e o AAB continuam BLOQUEADOS ate `https://api.advogado20.com.br/health`
+  e `/v1/areas` retornarem 200.
+- Nao incrementar `versionCode` nem gerar AAB antes desse gate.
+- Gates locais deste ciclo: `npm run harness` exit 0 (typecheck, 23 testes e
+  smoke estrutural).
+
+## Mobile Release Preflight - 2026-08-25
+
+Status: `REPROVADO_BACKEND_PUBLICO_404_SEM_AAB`.
+
+Preflight de release Android executado sem iniciar build EAS. Baseline local
+continua saudavel: `npx expo install --check` OK, `npx -y expo-doctor` 21/21,
+`npm audit --audit-level=high` 0 vulnerabilidades e `npm run harness` exit 0
+com typecheck, 23 testes e smoke estrutural. Config production redigida
+confirmou package `com.advogado20.app`, `versionCode=5`, SDK 36,
+`usesCleartextTraffic=false`, permissoes foreground de localizacao e bloqueio de
+storage/overlay/vibrate.
+
+EAS CLI disponivel e projeto remoto confirmado como `@advogado2.0/meu-advogado-20`,
+mas nenhum APK/AAB foi gerado. Bloqueio: backend publico configurado no
+`eas.json` (`https://advogado-back-production-0be1.up.railway.app`) retornou
+HTTP 404 em `/health` e `/v1/areas`; a URL Railway historica tambem retornou
+404 e `npm run prod:smoke` do backend falhou nas duas. `smoke:runtime` mobile
+tambem ficou `FALHOU` por backend 404, ausencia de anon key no runtime local e
+nenhum device Android bootado. Proximo passo: restaurar API publica 200,
+repetir smokes remoto/runtime e so entao gerar build.
+
+## Hardening Expo SDK 57 / Supply-Chain - 2026-08-25
+
+Status: `EXPO_SDK57_DOCTOR_AUDIT_HARNESS_LOCAL_OK`.
+
+Mobile atualizado de Expo SDK 56 para Expo SDK 57 com React Native 0.86.2,
+alinhando `expo-asset`, `expo-build-properties`, `expo-constants`,
+`expo-location`, `expo-secure-store`, `expo-status-bar`, `expo-system-ui` e
+`expo-web-browser`. Overrides de `postcss` e `nanoid` foram elevados para
+versoes corrigidas e `@types/node` foi adicionado ao typecheck dos scripts.
+Gates: `npm run harness` exit 0 com typecheck, 23 testes e smoke estrutural;
+`npm audit --audit-level=high` exit 0; `npx -y expo-doctor` 21/21. Ressalva:
+nao houve smoke visual Android, runtime autenticado real, EAS build ou AAB neste
+ciclo; antes de Play Store, gerar build novo e validar em device/AVD.
+
 ## Google OAuth Cadastro Explicito - 2026-07-25
 
 Status: `GOOGLE_OAUTH_SIGNUP_INTENT_LOCAL_OK_SEM_BUILD`.
@@ -100,7 +161,7 @@ cidade/regiao. Validacao autenticada em producao confirmou `Taguatinga/DF` e
 `Cruzeiro/DF` com `Direito Civil`.
 
 Lacunas antes de AAB/Play: identidade/telefone Console, closed testing da conta
-pessoal, AAB production EAS/remote keystore, decisao Railway vs OceanDriver,
+pessoal, AAB production EAS/remote keystore, decisao de backend (RESOLVIDA em 2026-08-25 pela ADR-014: DigitalOcean),
 forms Play Console, screenshots finais, e-mails definitivos, e limpeza
 preventiva de copy/link externo na landing para evitar ambiguidade com pagamento.
 Relatorio raiz: `../PLAYSTORE_VALIDATION_DETAILED_2026-07-04.md`.
@@ -134,7 +195,7 @@ Patches Expo SDK 56 alinhados para `expo ~56.0.14`,
 
 Lacunas antes do AAB final: Play Console precisa concluir identidade/telefone,
 conta pessoal precisa de closed testing com 12 testers por 14 dias, `eas.json`
-ainda aponta para Railway apesar da decisao futura por OceanDriver, falta AAB
+ja aponta para `https://api.advogado20.com.br` na DigitalOcean desde 2026-08-25 (ADR-014) mas a infra ainda nao foi provisionada, falta AAB
 production via EAS/remote keystore, screenshots reais, forms do Play Console e
 App access. Para revisor, usar cidade/regiao `Taguatinga/DF` ou `Cruzeiro/DF`
 com area `Direito Civil`; nao depender do GPS real do avaliador.

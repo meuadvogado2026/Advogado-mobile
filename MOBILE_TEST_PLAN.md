@@ -6,8 +6,10 @@
   `npm run harness` e `git diff --check`.
 - Regressao estatica cobre hub de areas, interrogacao menor, `Alert.alert` e CTA
   `Falar no WhatsApp`.
-- Smoke runtime com Railway pode validar `/health` e areas sem segredo, mas match/perfil
-  dependem de anon key publica e device/runtime completo.
+- Smoke runtime contra a API publica pode validar `/health` e areas sem segredo, mas match/perfil
+  dependem de anon key publica e device/runtime completo. Desde 2026-08-25 o alvo e
+  `https://api.advogado20.com.br` (DigitalOcean); Railway esta descontinuada e as execucoes
+  historicas contra Railway abaixo nao sao reproduziveis.
 - Smoke visual fechado no AVD `Pixel_9` com Expo Go `56.0.1`, Metro em LAN/IPv4 e
   deep link `exp://10.0.2.2:8090`.
 - Evidencias: `layout-polish-login-env.png`, `layout-polish-home-auth.png`,

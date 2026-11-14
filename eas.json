@@ -10,9 +10,10 @@
         "buildType": "apk"
       },
       "env": {
-        "EXPO_PUBLIC_API_BASE_URL": "https://advogado-back-production-0be1.up.railway.app",
+        "EXPO_PUBLIC_API_BASE_URL": "https://advogado20-app-wlrbq.ondigitalocean.app",
         "EXPO_PUBLIC_SUPABASE_URL": "https://qpemxkiowiiklztgumqy.supabase.co"
-      }
+      },
+      "environment": "preview"
     },
     "production": {
       "distribution": "store",
@@ -20,7 +21,7 @@
         "buildType": "app-bundle"
       },
       "env": {
-        "EXPO_PUBLIC_API_BASE_URL": "https://advogado-back-production-0be1.up.railway.app",
+        "EXPO_PUBLIC_API_BASE_URL": "https://api.advogado20.com.br",
         "EXPO_PUBLIC_SUPABASE_URL": "https://qpemxkiowiiklztgumqy.supabase.co"
       }
     }
