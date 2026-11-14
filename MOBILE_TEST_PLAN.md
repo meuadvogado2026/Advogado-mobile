@@ -531,3 +531,8 @@ Ressalvas:
   `smoke:runtime`.
 - Play Store ainda precisa de aprovacao humana de margem do icone, feature
   graphic, screenshots, icone monocromatico se adotado e Data Safety.
+
+
+## SPEC-020 - Feedback de acoes (2026-11-14)
+
+Dialogos nativos confirmam envio de oracao e exibem busca vazia, selecao incompleta, falha de localizacao ou API. Busca encontrada segue para perfil. Busca por cidade alerta vazio/erro somente enquanto tela ativa. VersionCode 7 preparado para novo APK preview. Harness local: 33 testes, tipos e smoke estrutural OK. Teste Android fisico continua pendente; nao e liberacao Play.

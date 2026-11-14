@@ -1,5 +1,13 @@
 # Mobile Status - Advogado 2.0
 
+## Entrega preview publicada - 2026-11-14 / SPEC-019
+
+Backend PR #4 mesclado em 05d69f1; App Platform responde release privacy-20261114. Migration 0017 aplicada pelo usuario com sucesso antes do deploy; historico nao saneado. Smoke HTTP autenticado dos tres perfis, match/perfil/roles e contrato de oracao registrado em harness-results/release-digitalocean-apk-2026-11-14/remote-smoke.json. Harness backend isolado: 104 testes + build/tipos/SQL estatico/smoke. Mobile: 23 testes + tipos/smoke estrutural.
+
+APK preview 0.1.1/versionCode 6, EAS 535b758a-5c73-462b-8086-af6d03ed72a1 FINISHED. Fonte mobile PR #10, merge ba7587f. Asset direto: https://github.com/meuadvogado2026/Advogado-mobile/releases/download/preview-v0.1.1-vc6/advogado20-v0.1.1-vc6.apk. SHA-256 c646a288dbc7b0051683bbfcc8bdf26d2d988bc7a9467f830352b8f5343a0ede. Assinatura igual vc5; ZIP e 36 ELF64 alinhados estaticamente em 16 KB. URL Railway ausente no bundle; chave secreta ausente; publicavel presente. Permissoes: localizacao foreground, Internet, biometria/fingerprint do SecureStore e receiver interno; sem localizacao background/storage. Runtime Android/Google OAuth em aparelho adiado explicitamente pelo usuario; nao e AAB/Play.
+
+Landing PR #5, merge 30ec868, Vercel success; dominio publico responde 200 com link direto vc6 e contatos @advogado20.com.br. Email Routing ainda em ativacao; nao afirmar recebimento testado. Production EAS mantem api.advogado20.com.br, preview usa https://advogado20-app-wlrbq.ondigitalocean.app. Amostras operacionais de teste sem geografia e eventual pedido neutro lido estao rastreados no relatorio para limpeza; sem conteudo sensivel. Exclusao integral, agendamento 90 dias e gates Play continuam fora desta entrega preview. Veredito: APROVADO_COM_RESSALVAS para distribuicao preview; criterio de ressalva: testar APK instalado/Google OAuth antes de homologacao final.
+
 ## Release preview em andamento - 2026-11-14 / SPEC-019
 
 APK EAS 535b758a-5c73-462b-8086-af6d03ed72a1 iniciado com 0.1.1/versionCode 6, Expo SDK 57 e API https://advogado20-app-wlrbq.ondigitalocean.app. Production continua api.advogado20.com.br. Assinatura Android remota existente reutilizada. Usuario adiou explicitamente teste em aparelho e autorizou link direto na landing apos build. .easignore exclui envs/logs/keystores. Publicacao API e landing dependem de GitHub autenticado; contatos corretos @advogado20.com.br, emails ainda em ativacao.
@@ -951,3 +959,8 @@ Perna mobile do gate Spec 002 passou com conta advogado de teste ativa: login OK
 `/v1/me role=lawyer`, `mustChangePassword=false` e dashboard `200`. Falta apenas repetir
 apos um convite humano novo com e-mail real valido, se for necessario fechar o fluxo de
 troca de senha. Spec 003 nao deve gerar AAB sem os gates humanos de release.
+
+
+## SPEC-020 - Feedback de acoes (2026-11-14)
+
+Dialogos nativos confirmam envio de oracao e exibem busca vazia, selecao incompleta, falha de localizacao ou API. Busca encontrada segue para perfil. Busca por cidade alerta vazio/erro somente enquanto tela ativa. VersionCode 7 preparado para novo APK preview. Harness local: 33 testes, tipos e smoke estrutural OK. Teste Android fisico continua pendente; nao e liberacao Play.

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Alert, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { RootStackParamList } from "../../App";
@@ -24,10 +24,22 @@ export function LawyerCityResultsScreen({ navigation, route }: Props) {
   useEffect(() => {
     let active = true;
     setLoading(true);
+    setResult(null);
     setError("");
     matches.requestCityMatch({ stateId: route.params.stateId, cityId: route.params.cityId, areaIds: route.params.areaIds, page, pageSize: 5 })
-      .then((response) => active && setResult(response))
-      .catch(() => active && setError("Nao foi possivel buscar advogados nesta cidade."))
+      .then((response) => {
+        if (!active) return;
+        setResult(response);
+        if (response.lawyers.length === 0) {
+          Alert.alert("Nenhum advogado encontrado", "Não encontramos advogado nesta cidade e especialidade. Volte e tente outra cidade ou área jurídica.", [{ text: "OK" }]);
+        }
+      })
+      .catch(() => {
+        if (!active) return;
+        const message = "Não foi possível buscar advogados nesta cidade. Verifique sua conexão e tente novamente.";
+        setError(message);
+        Alert.alert("Busca não concluída", message, [{ text: "OK" }]);
+      })
       .finally(() => active && setLoading(false));
     return () => { active = false; };
   }, [matches, page, route.params]);
