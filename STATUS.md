@@ -964,3 +964,39 @@ troca de senha. Spec 003 nao deve gerar AAB sem os gates humanos de release.
 ## SPEC-020 - Feedback de acoes (2026-11-14)
 
 Dialogos nativos confirmam envio de oracao e exibem busca vazia, selecao incompleta, falha de localizacao ou API. Busca encontrada segue para perfil. Busca por cidade alerta vazio/erro somente enquanto tela ativa. VersionCode 7 preparado para novo APK preview. Harness local: 33 testes, tipos e smoke estrutural OK. Teste Android fisico continua pendente; nao e liberacao Play.
+
+## SPEC-024 - Acesso seguro / 2026-11-15
+
+Estado: EM_VALIDACAO; nao homologado. Fonte em worktree `.codex-auth-024`, branch `feat/secure-auth-resend`, preservando checkout original.
+Recuperacao e convite por link oficial Supabase, enviado via API Resend no backend. Nenhuma senha em e-mail. Formulario consome token_hash recovery apenas no POST; nenhum JWT de recuperacao entregue ao app/browser. API aditiva `/v1/auth/password-recovery` e `/v1/auth/password-reset`; reenvio admin preserva identidade. Sem nova migration. API antes web/mobile, com smoke e rollback de app/web antes de remover contratos.
+Harness e limites em AUTH_LINKS.md; evidencias gerais `../../harness-results/spec024-acesso-seguro-resend.md` a partir do worktree. Aceitacao pelo provedor nao comprova recebimento. Android/APK, Google real, configuracao e entrega Resend ainda precisam de prova. Nao e 10/10 nem aprovacao Play.
+
+## Continuidade SPEC-024 - 2026-11-15
+Preparacao de PR e CI independente por repositorio. Adicionado quality.yml com Node22/npmci/Harness/audit-high e artefatos, permissoes somente leitura, sem credenciais/runtimeproducao/migrationsremotas. Sem deploy por este workflow. Resultados remotos e configuracao de envio/Android continuam a validar.
+
+### PR e CI remoto - 2026-11-15
+PR rascunho: https://github.com/meuadvogado2026/Advogado-mobile/pull/12. CI Node22/Linux do candidato passou (run43721766838), com npmci, Harness e audit-high; artefatos baixados na raiz harness-results/spec024-ci-mobile. Producao ainda nao atualizada. Confirmacao de AUTH_IP_SOURCE no Runtime e prova de envio/recebimento/Android continuam pendentes. CI e revisao de candidato, nao homologacao de produto.
+
+## Preparacao do preview Auth024 - 2026-11-15
+
+Inventario EAS Android completo nesta leitura:31builds, maior versionCode7. Candidato passa para versionCode8 (app0.1.1), mantendo package/keystore/certificado; smokeestrutural exige8. API/webAuth foram publicados; fluxo humano deemail esta emreteste apos ambiguidadedeagrupamentoGmail. BuildAPK ainda NAO iniciado: aguardar reset/convite reais. Nenhum AAB/Play ou linklanding alterado. Prova do inventario em harness-results/spec024-eas-inventory.json na raiz de governanca.
+
+
+## Continuidade Auth024 - 2026-11-15 / validacao humana
+
+PR12/head a6cf5f7 em rascunho, CI Node22/Linux success para candidato0.1.1/vc8. API e webAuth publicadas. Usuario confirmou troca de senha/login no painel do advogado, sem prova atribuida ao novo APK. Convite inicial descartavel enviado e accepted, aguarda recebimento/definicao. ADB devices vazio nesta retomada. Build preview ainda nao iniciado ate gates remotos; nenhum AAB/Play/landing alterado. QUESTIONAR_RUNTIME_MOBILE permanece.
+
+
+### Esclarecimento confirmado pelo usuario - 2026-11-15
+
+A troca de senha e o login normal no painel do advogado foram na conta de advogado ja existente do usuario. Essa prova humana nao pertence ao alias descartavel client do Harness. Recebimento/troca/login de advogado existente confirmados pelo usuario; ID/role dessa conta nao foram aferidos pelo Harness. A fixture cliente possui provas independentes de dominio/senha antiga recusada. Primeiro acesso do novo advogado descartavel enviado as13h29 ainda aguarda confirmacao; nao reenviar/invalidar esse link antes do teste humano. Android/Google/APK seguem pendentes.
+
+
+## Preview Auth024 autorizado - 2026-11-15
+
+Usuario aprovou o fluxo validado na conta de advogado existente e autorizou seguir sem repetir teste humano na fixture. Fixture advogado existia no Auth/dominio, permanecia com primeira senha obrigatoria; nao considerar primeiro acesso aprovado. Reenvio real pela API retornou200/Resend accepted com mesmoID. Fixtures cliente e advogado removidas com ausencia Auth/dominio comprovada em spec024-live-final-cleanup.json na raiz. Nenhum envio em massa. Inventario EAS imediatamente antes do build:31 registros, max versionCode7, nenhum build pendente. Preparar preview0.1.1/vc8, mesmo package/keystore; Android instalado, Google e primeiro acesso humano continuam pendentes. Nao atualizar landing antes de verificar FINISHED/assinatura/manifesto e teste do fluxo. Sem AAB/Play.
+
+
+## Correcao de codificacao antes da entrega - 2026-11-15
+
+Inspecao estrita UTF-8 detectou bytes CP1252 isolados em mensagens Auth de mobile/PasswordAccessScreen, admin/App e back/adminLawyers/routes. Corrigidos apenas esses bytes, preservando contratos/comportamento. Prova inicial: decode UTF-8 falhou; apos correcao todos os fontes/tests/scripts ts/tsx/json/css dos worktrees decodificam sem erro. Harness completo repetido nos tres. Build vc8 cancelado antes de disponibilizacao para evitar texto corrompido. Proximo candidato vc9 (vc8 ja observado no inventario), mesma assinatura/package. Teste Android sera manual pelo usuario, conforme escolha expressa.

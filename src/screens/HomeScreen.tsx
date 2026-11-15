@@ -1,3 +1,4 @@
+import { PasswordAccessScreen } from "./PasswordAccessScreen";
 import { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
@@ -821,6 +822,7 @@ export function HomeScreen({ navigation }: Props) {
   const [lawyerTab, setLawyerTab] = useState<LawyerTab>("home");
   const [session, setSession] = useState<Session | null>(null);
   const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);
+  const [recoverAccess, setRecoverAccess] = useState(false);
   const [authMode, setAuthMode] = useState<AuthMode>("signIn");
   const [signupName, setSignupName] = useState("");
   const [email, setEmail] = useState("");
@@ -1282,6 +1284,8 @@ export function HomeScreen({ navigation }: Props) {
     );
   }
 
+  if (recoverAccess) return <PasswordAccessScreen onClose={() => setRecoverAccess(false)} />;
+
   if (!session || !currentUser) {
     return (
       <SafeAreaView style={styles.safeArea}>
@@ -1333,6 +1337,7 @@ export function HomeScreen({ navigation }: Props) {
               />
               <Text style={styles.primaryButtonText}>{authMode === "signIn" ? "Entrar" : "Criar usuário"}</Text>
             </TouchableOpacity>
+            {authMode === "signIn" && <TouchableOpacity accessibilityRole="button" onPress={() => { setPassword(""); setRecoverAccess(true); }}><Text style={styles.authModeButtonText}>Esqueci minha senha</Text></TouchableOpacity>}
             <TouchableOpacity
               accessibilityLabel="Continuar com Google"
               accessibilityRole="button"

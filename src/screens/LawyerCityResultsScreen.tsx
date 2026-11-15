@@ -31,12 +31,12 @@ export function LawyerCityResultsScreen({ navigation, route }: Props) {
         if (!active) return;
         setResult(response);
         if (response.lawyers.length === 0) {
-          Alert.alert("Nenhum advogado encontrado", "Não encontramos advogado nesta cidade e especialidade. Volte e tente outra cidade ou área jurídica.", [{ text: "OK" }]);
+          Alert.alert("Nenhum resultado para essa busca", "Não encontramos advogados com a especialidade selecionada nessa cidade. Tente outra especialidade ou outra cidade.", [{ text: "OK" }]);
         }
       })
       .catch(() => {
         if (!active) return;
-        const message = "Não foi possível buscar advogados nesta cidade. Verifique sua conexão e tente novamente.";
+        const message = "Não foi possível buscar advogados nessa cidade. Verifique sua conexão e tente novamente.";
         setError(message);
         Alert.alert("Busca não concluída", message, [{ text: "OK" }]);
       })
@@ -48,12 +48,12 @@ export function LawyerCityResultsScreen({ navigation, route }: Props) {
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}><AppIcon color={colors.textPrimary} name="arrow-back" size={24} /></TouchableOpacity>
-        <View style={styles.headerText}><Text style={styles.title}>Advogados em {route.params.cityName}</Text><Text style={styles.muted}>Todos os advogados disponiveis nessa cidade e especialidade.</Text></View>
+        <View style={styles.headerText}><Text style={styles.title}>Advogados em {route.params.cityName}</Text><Text style={styles.muted}>Advogados disponíveis nessa cidade para a especialidade selecionada.</Text></View>
       </View>
       <ScrollView contentContainerStyle={styles.content}>
         {loading ? <ActivityIndicator color={colors.gold} /> : null}
         {error ? <Text style={styles.error}>{error}</Text> : null}
-        {!loading && !error && result?.lawyers.length === 0 ? <Text style={styles.muted}>Nenhum advogado foi encontrado naquela cidade e especialidade.</Text> : null}
+        {!loading && !error && result?.lawyers.length === 0 ? <Text style={styles.muted}>Não encontramos advogados com a especialidade selecionada nessa cidade.</Text> : null}
         {result?.lawyers.map((lawyer) => (
           <TouchableOpacity key={lawyer.id} onPress={() => navigation.navigate("LawyerProfile", { lawyerId: lawyer.id })} style={styles.card}>
             {lawyer.avatarUrl ? <Image source={{ uri: lawyer.avatarUrl }} style={styles.avatar} /> : <View style={styles.avatar}><Text style={styles.initial}>{lawyer.name.slice(0, 1)}</Text></View>}
