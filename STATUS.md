@@ -980,3 +980,18 @@ PR rascunho: https://github.com/meuadvogado2026/Advogado-mobile/pull/12. CI Node
 ## Preparacao do preview Auth024 - 2026-11-15
 
 Inventario EAS Android completo nesta leitura:31builds, maior versionCode7. Candidato passa para versionCode8 (app0.1.1), mantendo package/keystore/certificado; smokeestrutural exige8. API/webAuth foram publicados; fluxo humano deemail esta emreteste apos ambiguidadedeagrupamentoGmail. BuildAPK ainda NAO iniciado: aguardar reset/convite reais. Nenhum AAB/Play ou linklanding alterado. Prova do inventario em harness-results/spec024-eas-inventory.json na raiz de governanca.
+
+
+## Continuidade Auth024 - 2026-11-15 / validacao humana
+
+PR12/head a6cf5f7 em rascunho, CI Node22/Linux success para candidato0.1.1/vc8. API e webAuth publicadas. Usuario confirmou troca de senha/login no painel do advogado, sem prova atribuida ao novo APK. Convite inicial descartavel enviado e accepted, aguarda recebimento/definicao. ADB devices vazio nesta retomada. Build preview ainda nao iniciado ate gates remotos; nenhum AAB/Play/landing alterado. QUESTIONAR_RUNTIME_MOBILE permanece.
+
+
+### Esclarecimento confirmado pelo usuario - 2026-11-15
+
+A troca de senha e o login normal no painel do advogado foram na conta de advogado ja existente do usuario. Essa prova humana nao pertence ao alias descartavel client do Harness. Recebimento/troca/login de advogado existente confirmados pelo usuario; ID/role dessa conta nao foram aferidos pelo Harness. A fixture cliente possui provas independentes de dominio/senha antiga recusada. Primeiro acesso do novo advogado descartavel enviado as13h29 ainda aguarda confirmacao; nao reenviar/invalidar esse link antes do teste humano. Android/Google/APK seguem pendentes.
+
+
+## Preview Auth024 autorizado - 2026-11-15
+
+Usuario aprovou o fluxo validado na conta de advogado existente e autorizou seguir sem repetir teste humano na fixture. Fixture advogado existia no Auth/dominio, permanecia com primeira senha obrigatoria; nao considerar primeiro acesso aprovado. Reenvio real pela API retornou200/Resend accepted com mesmoID. Fixtures cliente e advogado removidas com ausencia Auth/dominio comprovada em spec024-live-final-cleanup.json na raiz. Nenhum envio em massa. Inventario EAS imediatamente antes do build:31 registros, max versionCode7, nenhum build pendente. Preparar preview0.1.1/vc8, mesmo package/keystore; Android instalado, Google e primeiro acesso humano continuam pendentes. Nao atualizar landing antes de verificar FINISHED/assinatura/manifesto e teste do fluxo. Sem AAB/Play.
