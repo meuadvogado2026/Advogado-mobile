@@ -51,7 +51,7 @@ export default {
     ],
     android: {
       package: "com.advogado20.app",
-      versionCode: 8,
+      versionCode: 9,
       adaptiveIcon: {
         foregroundImage: "./assets/logo-blue.png",
         backgroundColor: "#071426"

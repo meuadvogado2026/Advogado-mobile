@@ -8,7 +8,7 @@ export function PasswordAccessScreen({ tokenHash, invalidLink, onClose }: { toke
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmation, setConfirmation] = useState("");
-  const [message, setMessage] = useState(invalidLink ? "Link inv�lido ou incompleto. Solicite outro link com seu e-mail." : proof ? "Defina uma senha com 8 a 72 caracteres. O link só é usado ao confirmar." : "Informe o e-mail da conta para receber um link seguro.");
+  const [message, setMessage] = useState(invalidLink ? "Link inválido ou incompleto. Solicite outro link com seu e-mail." : proof ? "Defina uma senha com 8 a 72 caracteres. O link só é usado ao confirmar." : "Informe o e-mail da conta para receber um link seguro.");
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
   async function submit() {

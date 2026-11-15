@@ -995,3 +995,8 @@ A troca de senha e o login normal no painel do advogado foram na conta de advoga
 ## Preview Auth024 autorizado - 2026-11-15
 
 Usuario aprovou o fluxo validado na conta de advogado existente e autorizou seguir sem repetir teste humano na fixture. Fixture advogado existia no Auth/dominio, permanecia com primeira senha obrigatoria; nao considerar primeiro acesso aprovado. Reenvio real pela API retornou200/Resend accepted com mesmoID. Fixtures cliente e advogado removidas com ausencia Auth/dominio comprovada em spec024-live-final-cleanup.json na raiz. Nenhum envio em massa. Inventario EAS imediatamente antes do build:31 registros, max versionCode7, nenhum build pendente. Preparar preview0.1.1/vc8, mesmo package/keystore; Android instalado, Google e primeiro acesso humano continuam pendentes. Nao atualizar landing antes de verificar FINISHED/assinatura/manifesto e teste do fluxo. Sem AAB/Play.
+
+
+## Correcao de codificacao antes da entrega - 2026-11-15
+
+Inspecao estrita UTF-8 detectou bytes CP1252 isolados em mensagens Auth de mobile/PasswordAccessScreen, admin/App e back/adminLawyers/routes. Corrigidos apenas esses bytes, preservando contratos/comportamento. Prova inicial: decode UTF-8 falhou; apos correcao todos os fontes/tests/scripts ts/tsx/json/css dos worktrees decodificam sem erro. Harness completo repetido nos tres. Build vc8 cancelado antes de disponibilizacao para evitar texto corrompido. Proximo candidato vc9 (vc8 ja observado no inventario), mesma assinatura/package. Teste Android sera manual pelo usuario, conforme escolha expressa.
