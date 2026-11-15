@@ -77,3 +77,6 @@ deve depender do GPS real do avaliador; usar busca por cidade/regiao em
 `Taguatinga/DF` ou `Cruzeiro/DF` com area `Direito Civil`.
 
 Para smoke Android local, existe fallback dev de localizacao atras de `EXPO_PUBLIC_ENABLE_DEV_LOCATION_FALLBACK=true`. Ele fica desligado por padrao, nao deve ser usado em producao/release, nao bypassa permissao negada e so retorna coordenada fixa de teste apos permissao concedida e falha do provider do AVD/Expo Go.
+
+## SPEC-024
+Prova recovery isolada e consumo oficial porPOST, sem JWTnaUI. EnvioResend server-side; rate limits HMAC e idempotencia limitada. Refresh e revogacao/limites em AUTH_LINKS.md. Recebimento/Android pendentes; sem garantia de revogacao de JWT imediatamente emvalidacao offline.

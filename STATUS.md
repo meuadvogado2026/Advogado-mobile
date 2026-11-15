@@ -964,3 +964,9 @@ troca de senha. Spec 003 nao deve gerar AAB sem os gates humanos de release.
 ## SPEC-020 - Feedback de acoes (2026-11-14)
 
 Dialogos nativos confirmam envio de oracao e exibem busca vazia, selecao incompleta, falha de localizacao ou API. Busca encontrada segue para perfil. Busca por cidade alerta vazio/erro somente enquanto tela ativa. VersionCode 7 preparado para novo APK preview. Harness local: 33 testes, tipos e smoke estrutural OK. Teste Android fisico continua pendente; nao e liberacao Play.
+
+## SPEC-024 - Acesso seguro / 2026-11-15
+
+Estado: EM_VALIDACAO; nao homologado. Fonte em worktree `.codex-auth-024`, branch `feat/secure-auth-resend`, preservando checkout original.
+Recuperacao e convite por link oficial Supabase, enviado via API Resend no backend. Nenhuma senha em e-mail. Formulario consome token_hash recovery apenas no POST; nenhum JWT de recuperacao entregue ao app/browser. API aditiva `/v1/auth/password-recovery` e `/v1/auth/password-reset`; reenvio admin preserva identidade. Sem nova migration. API antes web/mobile, com smoke e rollback de app/web antes de remover contratos.
+Harness e limites em AUTH_LINKS.md; evidencias gerais `../../harness-results/spec024-acesso-seguro-resend.md` a partir do worktree. Aceitacao pelo provedor nao comprova recebimento. Android/APK, Google real, configuracao e entrega Resend ainda precisam de prova. Nao e 10/10 nem aprovacao Play.

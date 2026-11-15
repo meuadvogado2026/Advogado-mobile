@@ -169,15 +169,42 @@ export function createAuthService({
     }
 
     if (isExpired(session)) {
-      await sessionStorage.clear();
-      return null;
+      if (!session.refreshToken) { await sessionStorage.clear(); return null; }
+      let response: Response;
+      try {
+        response = await fetchImpl(`${config.supabaseUrl}/auth/v1/token?grant_type=refresh_token`, {
+          method: "POST", signal: AbortSignal.timeout(15_000),
+          headers: { apikey: config.supabaseAnonKey, "Content-Type": "application/json" },
+          body: JSON.stringify({ refresh_token: session.refreshToken })
+        });
+      } catch { throw authError("SESSAO_REDE_INDISPONIVEL"); }
+      if (!response.ok) {
+        if (response.status === 400 || response.status === 401 || response.status === 403) await sessionStorage.clear();
+        return null;
+      }
+      const body = await response.json() as SupabasePasswordResponse;
+      if (!body.access_token || !body.refresh_token) { await sessionStorage.clear(); return null; }
+      const refreshed: Session = { accessToken: body.access_token, refreshToken: body.refresh_token,
+        expiresAt: body.expires_at ?? Math.floor(Date.now() / 1000) + (body.expires_in ?? 3600), email: body.user?.email ?? session.email };
+      await sessionStorage.set(refreshed);
+      return refreshed;
     }
 
     return session;
   }
 
   async function signOut() {
+    const session = await sessionStorage.get();
+    // Local cleanup always succeeds even offline; remote revoke is best effort.
     await sessionStorage.clear();
+    if (session?.accessToken) {
+      try {
+        await fetchImpl(`${config.supabaseUrl}/auth/v1/logout?scope=local`, {
+          method: "POST", signal: AbortSignal.timeout(10_000),
+          headers: { apikey: config.supabaseAnonKey, Authorization: `Bearer ${session.accessToken}` }
+        });
+      } catch { /* Offline logout cannot promise remote refresh revocation. */ }
+    }
   }
 
   return { signIn, signInWithGoogle, getSession, signOut };
