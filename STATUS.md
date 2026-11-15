@@ -976,3 +976,7 @@ Preparacao de PR e CI independente por repositorio. Adicionado quality.yml com N
 
 ### PR e CI remoto - 2026-11-15
 PR rascunho: https://github.com/meuadvogado2026/Advogado-mobile/pull/12. CI Node22/Linux do candidato passou (run43721766838), com npmci, Harness e audit-high; artefatos baixados na raiz harness-results/spec024-ci-mobile. Producao ainda nao atualizada. Confirmacao de AUTH_IP_SOURCE no Runtime e prova de envio/recebimento/Android continuam pendentes. CI e revisao de candidato, nao homologacao de produto.
+
+## Preparacao do preview Auth024 - 2026-11-15
+
+Inventario EAS Android completo nesta leitura:31builds, maior versionCode7. Candidato passa para versionCode8 (app0.1.1), mantendo package/keystore/certificado; smokeestrutural exige8. API/webAuth foram publicados; fluxo humano deemail esta emreteste apos ambiguidadedeagrupamentoGmail. BuildAPK ainda NAO iniciado: aguardar reset/convite reais. Nenhum AAB/Play ou linklanding alterado. Prova do inventario em harness-results/spec024-eas-inventory.json na raiz de governanca.

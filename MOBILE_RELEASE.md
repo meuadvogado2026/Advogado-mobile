@@ -171,3 +171,7 @@ Nao gerar novo builder antes de:
 ## SPEC-020 - Feedback de acoes (2026-11-14)
 
 Dialogos nativos confirmam envio de oracao e exibem busca vazia, selecao incompleta, falha de localizacao ou API. Busca encontrada segue para perfil. Busca por cidade alerta vazio/erro somente enquanto tela ativa. VersionCode 7 preparado para novo APK preview. Harness local: 33 testes, tipos e smoke estrutural OK. Teste Android fisico continua pendente; nao e liberacao Play.
+
+## Preparacao do preview Auth024 - 2026-11-15
+
+Inventario EAS Android completo nesta leitura:31builds, maior versionCode7. Candidato passa para versionCode8 (app0.1.1), mantendo package/keystore/certificado; smokeestrutural exige8. API/webAuth foram publicados; fluxo humano deemail esta emreteste apos ambiguidadedeagrupamentoGmail. BuildAPK ainda NAO iniciado: aguardar reset/convite reais. Nenhum AAB/Play ou linklanding alterado. Prova do inventario em harness-results/spec024-eas-inventory.json na raiz de governanca.
